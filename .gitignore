@@ -18,7 +18,11 @@ dist/
 
 # Package files
 *.jar
+# Ignore venv (virtual environment)
+venv/
 
+# Ignore .env file for environment variables
+.env
 # Maven
 target/
 dist/
