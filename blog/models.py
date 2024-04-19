@@ -2,11 +2,14 @@
 from django.db import models
 from ckeditor.fields import RichTextField
 from django.contrib.auth import get_user_model
-from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 User = get_user_model()
 
 
-# Create your models here.  
+# Create your models here. 
+def upload_to(instance, filename):
+    return 'blog/{filename}'.format(filename=filename)
+
 class Tag(models.Model):
     name = models.TextField(max_length=50)
     
@@ -23,6 +26,7 @@ class Category(models.Model):
 class Post(models.Model):
     title = models.CharField(max_length=100)
     content = RichTextField(config_name='default')
+    image = models.ImageField(_('Image'), upload_to=upload_to, default='blog/default.jpg')
     date = models.DateTimeField(auto_now_add=True)
     scheduled_date = models.DateTimeField(null=True, blank=True)
     tag = models.ManyToManyField(Tag, blank=True)
@@ -38,14 +42,6 @@ class Post(models.Model):
     def __str__(self):
         return self.title
     
-    def save(self, *args, **kwargs):
-        if self.scheduled_date is not None and self.scheduled_date > timezone.now():
-            # Post is scheduled for the future, do not update the date field
-            super().save(*args, **kwargs)
-        else:
-            # Post is not scheduled or scheduled for the past, update the date field
-            self.date = timezone.now()
-            super().save(*args, **kwargs)
     
 class Comment(models.Model):
     username = models.CharField(max_length=50, null=True)
