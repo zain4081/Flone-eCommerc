@@ -51,7 +51,7 @@ const TrendingBlog = () => {
                 <div className="ml-20">
                   <div className="row">
                     {/* blog posts */}
-                    <BlogPosts posts={posts} />
+                    <BlogPosts posts={posts} root='http://127.0.0.1/blog/posts' />
                   </div>
 
                 </div>

@@ -1,7 +1,7 @@
 import React, { Fragment, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
-const BlogPost = () => {
+const BlogPost = (root) => {
   const { id } = useParams();
   const check = id;
   const [post, setPost] = useState(null);
@@ -113,7 +113,7 @@ const BlogPost = () => {
         <div className="blog-details-img">
           <img
             alt=""
-            src={process.env.PUBLIC_URL + "/assets/img/blog/blog-5.jpg"}
+            src={post.image}
           />
         </div>
         <div className="blog-details-content">
@@ -130,31 +130,6 @@ const BlogPost = () => {
           <h3>{post.title} i</h3>
           <p dangerouslySetInnerHTML={{ __html:(post.content) }}/>
         </div>
-      </div>
-      <div className="dec-img-wrapper">
-        <div className="row">
-          <div className="col-md-6">
-            <div className="dec-img mb-50">
-              <img
-                alt=""
-                src={
-                  process.env.PUBLIC_URL + "/assets/img/blog/blog-details.jpg"
-                }
-              />
-            </div>
-          </div>
-          <div className="col-md-6">
-            <div className="dec-img mb-50">
-              <img
-                alt=""
-                src={
-                  process.env.PUBLIC_URL + "/assets/img/blog/blog-details-2.jpg"
-                }
-              />
-            </div>
-          </div>
-        </div>
-        <p dangerouslySetInnerHTML={{ __html:(post.content).slice(0, 200) }}/>
       </div>
       <div className="tag-share">
         <div className="dec-tag">

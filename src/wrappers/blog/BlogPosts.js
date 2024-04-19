@@ -1,12 +1,10 @@
 import React, { Fragment} from "react";
 import { Link } from "react-router-dom";
 
-
-const BlogPosts = (posts) => {
+const BlogPosts = (posts, url) => {
   const fetchposts= posts.posts;
   console.log("blogposts data: ", fetchposts);
   
- 
   // date formate
    const formatDate = (dateString) => {
     const options = { day: '2-digit', month: 'long', year: 'numeric' };
@@ -21,7 +19,7 @@ const BlogPosts = (posts) => {
           <div className="blog-img-2">
             <Link to={process.env.PUBLIC_URL + "/blog-details-standard/"+post.id}>
               <img
-                src={process.env.PUBLIC_URL + "/assets/img/blog/blog-9.jpg"}
+                src={post.image}
                 alt={post.title}
               />
             </Link>
