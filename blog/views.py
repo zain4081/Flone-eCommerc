@@ -2,11 +2,15 @@ from collections import Counter
 from django.shortcuts import render
 from blog.models import *
 from blog.serializer import *
-from rest_framework import viewsets, status
+from rest_framework import viewsets
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from blog.paginator import default_paginator
 from datetime import timedelta
+from rest_framework.parsers import MultiPartParser, FormParser
 from django.utils import timezone
+
+
 
 
 # Create your views here.
@@ -37,6 +41,17 @@ class PostViewSet(viewsets.ModelViewSet):
         serializer = PostSerializer(trending_posts, many=True)
         return Response(serializer.data)
     
+
+class AdminImageUpload(APIView):
+    parser_classes = [MultiPartParser, FormParser]
+    
+    def post(self, request, format=None):
+        print(request.data)
+        serializer = PostSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors)
     
 class Postswithoutpagination(viewsets.ModelViewSet):
     queryset = Post.objects.prefetch_related('post_likes')
