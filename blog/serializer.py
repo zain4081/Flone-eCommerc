@@ -1,7 +1,7 @@
 from .models import *
 from rest_framework import serializers
 from django.db.models import Count
-
+from django.conf import settings
 
 class PostSerializer(serializers.ModelSerializer):
     likes_count = serializers.SerializerMethodField()

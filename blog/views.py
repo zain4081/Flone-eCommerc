@@ -13,6 +13,7 @@ from django.utils import timezone
 
 
 
+
 # Create your views here.
 
 class PostViewSet(viewsets.ModelViewSet):
@@ -20,26 +21,18 @@ class PostViewSet(viewsets.ModelViewSet):
     serializer_class = PostSerializer
     pagination_class = default_paginator
     
-    def get_popular_posts(self):
-        # Most Popular Posts ( fetching through likes count)
-        popular_posts = Post.objects.annotate(like_count=Count('post_likes')).order_by('-like_count')[:3]
-        return popular_posts
 
-    def get_trending_posts(self):
-        # Trending Posts (selecting those posts which are being commented or liked recently)
-        trending_posts = Post.objects.filter(comments__date__gte=timezone.now() - timedelta(days=7)).distinct()[:3]
-        print(trending_posts)
-        return trending_posts
+    
+class PostViewTrending(viewsets.ModelViewSet):
+    queryset = Post.objects.filter(comments__date__gte=timezone.now() - timedelta(days=7)).distinct()[:3].prefetch_related('post_likes')
+    serializer_class = PostSerializer
 
-    def list_popular_posts(self, request):
-        popular_posts = self.get_popular_posts()
-        serializer = PostSerializer(popular_posts, many=True)
-        return Response(serializer.data)
-
-    def list_trending_posts(self, request):
-        trending_posts = self.get_trending_posts()
-        serializer = PostSerializer(trending_posts, many=True)
-        return Response(serializer.data)
+class PostViewPopular(viewsets.ModelViewSet):
+    queryset = Post.objects.annotate(like_count=Count('post_likes')).order_by('-like_count')[:3].prefetch_related('post_likes')
+    serializer_class = PostSerializer
+    
+    
+    
     
 
 class AdminImageUpload(APIView):
