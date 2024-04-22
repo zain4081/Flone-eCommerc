@@ -1,5 +1,5 @@
 import React, { Fragment, useEffect, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom"; 
+import { Link, useNavigate, useLocation } from "react-router-dom"; 
 import { useDispatch } from "react-redux";
 import { useRegisterUserMutation, useLoginUserMutation } from "../../services/userAuthApi";
 import { getToken, storeToken } from "../../services/localStorageService";
@@ -42,7 +42,7 @@ const LoginRegister = () => {
       storeToken(res.data.token)
       let { access_token } = getToken()
       dispatch(setUserToken({ access_token: access_token }))
-      navigate('/blog-standard')
+      navigate('/')
     }
   };
   let { access_token } = getToken()

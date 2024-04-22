@@ -86,28 +86,18 @@ const BlogComment = () => {
         {comments.map((comment) => renderComment(comment))}
       </div>
       <div className="blog-reply-wrapper mt-50">
-        <h4 className="blog-dec-title">post a comment</h4>
-        <form className="blog-form">
-          <div className="row">
-            <div className="col-md-6">
-              <div className="leave-form">
-                <input type="text" placeholder="Full Name" />
-              </div>
-            </div>
-            <div className="col-md-6">
-              <div className="leave-form">
-                <input type="email" placeholder="Email Address " />
-              </div>
-            </div>
-            <div className="col-md-12">
-              <div className="text-leave">
-                <textarea placeholder="Message" defaultValue={""} />
-                <input type="submit" defaultValue="SEND MESSAGE" />
-              </div>
+      <h4 className="blog-dec-title">Post a Reply</h4>
+      <form className="blog-form">
+        <div className="row">
+          <div className="col-md-12">
+            <div className="text-leave">
+              <input type="text" placeholder="Write your reply here" />
+              <button type="submit"><i className="fa fa-angle-double-right"></i></button>
             </div>
           </div>
-        </form>
-      </div>
+        </div>
+      </form>
+    </div>
     </Fragment>
   );
 };

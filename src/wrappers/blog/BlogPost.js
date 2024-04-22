@@ -11,7 +11,8 @@ const BlogPost = (root) => {
   useEffect(() => {
     const fetchBlogPost = async () => {
       try {
-        const url = `http://127.0.0.1:8000/blog/posts_wp/${id}/`;
+        const post_id = id ? id : post[0].id
+        const url = `http://127.0.0.1:8000/blog/posts_wp/${post_id}/`;
         const response = await fetch(url);
         
         if (!response.ok) {
@@ -27,7 +28,6 @@ const BlogPost = (root) => {
     };
 
     fetchBlogPost();
-    console.log("post == ", post);
   }, [id]);
 
   // next previous post id

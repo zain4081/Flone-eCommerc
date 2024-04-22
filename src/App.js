@@ -2,6 +2,7 @@ import { Suspense, lazy } from "react";
 import ScrollToTop from "./helpers/scroll-top";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+
 // home pages
 const HomeFashion = lazy(() => import("./pages/home/HomeFashion"));
 const HomeFashionTwo = lazy(() => import("./pages/home/HomeFashionTwo"));
@@ -105,6 +106,7 @@ const Wishlist = lazy(() => import("./pages/other/Wishlist"));
 const Compare = lazy(() => import("./pages/other/Compare"));
 const Checkout = lazy(() => import("./pages/other/Checkout"));
 
+const VerifyEmail = lazy(() => import("./pages/other/VerifyEmail"));
 const NotFound = lazy(() => import("./pages/other/NotFound"));
 
 const App = () => {
@@ -352,8 +354,8 @@ const App = () => {
                 element={access_token ? <BlogStandard/> : <Navigate to="/login-register"/>}
               />
               <Route
-                path={process.env.PUBLIC_URL + "/trending_blog"}
-                element={access_token ? <TrendingBlog/> : <Navigate to="/login-register"/>}
+              path={process.env.PUBLIC_URL + "/trending_blog"}
+              element={access_token ? <TrendingBlog /> : <Navigate to="/login-register"/>}
               />
               <Route
                 path={process.env.PUBLIC_URL + "/top_blog"}
@@ -404,6 +406,10 @@ const App = () => {
               <Route
                 path={process.env.PUBLIC_URL + "/login-register"}
                 element={!access_token ? <LoginRegister/> : <Navigate to="/"/>}
+              />
+              <Route
+                path={process.env.PUBLIC_URL + "/verify-email/:token"}
+                element={<VerifyEmail/>}
               />
               <Route
                 path={process.env.PUBLIC_URL + "/"}

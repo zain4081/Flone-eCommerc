@@ -12,6 +12,7 @@ import { getToken } from "../../services/localStorageService";
 
 const MyAccount = () => {
   const [ server_error, setServerError ] = useState({});
+  const [ success, setSuccessMsg ] = useState();
   let { pathname } = useLocation();
   const [changePassword] = useChangePasswordMutation();
   // const { server_error, setServerError} = useState();
@@ -30,13 +31,19 @@ const MyAccount = () => {
   console.log("password = ", changePasswordData);
   const res = await changePassword({"userdata": changePasswordData, "access_token": access_token});
     if(res.error){
+      setSuccessMsg("")
       setServerError(res.error.data.errors)
       console.log("errors are", res.error.data.errors)
       console.log("password2 ", res.error.data.errors.password2[0])
     }
     if(res.data){
       console.log("data is ", res.data)
-
+      setChangePasswordData({
+        password: "",
+        password2: "",
+      });
+      setServerError("")
+      setSuccessMsg(res.data.msg)
     }
   };
 
@@ -133,6 +140,7 @@ const MyAccount = () => {
                                   >
                                     {server_error.password ? server_error.password[0]: null}
                                   </span>
+                                  
                                   <input
                                     type="password"
                                     value={changePasswordData.password}
@@ -159,6 +167,11 @@ const MyAccount = () => {
                                     className="error" 
                                   >
                                     {server_error.non_field_errors ? server_error.non_field_errors[0]: null}
+                                  </span>
+                                  <span 
+                                    className="success" 
+                                  >
+                                    {success ? success: null}
                                   </span>
                                 </div>
                               </div>
