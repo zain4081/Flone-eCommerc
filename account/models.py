@@ -1,5 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import BaseUserManager,AbstractBaseUser
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+import uuid
+from account.utils import Util
+import secrets
 
 #  Custom User Manager
 class UserManager(BaseUserManager):
@@ -32,6 +37,7 @@ class UserManager(BaseUserManager):
       )
       user.tc = True
       user.is_admin = True
+      user.is_verified = True
       user.save(using=self._db)
       return user
 
@@ -53,6 +59,9 @@ class User(AbstractBaseUser):
   is_admin = models.BooleanField(default=False)
   created_at = models.DateTimeField(auto_now_add=True)
   updated_at = models.DateTimeField(auto_now=True)
+  is_verified = models.BooleanField(default=False)
+  verification_token = models.CharField(max_length=100, blank=True)
+
 
   objects = UserManager()
 
@@ -72,12 +81,22 @@ class User(AbstractBaseUser):
       # Simplest possible answer: Yes, always
       return True
 
+  def generate_verification_token(self):
+        self.verification_token = secrets.token_urlsafe(32)
+
+  def verify_email(self, token):
+        if token == self.verification_token:
+            self.tc = True
+            self.verification_token = ""
+            self.save()
+            return True
+        return False
+
   @property
   def is_staff(self):
       "Is the user a member of staff?"
       # Simplest possible answer: All admins are staff
       return self.is_admin
-
 
 
 

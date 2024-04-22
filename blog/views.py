@@ -70,7 +70,7 @@ class CommentViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset().prefetch_related('comment_likes')
         count = queryset.count()
-        serializer = self.get_serializer(queryset, many=True)
+        serializer = self.get_serializer(queryset, many=True, context={'depth': 3})
         
         data = {
             'count': count,

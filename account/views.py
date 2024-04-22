@@ -3,6 +3,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 from account.serializers import SendPasswordResetEmailSerializer, UserChangePasswordSerializer, UserLoginSerializer, UserPasswordResetSerializer, UserProfileSerializer, UserRegistrationSerializer
 from django.contrib.auth import authenticate
+from account.models import User
 from account.renderers import UserRenderer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
@@ -23,6 +24,30 @@ class UserRegistrationView(APIView):
     user = serializer.save()
     token = get_tokens_for_user(user)
     return Response({'token':token, 'msg':'Registration Successful'}, status=status.HTTP_201_CREATED)
+  
+
+class UserEmailVerification(APIView):
+  renderer_classes = [UserRenderer]
+  def get(self, request):
+        token = request.headers.get('Authorization')
+        if not token:
+            return Response({'error': 'Token is missing'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Assuming the token is sent as 'Bearer YOUR_TOKEN_HERE'
+        parts = token.split()
+        if len(parts) != 2 or parts[0].lower() != 'bearer':
+            return Response({'error': 'Invalid token format'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        token = parts[1]
+        user = User.objects.filter(verification_token=token).first()
+        if not user:
+            return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
+        if user.tc:
+            return Response({'msg': 'Email already verified'}, status=status.HTTP_200_OK)
+        if user.verify_email(token):
+            return Response({'msg': 'Email verified successfully'}, status=status.HTTP_200_OK)
+        return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
+  
 
 class UserLoginView(APIView):
   renderer_classes = [UserRenderer]
@@ -33,8 +58,11 @@ class UserLoginView(APIView):
     password = serializer.data.get('password')
     user = authenticate(email=email, password=password)
     if user is not None:
-      token = get_tokens_for_user(user)
-      return Response({'token':token, 'msg':'Login Success'}, status=status.HTTP_200_OK)
+      if user.tc:
+        token = get_tokens_for_user(user)
+        return Response({'token':token, 'msg':'Login Success'}, status=status.HTTP_200_OK)
+      else:
+        return Response({'errors':{'non_field_errors':['Email Not Verified']}}, status=status.HTTP_400_BAD_REQUEST)
     else:
       return Response({'errors':{'non_field_errors':['Email or Password is not Valid']}}, status=status.HTTP_404_NOT_FOUND)
 

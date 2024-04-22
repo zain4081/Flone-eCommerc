@@ -3,6 +3,10 @@ from django.db import models
 from ckeditor.fields import RichTextField
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.core.mail import send_mail
+
 User = get_user_model()
 
 
@@ -44,8 +48,6 @@ class Post(models.Model):
     
     
 class Comment(models.Model):
-    username = models.CharField(max_length=50, null=True)
-    useremail = models.EmailField(null=True, blank=True)
     date = models.DateField(auto_now_add=True)
     content = models.TextField(max_length=700)
     post = models.ForeignKey(Post, on_delete=models.CASCADE, null=True, blank=True,  related_name='comments')
@@ -76,3 +78,6 @@ class Like(models.Model):
 
     def __str__(self):
         return f"{self.status} by {self.user.username}"
+    
+    
+    

@@ -4,6 +4,7 @@ from django.utils.encoding import smart_str, force_bytes, DjangoUnicodeDecodeErr
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from account.utils import Util
+import os
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
   # We are writing this becoz we need confirm password field in our Registratin Request
@@ -16,15 +17,25 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     }
 
   # Validating Password and Confirm Password while Registration
-  def validate(self, attrs):
-    password = attrs.get('password')
-    password2 = attrs.get('password2')
+  def create(self, validated_data):
+    password = validated_data.pop('password')
+    password2 = validated_data.pop('password2')
     if password != password2:
-      raise serializers.ValidationError("Password and Confirm Password doesn't match")
-    return attrs
+        raise serializers.ValidationError("Password and Confirm Password don't match")
 
-  def create(self, validate_data):
-    return User.objects.create_user(**validate_data)
+    user = User.objects.create_user(**validated_data, password=password)
+    user.generate_verification_token()
+    user.save()
+
+    verification_link = f"{os.environ.get('WEBISTE')}/verify-email/{user.verification_token}"
+    data = {
+        'subject': 'Email verification',
+        'body': f"Please click the following link to verify your email: {verification_link}",
+        'to_email': user.email
+    }
+    Util.send_email(data)
+    return user
+
 
 class UserLoginSerializer(serializers.ModelSerializer):
   email = serializers.EmailField(max_length=255)
