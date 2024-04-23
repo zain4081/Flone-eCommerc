@@ -43,15 +43,18 @@ class RecursiveCommentSerializer(serializers.ModelSerializer):
 class CommentSerializer(serializers.ModelSerializer):
     likes_count = serializers.SerializerMethodField()
     replies = RecursiveCommentSerializer(many=True, read_only=True)
+    user_name = serializers.SerializerMethodField()
+
 
     def get_likes_count(self, comment):
         return Like.objects.filter(comment=comment).count()
     
+    def get_user_name(self, comment):
+        return comment.user.name if comment.user else None
+    
     class Meta:
         model = Comment
         fields = "__all__"
-
-
         
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
