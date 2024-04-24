@@ -22,3 +22,6 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 _gsdata_
+
+#extra files
+src/wrappers/blog/BlogLikes.js
