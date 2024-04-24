@@ -28,9 +28,22 @@ export const blogApi = createApi({
           },
         }),
     }),
+    submitReply: builder.mutation({
+      query:({data, access_token, postId})=>{
+          console.log('q userdata',data)
+          return{
+              url:`posts/${postId}/comments/`,
+              method: 'POST',
+              body: data,
+              headers: {
+                  'authorization': `Bearer ${access_token}`,
+              },
+          }
+      }
+    }),
   }),
 })
 
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
-export const { useSubmitCommentMutation, useGetCommentsMutation } = blogApi;
+export const { useSubmitCommentMutation, useGetCommentsMutation, useSubmitReplyMutation } = blogApi;
