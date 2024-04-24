@@ -6,11 +6,24 @@ export const blogApi = createApi({
   baseQuery: fetchBaseQuery({ baseUrl: 'http://127.0.0.1:8000/blog/' }),
   endpoints: (builder) => ({
     submitComment: builder.mutation({
-        query:({data, access_token})=>{
+        query:({data, access_token, postId})=>{
             console.log('q userdata',data)
             console.log('q access_token',access_token)
             return{
-                url:`posts/${data.post}/comments/`,
+                url:`posts/${postId}/comments/`,
+                method: 'POST',
+                body: data,
+                headers: {
+                    'authorization': `Bearer ${access_token}`,
+                },
+            }
+        }
+      }),
+      submitReply: builder.mutation({
+        query:({data, access_token, postId})=>{
+            console.log('q userdata',data)
+            return{
+                url:`posts/${postId}/comments/`,
                 method: 'POST',
                 body: data,
                 headers: {
@@ -28,19 +41,7 @@ export const blogApi = createApi({
           },
         }),
     }),
-    submitReply: builder.mutation({
-      query:({data, access_token, postId})=>{
-          console.log('q userdata',data)
-          return{
-              url:`posts/${postId}/comments/`,
-              method: 'POST',
-              body: data,
-              headers: {
-                  'authorization': `Bearer ${access_token}`,
-              },
-          }
-      }
-    }),
+    
   }),
 })
 

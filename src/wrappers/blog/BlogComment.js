@@ -1,6 +1,6 @@
 import React, { Fragment, useCallback, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { getToken } from "../../services/localStorageService";
+import { getPostId, getToken } from "../../services/localStorageService";
 import { useSelector } from "react-redux";
 import {
   useGetCommentsMutation,
@@ -8,7 +8,7 @@ import {
   useSubmitReplyMutation,
 } from "../../services/blogApi";
 
-const BlogComment = () => {
+const BlogComment = (firstPostId) => {
   const { access_token } = getToken();
   const { id } = useParams();
   const [comments, setComments] = useState([]);
@@ -21,12 +21,92 @@ const BlogComment = () => {
   const [getComments] = useGetCommentsMutation();
   const [isReplying, setIsReplying] = useState(false);
 
+
+  // Comment Form Handler
+  const [commentFormData, setCommentFormData] = useState({
+    content: "",
+    post: "",
+    user: user_info.id,
+  });
+  
+  const handleCommentChange = (e) => {
+    setCommentFormData({
+      ...commentFormData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const toggleCommentForm = (postId, content) => {
+    setCommentFormData({
+      content: content,
+      post: postId,
+      user: user_info.id,
+    });
+  };
+  const handleCommentSubmit = async (e) => {
+    e.preventDefault();
+    console.log("current id", currentPostId)
+    console.log("id",id);
+    const res = await submitCommentForm({ "data": commentFormData, "access_token": access_token, "postId": currentPostId ? currentPostId : id});
+    if (res.error) {
+      console.log("errors are", res.error);
+    }
+    if (res.data) {
+      console.log("response of comments are",res.data);
+      fetchComments(); // Fetch comments again after submitting a new comment
+      setCommentFormData({  // Reset the form data
+        content: "",
+        post: currentPostId ? currentPostId : id,
+        user: user_info.id,
+      });
+    }
+  };
+
+  // Comment Reply Form handler
+  const [editFormData, setEditFormData] = useState({
+    content: "",
+    commentId: null,
+  });
+
+  const toggleEditForm = (commentId, content) => {
+    setEditFormData({
+      content: content,
+      parent_comment: commentId,
+      user: user_info.id,
+    });
+  };
+  
+  const handleEditChange = (e) => {
+    setEditFormData({
+      ...editFormData,
+      [e.target.name]: e.target.value,
+    });
+  };
+  
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    const res = await submitReplyForm({ "data": { ...editFormData }, "access_token": access_token, "postId": currentPostId ? currentPostId : id });
+    if (res.error) {
+      console.log("errors are", res.error);
+    }
+    if (res.data) {
+      fetchComments();
+      console.log("res.data", res.data)
+      // setIsEditing(null);
+      setEditFormData({
+        content: "",
+        commentId: null,
+      });
+    }
+  };
+
+
   // Fetch comments
   const fetchComments = useCallback(async () => {
     try {
       const postId = id ? id : await fetchFirstPostId();
       setCurrentPostId(postId);
-      const response = await fetch(`http://127.0.0.1:8000/blog/posts/${postId ? postId : '1'}/comments/`, {
+      const response = await fetch(`http://127.0.0.1:8000/blog/posts/${postId}/comments/`, {
         headers: {
           Authorization: `Bearer ${access_token}`,
         },
@@ -54,7 +134,7 @@ const BlogComment = () => {
   };
 
   const fetchFirstPostId = async () => {
-    const response = await fetch(`http://127.0.0.1:8000/blog/posts/`);
+    const response = await fetch(`http://127.0.0.1:8000/blog/first-post-id/`);
     const fetchFirstPostData = await response.json();
     return fetchFirstPostData.length > 0 ? fetchFirstPostData[0].id : null;
   };
@@ -71,41 +151,12 @@ const BlogComment = () => {
     return expandedComments.includes(commentId);
   };
 
-  // Submit comment reply
-  const [replyFormData, setReplyFormData] = useState({
-    content: "",
-    parent_comment: "",
-    user: user_info.id,
-  });
-  const handleReplyChange = (e) => {
-    setReplyFormData({
-      ...replyFormData,
-      [e.target.name]: e.target.value,
-    });
-  };
-  const handleReplySubmit = async (e) => {
-    e.preventDefault();
-    const res = await submitReplyForm({ "data": replyFormData, "access_token": access_token, "postId": currentPostId ? currentPostId : id });
-    if (res.error) {
-      console.log("errors are", res.error);
-    }
-    if (res.data) {
-      fetchComments(); // Fetch comments again after submitting a new comment
-      setReplyFormData({  // Reset the form data
-        content: "",
-        parent_comment: "",
-        user: user_info.id,
-      });
-      
-    }
-  };
-
+  // Render Comments and Replies
   const renderComment = (comment, depth = 0) => {
     const maxDepth = 3;
 
     const toggleReplyForm = (commentId) => {
       setIsReplying((prevId) => (prevId === commentId ? null : commentId));
-      setReplyFormData({ ...replyFormData, parent_comment: commentId });
     };
 
     return (
@@ -141,7 +192,7 @@ const BlogComment = () => {
         </div>
         {isReplying === comment.id && (
           <div className="reply-form-wrapper" style={{ marginLeft: `${(depth + 1) * 20}px` }}>
-            <form className="blog-form" onSubmit={handleReplySubmit}>
+            <form className="blog-form" onSubmit={handleEditSubmit}>
               <div className="row">
                 <div className="col-md-12">
                   <div className="text-leave">
@@ -149,10 +200,10 @@ const BlogComment = () => {
                       type="text"
                       name="content"
                       placeholder={`Reply ${comment.user_name}`}
-                      value={replyFormData.content}
-                      onChange={handleReplyChange}
+                      value={editFormData.content}
+                      onChange={handleEditChange}
                     />
-                    <button type="submit"><i className="fa fa-angle-right"></i></button>
+                    <button type="submit" onClick={() => toggleEditForm(comment.id, editFormData.content)}><i className="fa fa-angle-right"></i></button>
                   </div>
                 </div>
               </div>
@@ -166,33 +217,7 @@ const BlogComment = () => {
     );
   };
 
-  // Submit comment
-  const [commentFormData, setCommentFormData] = useState({
-    content: "",
-    post: currentPostId ? currentPostId : id,
-    user: user_info.id,
-  });
-  const handleCommentChange = (e) => {
-    setCommentFormData({
-      ...commentFormData,
-      [e.target.name]: e.target.value,
-    });
-  };
-  const handleCommentSubmit = async (e) => {
-    e.preventDefault();
-    const res = await submitCommentForm({ "data": commentFormData, "access_token": access_token });
-    if (res.error) {
-      console.log("errors are", res.error);
-    }
-    if (res.data) {
-      fetchComments(); // Fetch comments again after submitting a new comment
-      setCommentFormData({  // Reset the form data
-        content: "",
-        post: currentPostId ? currentPostId : id,
-        user: user_info.id,
-      });
-    }
-  };
+  
 
   return (
     <Fragment>
@@ -213,7 +238,7 @@ const BlogComment = () => {
                   value={commentFormData.content}
                   onChange={handleCommentChange}
                 />
-                <button type="submit"><i className="fa fa-angle-double-right"></i></button>
+                <button type="submit" onClick={() => toggleCommentForm(currentPostId ? currentPostId : id, commentFormData.content)}><i className="fa fa-angle-double-right"></i></button>
               </div>
             </div>
           </div>

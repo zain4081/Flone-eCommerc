@@ -9,6 +9,14 @@ const storeToken = (value) => {
     }
 }
 
+const storePostId = (value) => {
+    console.log("storepostId", value)
+    if (value) {
+        console.log("post",value)
+        localStorage.setItem('firstPostId', value)
+    }
+}
+
 const getToken = () => {
     let access_token = localStorage.getItem('access_token');
     let refresh_token = localStorage.getItem('refresh_token');
@@ -22,4 +30,12 @@ const removeToken = () => {
 
 }
 
-export {getToken, storeToken, removeToken};
+
+
+
+const getPostId = () => {
+    let firstPostId = localStorage.getItem('firstPostId');
+    return firstPostId
+}
+
+export {getToken, storeToken, removeToken, storePostId, getPostId};
