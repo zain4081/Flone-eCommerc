@@ -8,12 +8,12 @@ router = DefaultRouter()
 router.register('posts/popular', views.PostViewPopular, basename='post-popular')
 router.register('posts/trending', views.PostViewTrending, basename='post-trending')
 router.register('posts', views.PostViewSet, basename='post')
-
 router.register('posts_top', views.TopPosts, basename='top_post')
 router.register('posts_featured', views.FeaturedPosts, basename='featured_post')
 router.register('posts_wp', views.Postswithoutpagination, basename='post_wp')
 router.register(r'posts/(?P<post_id>\d+)/comments', views.CommentViewSet, basename='post-comments')
 router.register(r'posts/(?P<post_id>\d+)/likes', views.LikePostSet, basename='post-likes')
+# comments
 
 
 urlpatterns = [

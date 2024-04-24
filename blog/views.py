@@ -9,8 +9,8 @@ from blog.paginator import default_paginator
 from datetime import timedelta
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.utils import timezone
-
-
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.permissions import IsAuthenticated
 
 
 
@@ -21,7 +21,6 @@ class PostViewSet(viewsets.ModelViewSet):
     serializer_class = PostSerializer
     pagination_class = default_paginator
     
-
     
 class PostViewTrending(viewsets.ModelViewSet):
     queryset = Post.objects.filter(comments__date__gte=timezone.now() - timedelta(days=7)).distinct()[:3].prefetch_related('post_likes')
@@ -62,6 +61,7 @@ class FeaturedPosts(viewsets.ModelViewSet):
     
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
         post_id = self.kwargs.get('post_id')

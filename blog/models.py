@@ -1,4 +1,3 @@
-
 from django.db import models
 from ckeditor.fields import RichTextField
 from django.contrib.auth import get_user_model
@@ -78,6 +77,5 @@ class Like(models.Model):
 
     def __str__(self):
         return f"{self.status} by {self.user.username}"
-    
     
     

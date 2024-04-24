@@ -27,7 +27,8 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     user.generate_verification_token()
     user.save()
 
-    verification_link = f"{os.environ.get('WEBISTE')}/verify-email/{user.verification_token}"
+    verification_link = f"{os.environ.get('WEBSITE')}/verify-email/{user.verification_token}"
+    print(verification_link)
     data = {
         'subject': 'Email verification',
         'body': f"Please click the following link to verify your email: {verification_link}",
