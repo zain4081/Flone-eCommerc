@@ -17,6 +17,7 @@ class PostSerializer(serializers.ModelSerializer):
         
 class RecursiveCommentSerializer(serializers.ModelSerializer):
     likes_count = serializers.SerializerMethodField()
+    user_name = serializers.SerializerMethodField()
 
     def get_likes_count(self, comment):
         return Like.objects.filter(comment=comment).count()
@@ -27,6 +28,9 @@ class RecursiveCommentSerializer(serializers.ModelSerializer):
             return representation
         representation['replies'] = self.get_replies(instance)
         return representation
+    
+    def get_user_name(self, comment):
+        return comment.user.name if comment.user else None
 
     def get_replies(self, obj):
         replies = Comment.objects.filter(parent_comment=obj)
@@ -34,6 +38,8 @@ class RecursiveCommentSerializer(serializers.ModelSerializer):
             return []
         serializer = RecursiveCommentSerializer(replies, many=True, context=self.context)
         return serializer.data
+    
+    
 
     class Meta:
         model = Comment
@@ -70,5 +76,11 @@ class LikeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Like
         fields= "__all__"
+        
+
+class FirstPostIdSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Post
+        fields = ['id']
 
 

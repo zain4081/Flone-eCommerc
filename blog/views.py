@@ -2,7 +2,7 @@ from collections import Counter
 from django.shortcuts import render
 from blog.models import *
 from blog.serializer import *
-from rest_framework import viewsets
+from rest_framework import viewsets, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from blog.paginator import default_paginator
@@ -31,7 +31,11 @@ class PostViewPopular(viewsets.ModelViewSet):
     serializer_class = PostSerializer
     
     
-    
+class FirstPostIdView(generics.ListAPIView):
+    serializer_class = FirstPostIdSerializer
+
+    def get_queryset(self):
+        return Post.objects.all()[:1]
     
 
 class AdminImageUpload(APIView):

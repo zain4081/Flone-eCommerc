@@ -18,6 +18,8 @@ router.register(r'posts/(?P<post_id>\d+)/likes', views.LikePostSet, basename='po
 
 urlpatterns = [
     path('posts/create/', views.AdminImageUpload.as_view(), name='post_create'),
+    path('first-post-id/', views.FirstPostIdView.as_view(), name='first-post-id'),
+
 ]
 
 urlpatterns += router.urls
