@@ -20,6 +20,7 @@ import { userAuthApi } from "../services/userAuthApi";
 import authReducer from "../store/slices/auth-slice";
 import userReducer from "../store/slices/userInfo-slice";
 import pageReducer from "../store/slices/pagination-slice";
+import { blogApi } from '../services/blogApi';
 
 const persistConfig = {
     key: "flone",
@@ -38,6 +39,8 @@ export const rootReducer = combineReducers({
     auth: authReducer,
     user: userReducer,
     page: pageReducer,
+    [blogApi.reducerPath]: blogApi.reducer,
+    
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -57,7 +60,7 @@ export const store = configureStore({
                 ],
             },
             
-        }).concat(userAuthApi.middleware),
+        }).concat((userAuthApi.middleware),(blogApi.middleware))
 });
 
 export const persistor = persistStore(store);

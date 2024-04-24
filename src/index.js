@@ -14,6 +14,8 @@ import "./assets/scss/style.scss";
 import "./i18n";
 
 
+
+
 store.dispatch(setProducts(products));
 
 const container = document.getElementById('root');

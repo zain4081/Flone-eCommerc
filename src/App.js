@@ -2,6 +2,8 @@ import { Suspense, lazy } from "react";
 import ScrollToTop from "./helpers/scroll-top";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import AuthComponent from "./components/AuthComponent";
+
 
 // home pages
 const HomeFashion = lazy(() => import("./pages/home/HomeFashion"));
@@ -113,6 +115,7 @@ const App = () => {
   const { access_token } = useSelector(state => state.auth)
   return (
       <Router>
+
         <ScrollToTop>
           <Suspense
             fallback={
@@ -124,6 +127,7 @@ const App = () => {
               </div>
             }
           >
+            <AuthComponent />
             <Routes>
               <Route
                 path={process.env.PUBLIC_URL + "/"}
