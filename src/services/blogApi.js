@@ -32,6 +32,45 @@ export const blogApi = createApi({
             }
         }
       }),
+      
+      getVote: builder.mutation({
+        query:({postId, access_token})=>{
+            console.log('q access_token: ', access_token);
+            return{
+                url:`user-votes/${postId}`,
+                method: 'GET',
+                headers: {
+                  'authorization': `Bearer ${access_token}`,
+              },
+            }
+        }
+      }),
+      submitVote: builder.mutation({
+        query:({data, postId})=>{
+            console.log('q userdata',data)
+            return{
+                url:`posts/${postId}/likes/`,
+                method: 'POST',
+                body: data,
+                headers: {
+                  'Content-Type': 'application/json'
+              },
+            }
+        }
+      }),
+      updateVote: builder.mutation({
+        query:({data, postId})=>{
+            console.log('q userdata',data)
+            return{
+                url:`posts/${postId}/likes/${data.id}/`,
+                method: 'PUT',
+                body: data,
+                headers: {
+                  'Content-Type': 'application/json'
+              },
+            }
+        }
+      }),
     getComments: builder.mutation({
         query: (postId, token) => ({
           url: `posts/${postId}/`,
@@ -47,4 +86,4 @@ export const blogApi = createApi({
 
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
-export const { useSubmitCommentMutation, useGetCommentsMutation, useSubmitReplyMutation } = blogApi;
+export const { useSubmitCommentMutation, useGetCommentsMutation, useSubmitReplyMutation, useSubmitVoteMutation, useUpdateVoteMutation, useGetVoteMutation,  } = blogApi;

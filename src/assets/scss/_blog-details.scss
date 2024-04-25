@@ -422,3 +422,26 @@
     }
   }
 }
+
+
+.votes-section {
+  display: inline-block;
+  margin-right: 10px;
+}
+
+
+
+/* Style for the "not_hit" state */
+.votes-section .not_hit {
+  color: #333; /* Change the color to match your design */
+}
+
+/* Style for the "like" state */
+.votes-section .like {
+  color: $theme-color; /* Change the color to match your design */
+}
+
+/* Animation when the icon is clicked */
+.votes-section span.clicked {
+  transform: scale(1.2); /* Scale the icon up by 20% */
+}

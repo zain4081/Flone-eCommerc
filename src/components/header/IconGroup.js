@@ -61,11 +61,11 @@ const IconGroup = ({ iconWhiteClass }) => {
         >
           
           <i className="pe-7s-user-female" />
-          <span>{user_info? user_info.name: " "}</span>
+          <span>{user_info && access_token != null? user_info.name: " "}</span>
         </button>
         <div className="account-dropdown">
           <ul>
-            {access_token ?
+            {access_token && user_info ?
               <>
               <li>
                 <Link to={process.env.PUBLIC_URL + "/my-account"}>

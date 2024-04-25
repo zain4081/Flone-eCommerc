@@ -1,7 +1,8 @@
 import React, { Fragment, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { Link, useParams } from "react-router-dom";
+import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { getToken } from "../../services/localStorageService";
+import { useGetVoteMutation, useSubmitVoteMutation, useUpdateVoteMutation } from "../../services/blogApi";
 
 const BlogPost = () => {
   const { id } = useParams();
@@ -9,35 +10,67 @@ const BlogPost = () => {
   const [post, setPost] = useState(null);
   const [prevID, setPrevPostId] = useState(null);
   const [nextID, setNextPostId] = useState(null);
-  const [userVote, setUserVote] = useState(null);
   const { access_token } = getToken();
+  const navigate = useNavigate();
   const user_info = useSelector((state) => state.user);
 
-  useEffect(() => {
-    const fetchBlogPost = async () => {
-      try {
-        const post_id = id ? id : post[0].id
-        const url = `http://127.0.0.1:8000/blog/posts_wp/${post_id}/`;
-        const response = await fetch(url);
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch data');
-        }
-        
-        const postData = await response.json();
-        setPost(postData);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        // Optionally, you can handle the error here
-      }
-    };
+  // vote
+  const [vote, setVote] = useState(null);
+  const [ isVoted, setIsVoted] = useState(false);
+  const [ submitVote] = useSubmitVoteMutation();
+  const [ getVote ] = useGetVoteMutation();
+  const [ updateVote ] = useUpdateVoteMutation();
 
+  useEffect(() => {
+    fetchPostVote();
     fetchBlogPost();
+    
   }, [id]);
+
+  const fetchBlogPost = async () => {
+    console.log("fetchBlogPost")
+    try {
+      const post_id = id ? id : post[0].id
+      const url = `http://127.0.0.1:8000/blog/posts_wp/${post_id}/`;
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch data');
+      }
+      
+      const postData = await response.json();
+      setPost(postData);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      // Optionally, you can handle the error here
+    }
+  };
+  const fetchPostVote = async () => {
+    console.log("fetchPostVote")
+    try {
+      const response = await getVote({"postId": id ? id : post[0].id, "access_token": access_token});
+      if(response.data){
+        
+        setIsVoted(response.data.status === "like" ?  "true" : "false");
+        setVote(response.data)
+
+      }
+      if(response.error){
+        console.log("response.error", response.error);
+        setIsVoted(false);
+        setVote(null);
+      }
+    }
+    catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  }
+  
 
   // next previous post id
   useEffect(() => {
     const fetchAdjacentPosts = async () => {
+      console.log("fetchAdjacentPosts")
       try {
         const response = await fetch("http://127.0.0.1:8000/blog/posts_wp/");
         if (!response.ok) {
@@ -68,6 +101,8 @@ const BlogPost = () => {
             
             setNextPostId(null);
             setPrevPostId(null);
+            setIsVoted(false);
+            setVote(null);
           }
         } else {
           const currentIndex = postData.findIndex(post => post.id === parseInt(id));
@@ -89,6 +124,7 @@ const BlogPost = () => {
   
             // Set the current post
             setPost(postData[currentIndex]);
+            
           } else {
             // Reset nextPostId and prevPostId if currentIndex is -1
             setNextPostId(null);
@@ -105,49 +141,65 @@ const BlogPost = () => {
     fetchAdjacentPosts();
     console.log(post)
   }, [id]);
-  useEffect(() => {
-    const fetchUserVote = async () => {
-      try {
-        const url = `http://127.0.0.1:8000/blog/posts/${id}/likes/`;
-        const response = await fetch(url);
-        if (!response.ok) {
-          throw new Error('Failed to fetch user vote');
-        }
-        const userVoteData = await response.json();
-        setUserVote(userVoteData.status);
-      } catch (error) {
-        console.error("Error fetching user vote:", error);
+
+  const handleVote = async (btn_status, user, post) => {
+    console.log("handleVote")
+    if(vote){
+      const data = {
+        "id": vote.id,
+        "status": btn_status,
+        "user": user,
+        "post": post,
+        "comment": vote.comment,
       }
-    };
-    fetchUserVote();
-  }, [id]);
-  const handleVote = async (status, user, post) => {
-    console.log("status", status)
-    console.log("user", user)
-    console.log("post", post)
+      console.log("date updated", data);
+      console.log("btn status updated", btn_status);
+      try {
+        const response = await updateVote({ "data": data, "postId": post});
+        console.log("response: ", response)
+        if (response) {
+          console.log("response.data", response.data)
+          fetchBlogPost();
+          setVote(response.data)
+          setIsVoted(response.data.status === 'like' ? 'true' : 'false');
+        }else{
+          console.log("response.error", response.error)
+        }
+      } catch (error) {
+        console.error("Error updating vote:", error);
+      }
+    }else{
+    const data = {
+      "status": btn_status,
+      "user": user,
+      "post": post,
+      "comment": null,
+    }
+    console.log("data", data)
     try {
-      const url = `http://127.0.0.1:8000/blog/posts/${id}/likes/`;
-      const response = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ status, post, user}),
-      });
+      const response = await submitVote({ "data": data, "postId": post});
+      console.log("response: ", response)
       if (response.data) {
         console.log("response.data", response.data)
+        fetchBlogPost();
+        setVote(response.data);
+        setIsVoted(response.data.status === 'like' ? 'true' : 'false');
       }else{
         console.log("response.error", response.error)
+        setVote(null);
+        setIsVoted(false);
       }
-      setUserVote(status);
     } catch (error) {
-      console.error("Error updating vote:", error);
+      console.log("error", error)
     }
+  }
+
   };
 
 
 
    const formatDate = (dateString) => {
+    console.log("formatDate")
     const options = { day: '2-digit', month: 'long', year: 'numeric' };
     return new Date(dateString).toLocaleDateString('en-UK', options);
   };
@@ -168,26 +220,30 @@ const BlogPost = () => {
             <ul>
               <li>{formatDate(post.date)}</li>
               <li>
-                <Link to={process.env.PUBLIC_URL + "/blog-details-standard"}>
-                  {post.likes_count} <i className="fa fa-comments-o" />
+                <Link >
+                  {post.likes_count} 
+                  <div className="votes-section">
+                    {(vote && vote.status === "not_hit") || !vote ? (
+                      <span className="not_hit" onClick={() => handleVote("like", user_info.id, post.id)}>
+                        <i className="fa fa-thumbs-up" aria-hidden="true"></i>
+                        </span>
+                    ) :null }
+                    {vote && vote.status === "like"? (
+                      <span className="like" onClick={() => handleVote("not_hit", user_info.id, post.id)}>
+                      <i className="fa fa-thumbs-up" aria-hidden="true"></i>
+                    </span>
+                    ) : null}
+                    
+                  </div>
+                  <i className="fa fa-comments-o" />
                 </Link>
               </li>
             </ul>
           </div>
           <h3>{post.title} i</h3>
           <p dangerouslySetInnerHTML={{ __html:(post.content) }}/>
-          <div>
-            {userVote === "like" ? (
-              <button disabled>Upvoted</button>
-            ) : (
-              <button onClick={() => handleVote("like", user_info.id, post.id)}>Upvote</button>
-            )}
-            {userVote === "dislike" ? (
-              <button disabled>Downvoted</button>
-            ) : (
-              <button onClick={() => handleVote("dislike", user_info.id, post.id)}>Downvote</button>
-            )}
-          </div>
+          
+          
         </div>
       </div>
       <div className="tag-share">
@@ -244,5 +300,7 @@ const BlogPost = () => {
   );}
 
 };
+
+
 
 export default BlogPost;

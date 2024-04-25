@@ -1,4 +1,4 @@
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, useEffect } from "react";
 import ScrollToTop from "./helpers/scroll-top";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -113,6 +113,11 @@ const NotFound = lazy(() => import("./pages/other/NotFound"));
 
 const App = () => {
   const { access_token } = useSelector(state => state.auth)
+
+  useEffect(() => {
+    console.log('Token changed:', access_token);
+    // Perform any other actions you need here
+  }, [access_token]);
   return (
       <Router>
 
@@ -409,7 +414,7 @@ const App = () => {
               
               <Route
                 path={process.env.PUBLIC_URL + "/login-register"}
-                element={!access_token ? <LoginRegister/> : <Navigate to="/"/>}
+                element={<LoginRegister/>}
               />
               <Route
                 path={process.env.PUBLIC_URL + "/verify-email/:token"}
