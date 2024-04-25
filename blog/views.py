@@ -2,7 +2,7 @@ from collections import Counter
 from django.shortcuts import render
 from blog.models import *
 from blog.serializer import *
-from rest_framework import viewsets, generics
+from rest_framework import viewsets, generics, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from blog.paginator import default_paginator
@@ -101,7 +101,25 @@ class LikePostSet(viewsets.ModelViewSet):
     
 
         
+class UserVoteView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, post_id, format=None):
+        try:
+            post = Post.objects.get(id=post_id)
+        except Post.DoesNotExist:
+            return Response({"message": "Post does not exist."}, status=status.HTTP_404_NOT_FOUND)
+
+        user = request.user
+        like = Like.objects.filter(post=post, user=user).first()
+        if like:
+            serializer = LikeSerializer(like)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response({"message": "User has not voted on this post."}, status=status.HTTP_404_NOT_FOUND)
+
     
+
 
 # # class CategoryViewSet(viewsets.ModelViewSet):
 # #     serializer_class = CategorySerializer
@@ -111,9 +129,9 @@ class LikePostSet(viewsets.ModelViewSet):
 # #     serializer_class = TagSerializer
 # #     queryset = Tag.objects.all()
 
-# class LikeViewSet(viewsets.ModelViewSet):
-#     serializer_class = LikeSerializer
-#     queryset = Like.objects.all()
+class LikeViewSet(viewsets.ModelViewSet):
+    serializer_class = LikeSerializer
+    queryset = Like.objects.all()
 
 
 

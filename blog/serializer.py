@@ -7,12 +7,12 @@ class PostSerializer(serializers.ModelSerializer):
     likes_count = serializers.SerializerMethodField()
 
     def get_likes_count(self, post):
-        return Like.objects.filter(post=post).count()
+        return Like.objects.filter(post=post, status='like').count()
 
     class Meta:
         model = Post
         fields = "__all__"
-        
+
 
         
 class RecursiveCommentSerializer(serializers.ModelSerializer):

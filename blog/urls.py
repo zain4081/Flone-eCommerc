@@ -12,13 +12,14 @@ router.register('posts_top', views.TopPosts, basename='top_post')
 router.register('posts_featured', views.FeaturedPosts, basename='featured_post')
 router.register('posts_wp', views.Postswithoutpagination, basename='post_wp')
 router.register(r'posts/(?P<post_id>\d+)/comments', views.CommentViewSet, basename='post-comments')
-router.register(r'posts/(?P<post_id>\d+)/likes', views.LikePostSet, basename='post-likes')
+router.register(r'posts/(?P<post_id>\d+)/likes', views.LikeViewSet, basename='post-likes')
 # comments
 
 
 urlpatterns = [
     path('posts/create/', views.AdminImageUpload.as_view(), name='post_create'),
     path('first-post-id/', views.FirstPostIdView.as_view(), name='first-post-id'),
+    path('user-votes/<int:post_id>/', views.UserVoteView.as_view(), name='user-votes'),
 
 ]
 

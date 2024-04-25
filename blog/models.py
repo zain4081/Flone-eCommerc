@@ -75,7 +75,5 @@ class Like(models.Model):
             models.UniqueConstraint(fields=['user', 'post'], name='unique_user_post')
         ]
 
-    def __str__(self):
-        return f"{self.status} by {self.user.username}"
     
     
