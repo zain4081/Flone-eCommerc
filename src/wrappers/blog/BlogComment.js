@@ -18,7 +18,6 @@ const BlogComment = (firstPostId) => {
   const user_info = useSelector((state) => state.user);
   const [submitCommentForm] = useSubmitCommentMutation();
   const [submitReplyForm] = useSubmitReplyMutation();
-  const [getComments] = useGetCommentsMutation();
   const [isReplying, setIsReplying] = useState(false);
 
 

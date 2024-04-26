@@ -5,6 +5,7 @@ export const blogApi = createApi({
   reducerPath: 'blogApi',
   baseQuery: fetchBaseQuery({ baseUrl: 'http://127.0.0.1:8000/blog/' }),
   endpoints: (builder) => ({
+    // Comments Queries-------------
     submitComment: builder.mutation({
         query:({data, access_token, postId})=>{
             console.log('q userdata',data)
@@ -32,7 +33,7 @@ export const blogApi = createApi({
             }
         }
       }),
-      
+      // Likes (Votes) Queries-------------
       getVote: builder.mutation({
         query:({postId, access_token})=>{
             console.log('q access_token: ', access_token);
@@ -71,19 +72,33 @@ export const blogApi = createApi({
             }
         }
       }),
-    getComments: builder.mutation({
-        query: (postId, token) => ({
-          url: `posts/${postId}/`,
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        }),
-    }),
-    
+
+      // Filter Sidebar (Tag, Categories) Quires
+      getTags: builder.mutation({
+        query:()=>{
+            return{
+                url:`tags/`,
+                method: 'GET',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+            }
+        }
+      }),
+      getCategories: builder.mutation({
+        query:()=>{
+            return{
+                url:`categories/`,
+                method: 'GET',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+            }
+        }
+      }),
   }),
 })
 
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
-export const { useSubmitCommentMutation, useGetCommentsMutation, useSubmitReplyMutation, useSubmitVoteMutation, useUpdateVoteMutation, useGetVoteMutation,  } = blogApi;
+export const { useSubmitCommentMutation, useGetTagsMutation, useGetCategoriesMutation, useSubmitReplyMutation, useSubmitVoteMutation, useUpdateVoteMutation, useGetVoteMutation,  } = blogApi;

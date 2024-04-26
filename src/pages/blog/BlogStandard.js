@@ -10,12 +10,14 @@ import BlogPosts from "../../wrappers/blog/BlogPosts";
 const BlogStandard = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [posts, setPosts] = useState([]);
+  const [selectedTags, setSelectedTags] = useState([]);
+  const [selectedCategories, setSelectedCategories] = useState([]);
   const { pathname } = useLocation();
 
   const fetchData = async (page = 1) => {
     console.log("fetching", page);
     try {
-      const url = `http://127.0.0.1:8000/blog/posts/?p=${page}`;
+      const url = `http://127.0.0.1:8000/blog/posts/?p=${page}&tags=${selectedTags}&category=[${selectedCategories}]`;
       console.log(url);
       const response = await fetch(url);
       if (!response.ok) {
@@ -32,12 +34,19 @@ const BlogStandard = () => {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [selectedTags, selectedCategories]);
 
   const handlePageChange = (page) => {
     fetchData(page);
   };
-
+  const handleFilterChange = (filterType, filterId) => {
+    if (filterType === "tag") {
+      setSelectedTags(filterId);
+    }
+    else if (filterType === "category") {
+      setSelectedCategories(filterId);
+    }
+  };
   
   return (
     <Fragment>
@@ -72,7 +81,7 @@ const BlogStandard = () => {
               </div>
               <div className="col-lg-3">
                 {/* blog sidebar */}
-                <BlogSidebar />
+                <BlogSidebar onFilterChange={handleFilterChange} />
               </div>
             </div>
           </div>
