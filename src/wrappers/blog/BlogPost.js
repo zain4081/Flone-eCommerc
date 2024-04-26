@@ -1,6 +1,6 @@
 import React, { Fragment, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { getToken } from "../../services/localStorageService";
 import { useGetVoteMutation, useSubmitVoteMutation, useUpdateVoteMutation } from "../../services/blogApi";
 
@@ -11,12 +11,10 @@ const BlogPost = () => {
   const [prevID, setPrevPostId] = useState(null);
   const [nextID, setNextPostId] = useState(null);
   const { access_token } = getToken();
-  const navigate = useNavigate();
   const user_info = useSelector((state) => state.user);
 
   // vote
   const [vote, setVote] = useState(null);
-  const [ isVoted, setIsVoted] = useState(false);
   const [ submitVote] = useSubmitVoteMutation();
   const [ getVote ] = useGetVoteMutation();
   const [ updateVote ] = useUpdateVoteMutation();
@@ -24,7 +22,6 @@ const BlogPost = () => {
   useEffect(() => {
     fetchPostVote();
     fetchBlogPost();
-    
   }, [id]);
 
   const fetchBlogPost = async () => {
@@ -51,13 +48,11 @@ const BlogPost = () => {
       const response = await getVote({"postId": id ? id : post[0].id, "access_token": access_token});
       if(response.data){
         
-        setIsVoted(response.data.status === "like" ?  "true" : "false");
         setVote(response.data)
 
       }
       if(response.error){
         console.log("response.error", response.error);
-        setIsVoted(false);
         setVote(null);
       }
     }
@@ -101,7 +96,6 @@ const BlogPost = () => {
             
             setNextPostId(null);
             setPrevPostId(null);
-            setIsVoted(false);
             setVote(null);
           }
         } else {
@@ -139,11 +133,9 @@ const BlogPost = () => {
     };
   
     fetchAdjacentPosts();
-    console.log(post)
   }, [id]);
 
   const handleVote = async (btn_status, user, post) => {
-    console.log("handleVote")
     if(vote){
       const data = {
         "id": vote.id,
@@ -152,16 +144,13 @@ const BlogPost = () => {
         "post": post,
         "comment": vote.comment,
       }
-      console.log("date updated", data);
-      console.log("btn status updated", btn_status);
       try {
         const response = await updateVote({ "data": data, "postId": post});
-        console.log("response: ", response)
         if (response) {
-          console.log("response.data", response.data)
+
           fetchBlogPost();
           setVote(response.data)
-          setIsVoted(response.data.status === 'like' ? 'true' : 'false');
+          
         }else{
           console.log("response.error", response.error)
         }
@@ -175,19 +164,15 @@ const BlogPost = () => {
       "post": post,
       "comment": null,
     }
-    console.log("data", data)
     try {
       const response = await submitVote({ "data": data, "postId": post});
-      console.log("response: ", response)
       if (response.data) {
-        console.log("response.data", response.data)
         fetchBlogPost();
         setVote(response.data);
-        setIsVoted(response.data.status === 'like' ? 'true' : 'false');
+        
       }else{
         console.log("response.error", response.error)
         setVote(null);
-        setIsVoted(false);
       }
     } catch (error) {
       console.log("error", error)
@@ -199,7 +184,7 @@ const BlogPost = () => {
 
 
    const formatDate = (dateString) => {
-    console.log("formatDate")
+
     const options = { day: '2-digit', month: 'long', year: 'numeric' };
     return new Date(dateString).toLocaleDateString('en-UK', options);
   };
@@ -235,6 +220,7 @@ const BlogPost = () => {
                     ) : null}
                     
                   </div>
+                  {post.comments_count}
                   <i className="fa fa-comments-o" />
                 </Link>
               </li>
@@ -293,8 +279,8 @@ const BlogPost = () => {
         {/* <Link to={process.env.PUBLIC_URL + "/blog-details-standard/"+prevID}><i className="fa fa-angle-left" /> prev post</Link>
         <Link to={process.env.PUBLIC_URL + "/blog-details-standard/"+nextID}>next post <i className="fa fa-angle-right" /></Link> */}
 
-        {prevID != post.id ? <Link to={process.env.PUBLIC_URL + "/blog-details-standard/"+prevID}><i className="fa fa-angle-left" /> prev post</Link> : <i className="fa" />}
-        {nextID != post.id ? <Link to={process.env.PUBLIC_URL + "/blog-details-standard/"+nextID}>next post <i className="fa fa-angle-right" /></Link>: <i className="fa" />}
+        {prevID !== post.id ? <Link to={process.env.PUBLIC_URL + "/blog-details-standard/"+prevID}><i className="fa fa-angle-left" /> prev post</Link> : <i className="fa" />}
+        {nextID !== post.id ? <Link to={process.env.PUBLIC_URL + "/blog-details-standard/"+nextID}>next post <i className="fa fa-angle-right" /></Link>: <i className="fa" />}
       </div>
     </Fragment>
   );}
