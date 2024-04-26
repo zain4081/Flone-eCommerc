@@ -2,16 +2,17 @@ from collections import Counter
 from django.shortcuts import render
 from blog.models import *
 from blog.serializer import *
-from rest_framework import viewsets, generics, status
+from rest_framework import viewsets, generics, status, filters
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from blog.paginator import default_paginator
 from datetime import timedelta
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.utils import timezone
+from django.db.models import Q
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
-
+import json
 
 
 # Create your views here.
@@ -20,6 +21,31 @@ class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.prefetch_related('post_likes')
     serializer_class = PostSerializer
     pagination_class = default_paginator
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['tag__id']
+    
+    def get_queryset(self):
+        queryset = Post.objects.all()
+        tags_param = self.request.query_params.get('tags')
+        category_param = self.request.query_params.get('category')
+        if tags_param:
+            try:
+                tag_id = int(tags_param)
+                queryset = queryset.filter(tag__id=tag_id)
+            except ValueError:
+                pass  # Handle invalid category ID format
+        if category_param:
+            try:
+                category_list = json.loads(category_param)
+                # Create a Q object to filter by each tag ID
+                category_filter = Q()
+                for category_id in category_list:
+                    category_filter |= Q(category__id=category_id)
+                queryset = queryset.filter(category_filter)
+            except json.JSONDecodeError:
+                pass  # Handle invalid JSON format for tags parameter
+            
+        return queryset
     
     
 class PostViewTrending(viewsets.ModelViewSet):
@@ -121,13 +147,13 @@ class UserVoteView(APIView):
     
 
 
-# # class CategoryViewSet(viewsets.ModelViewSet):
-# #     serializer_class = CategorySerializer
-# #     queryset = Category.objects.all()
+class CategoryViewSet(viewsets.ModelViewSet):
+    serializer_class = CategorySerializer
+    queryset = Category.objects.all()
 
-# # class TagViewSet(viewsets.ModelViewSet):
-# #     serializer_class = TagSerializer
-# #     queryset = Tag.objects.all()
+class TagViewSet(viewsets.ModelViewSet):
+    serializer_class = TagSerializer
+    queryset = Tag.objects.all()
 
 class LikeViewSet(viewsets.ModelViewSet):
     serializer_class = LikeSerializer

@@ -5,9 +5,13 @@ from django.conf import settings
 
 class PostSerializer(serializers.ModelSerializer):
     likes_count = serializers.SerializerMethodField()
+    comments_count = serializers.SerializerMethodField()
 
     def get_likes_count(self, post):
         return Like.objects.filter(post=post, status='like').count()
+    
+    def get_comments_count(self, post):
+        return Comment.objects.filter(post=post).count()
 
     class Meta:
         model = Post
@@ -63,11 +67,20 @@ class CommentSerializer(serializers.ModelSerializer):
         fields = "__all__"
         
 class TagSerializer(serializers.ModelSerializer):
+    posts_count = serializers.SerializerMethodField()
+    
+    def get_posts_count(self, tag):
+        return Post.objects.filter(tag=tag).count()
     class Meta:
         model = Tag
         fields= "__all__"
 
 class CategorySerializer(serializers.ModelSerializer):
+    posts_count = serializers.SerializerMethodField()
+    
+    def get_posts_count(self, category):
+        return Post.objects.filter(category=category).count()
+    
     class Meta:
         model = Category
         fields= "__all__"

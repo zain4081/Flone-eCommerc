@@ -13,8 +13,9 @@ router.register('posts_featured', views.FeaturedPosts, basename='featured_post')
 router.register('posts_wp', views.Postswithoutpagination, basename='post_wp')
 router.register(r'posts/(?P<post_id>\d+)/comments', views.CommentViewSet, basename='post-comments')
 router.register(r'posts/(?P<post_id>\d+)/likes', views.LikeViewSet, basename='post-likes')
-# comments
-
+# Tags
+router.register('tags', views.TagViewSet, basename='tag')
+router.register('categories', views.CategoryViewSet, basename='category')
 
 urlpatterns = [
     path('posts/create/', views.AdminImageUpload.as_view(), name='post_create'),
