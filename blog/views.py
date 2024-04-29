@@ -30,10 +30,14 @@ class PostViewSet(viewsets.ModelViewSet):
         category_param = self.request.query_params.get('category')
         if tags_param:
             try:
-                tag_id = int(tags_param)
-                queryset = queryset.filter(tag__id=tag_id)
-            except ValueError:
-                pass  # Handle invalid category ID format
+                tag_list = json.loads(tags_param)
+                # Create a Q object to filter by each tag ID
+                tag_filter = Q()
+                for tag_id in tag_list:
+                    tag_filter |= Q(tag__id=tag_id)
+                queryset = queryset.filter(tag_filter)
+            except json.JSONDecodeError:
+                pass  # Handle invalid JSON format for tags parameter
         if category_param:
             try:
                 category_list = json.loads(category_param)
