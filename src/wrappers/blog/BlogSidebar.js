@@ -11,6 +11,8 @@ const BlogSidebar = ({ onFilterChange }) => {
   const [tags, setTags] = useState(null);
   const [categories, setCategories] = useState(null);
   const [selectedCategories, setSelectedCategories] = useState([]);
+  const [selectedTags, setSelectedTags] = useState([]);
+  const [check, setCheck] = useState(0);
 
   useEffect(() => {
     const fetchTagsCategories = async () => {
@@ -27,8 +29,10 @@ const BlogSidebar = ({ onFilterChange }) => {
         console.log("Error fetching tags and categories:", error);
       }
     };
+  
     fetchTagsCategories();
-  });
+  
+  }, []);
 
   const handleFilterChange = (filterType, filterId) => {
     onFilterChange(filterType, filterId);
@@ -40,11 +44,26 @@ const BlogSidebar = ({ onFilterChange }) => {
     } else {
       setSelectedCategories([...selectedCategories, filterId]);
     }
+    setCheck(1);
   };
 
+  const handleTags = (filterId) => {
+    if (selectedTags.includes(filterId)) {
+      setSelectedTags(selectedTags.filter((t) => t !== filterId));
+    } else {
+      setSelectedTags([...selectedTags, filterId]);
+    }
+    setCheck(2);
+  };
   useEffect(() => {
-    handleFilterChange("category", selectedCategories);
-  }, [selectedCategories]);
+    if(check && check === 1){
+      handleFilterChange("category", selectedCategories);
+    }
+    if(check && check === 2){
+      handleFilterChange("tag", selectedTags);
+    }
+    
+  }, [selectedCategories, selectedTags]);
 
   return (
     <div className="sidebar-style">
@@ -94,9 +113,11 @@ const BlogSidebar = ({ onFilterChange }) => {
           <ul>
             {tags &&
               tags.map((tag) => (
-                <li key={tag.id}>
-                  <Link onClick={() => handleFilterChange("tag", tag.id)}>
-                    {tag.name} {tag.posts_count}
+                <li 
+                  key={tag.id} 
+                >
+                  <Link onClick={() => handleTags(tag.id)} className={selectedTags.includes(tag.id) ? "active" : ""} >
+                    {tag.name} {selectedTags.includes(tag.id) ? tag.posts_count : ""}
                   </Link>
                 </li>
               ))}

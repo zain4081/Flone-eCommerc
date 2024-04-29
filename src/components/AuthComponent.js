@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, batch } from "react-redux"; // Import batch
 import { useGetLoggedUserMutation } from "../services/userAuthApi";
 import { getToken, removeToken } from "../services/localStorageService";
 import { setUserInfo, unsetUserInfo } from "../store/slices/userInfo-slice";
@@ -24,25 +24,29 @@ const AuthComponent = () => {
       // Handle unauthorized token here
       console.log("Token is unauthorized. Logging out...");
       removeToken();
-      dispatch(unsetUserToken({ access_token: null }));
-      dispatch(
-        unsetUserInfo({
-          name: null,
-          email: null,
-          role: null,
-        })
-      );
+      batch(() => { // Wrap dispatch calls in batch
+        dispatch(unsetUserToken({ access_token: null }));
+        dispatch(
+          unsetUserInfo({
+            name: null,
+            email: null,
+            role: null,
+          })
+        );
+      });
       navigate('/login-register')
     } else if (data && isSuccess) {
       console.log("Authcomponent data is set", data);
-      dispatch(
-        setUserInfo({
-          id: data.id,
-          name: data.name,
-          email: data.email,
-          role: data.role,
-        })
-      );
+      batch(() => { // Wrap dispatch calls in batch
+        dispatch(
+          setUserInfo({
+            id: data.id,
+            name: data.name,
+            email: data.email,
+            role: data.role,
+          })
+        );
+      });
     }
   }, [data, isSuccess, isError, dispatch]);
 

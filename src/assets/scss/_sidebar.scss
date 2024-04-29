@@ -178,6 +178,17 @@
   }
   .sidebar-widget-tag {
     ul {
+      // .selected
+      // {
+      //   button{
+      //     background-color: $theme-color;
+      //     color: white;
+      //   }
+      //   &:hover{
+      //     background-color: white;
+      //     color: $theme-color;
+      //   }
+      // }
       li {
         display: inline-block;
 
@@ -207,6 +218,7 @@
           &.active {
             color: #fff;
             background-color: $theme-color;
+
           }
         }
       }
