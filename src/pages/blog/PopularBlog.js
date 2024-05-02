@@ -3,8 +3,7 @@ import { useLocation } from "react-router-dom";
 import SEO from "../../components/seo";
 import LayoutOne from "../../layouts/LayoutOne";
 import Breadcrumb from "../../wrappers/breadcrumb/Breadcrumb";
-import BlogSidebar from "../../wrappers/blog/BlogSidebar";
-import BlogPosts from "../../wrappers/blog/BlogPosts";
+import BlogPostsNoSidebar from "../../wrappers/blog/BlogPostsNoSidebar";
 
 const TrendingBlog = () => {
   const [posts, setPosts] = useState([]);
@@ -47,18 +46,14 @@ const TrendingBlog = () => {
         <div className="blog-area pt-100 pb-100">
           <div className="container">
             <div className="row flex-row-reverse">
-              <div className="col-lg-9">
+              <div className="col-lg-12">
                 <div className="ml-20">
                   <div className="row">
                     {/* blog posts */}
-                    <BlogPosts posts={posts} root='http://127.0.0.1/blog/posts' />
+                    <BlogPostsNoSidebar posts={posts} />
                   </div>
 
                 </div>
-              </div>
-              <div className="col-lg-3">
-                {/* blog sidebar */}
-                <BlogSidebar />
               </div>
             </div>
           </div>
