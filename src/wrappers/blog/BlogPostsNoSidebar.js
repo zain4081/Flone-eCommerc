@@ -21,8 +21,8 @@ const BlogPosts = (posts) => {
         <div className="blog-img-2">
           <Link to={process.env.PUBLIC_URL + "/blog-details-standard/"+post.id}>
             <img
-              src={process.env.PUBLIC_URL + "/assets/img/blog/blog-9.jpg"}
-              alt=""
+              src={post.image}
+              alt={post.title}
             />
           </Link>
         </div>
