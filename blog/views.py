@@ -13,6 +13,9 @@ from django.db.models import Q
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
 import json
+from django.contrib import admin
+from django.utils.dateparse import parse_date
+from django.utils.translation import gettext_lazy as _
 
 
 # Create your views here.
@@ -22,7 +25,8 @@ class PostViewSet(viewsets.ModelViewSet):
     serializer_class = PostSerializer
     pagination_class = default_paginator
     filter_backends = [filters.SearchFilter]
-    search_fields = ['tag__id']
+    search_fields = ['tag__id', '^tag__name', 'tag__name', '^category__name', 'category__name', '^title', 'title']
+    filterset_fields = ['category', 'tags', 'created_at']
     
     def get_queryset(self):
         queryset = Post.objects.all()
@@ -38,6 +42,7 @@ class PostViewSet(viewsets.ModelViewSet):
                 queryset = queryset.filter(tag_filter)
             except json.JSONDecodeError:
                 pass  # Handle invalid JSON format for tags parameter
+            
         if category_param:
             try:
                 category_list = json.loads(category_param)
@@ -49,7 +54,30 @@ class PostViewSet(viewsets.ModelViewSet):
             except json.JSONDecodeError:
                 pass  # Handle invalid JSON format for tags parameter
             
+        start_date_param = self.request.query_params.get('start_date')
+        end_date_param = self.request.query_params.get('end_date')
+        if (start_date_param and end_date_param):
+            start_date = parse_date(start_date_param)
+            end_date = parse_date(end_date_param)
+            end_date += timedelta(days=1)
+            if start_date and end_date:
+                queryset = queryset.filter(date__range=(start_date, end_date))
+        
+        elif(start_date_param):
+            start_date = parse_date(start_date_param)
+            if start_date:
+                queryset = queryset.filter(date__gte=start_date)
+        
+        elif(end_date_param):
+            end_date = parse_date(end_date_param)
+            end_date += timedelta(days=1)
+            if end_date:
+                queryset = queryset.filter(date__lte=end_date)
+        
+                
         return queryset
+
+
     
     
 class PostViewTrending(viewsets.ModelViewSet):
