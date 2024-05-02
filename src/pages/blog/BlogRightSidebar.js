@@ -10,12 +10,19 @@ import BlogPosts from "../../wrappers/blog/BlogPosts";
 const BlogRightSidebar = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [posts, setPosts] = useState([]);
+  const [selectedTags, setSelectedTags] = useState([]);
+  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [search, setSearch] = useState(null);
   const { pathname } = useLocation();
 
   const fetchData = async (page = 1) => {
     console.log("fetching", page);
     try {
-      const url = `http://127.0.0.1:8000/blog/posts/?p=${page}`;
+      let tags = selectedTags && selectedTags.length > 0 ? '&tags=[' + selectedTags+ ']': "";
+      let categories = selectedCategories && selectedCategories.length > 0 ? '&category=[' + selectedCategories+ ']': "";
+      console.log("search",search);
+
+      const url = `http://127.0.0.1:8000/blog/posts/?p=${page}${search && search.length > 0 ? search : ''}${tags && tags.length > 0 ? tags : ''}${categories && categories.length > 0 ? categories : ''}`;
       console.log(url);
       const response = await fetch(url);
       if (!response.ok) {
@@ -23,6 +30,10 @@ const BlogRightSidebar = () => {
       }
       const sData = await response.json();
       const data = sData.results;
+      // for (const post of data){
+      // }
+      console.log("data result")
+      console.log(data)
       setPosts(data);
       setTotalPages(sData.total_pages);
     } catch (error) {
@@ -32,12 +43,22 @@ const BlogRightSidebar = () => {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [selectedTags, selectedCategories, search]);
 
   const handlePageChange = (page) => {
     fetchData(page);
   };
-
+  const handleFilterChange = (filterType, filterId) => {
+    if (filterType === "tag") {
+      setSelectedTags(filterId);
+    }
+    else if (filterType === "category") {
+      setSelectedCategories(filterId);
+    } else if (filterType === "search"){
+      // console.log("search",filterId);
+      setSearch(filterId);
+    }
+  };
   
   return (
     <Fragment>
@@ -47,33 +68,34 @@ const BlogRightSidebar = () => {
       />
       <LayoutOne headerTop="visible">
         {/* breadcrumb */}
-        <Breadcrumb 
+        <Breadcrumb
           pages={[
-            {label: "Home", path: process.env.PUBLIC_URL + "/" },
-            {label: "Blog", path: process.env.PUBLIC_URL + pathname }
-          ]} 
+            { label: "Home", path: process.env.PUBLIC_URL + "/" },
+            { label: "Blog", path: process.env.PUBLIC_URL + pathname },
+          ]}
         />
         <div className="blog-area pt-100 pb-100">
           <div className="container">
-            <div className="row">
+            <div className="row flex-row-reverse">
+            <div className="col-lg-3">
+                {/* blog sidebar */}
+                <BlogSidebar onFilterChange={handleFilterChange} />
+              </div>
               <div className="col-lg-9">
-                <div className="mr-20">
+                <div className="ml-20">
                   <div className="row">
                     {/* blog posts */}
-                    <BlogPosts posts={posts}/>
+                    <BlogPosts posts={posts} />
                   </div>
 
                   {/* blog pagination */}
                   <BlogPagination
-                      totalPages={totalPages}
-                      onPageChange={handlePageChange}
-                    />
+                    totalPages={totalPages}
+                    onPageChange={handlePageChange}
+                  />
                 </div>
               </div>
-              <div className="col-lg-3">
-                {/* blog sidebar */}
-                <BlogSidebar />
-              </div>
+              
             </div>
           </div>
         </div>
