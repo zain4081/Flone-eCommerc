@@ -12,12 +12,17 @@ const BlogStandard = () => {
   const [posts, setPosts] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
+  const [search, setSearch] = useState(null);
   const { pathname } = useLocation();
 
   const fetchData = async (page = 1) => {
     console.log("fetching", page);
     try {
-      const url = `http://127.0.0.1:8000/blog/posts/?p=${page}&tags=[${selectedTags}]&category=[${selectedCategories}]`;
+      let tags = selectedTags && selectedTags.length > 0 ? '&tags=[' + selectedTags+ ']': "";
+      let categories = selectedCategories && selectedCategories.length > 0 ? '&category=[' + selectedCategories+ ']': "";
+      console.log("search",search);
+
+      const url = `http://127.0.0.1:8000/blog/posts/?p=${page}${search && search.length > 0 ? search : ''}${tags && tags.length > 0 ? tags : ''}${categories && categories.length > 0 ? categories : ''}`;
       console.log(url);
       const response = await fetch(url);
       if (!response.ok) {
@@ -25,6 +30,10 @@ const BlogStandard = () => {
       }
       const sData = await response.json();
       const data = sData.results;
+      // for (const post of data){
+      // }
+      console.log("data result")
+      console.log(data)
       setPosts(data);
       setTotalPages(sData.total_pages);
     } catch (error) {
@@ -34,7 +43,7 @@ const BlogStandard = () => {
 
   useEffect(() => {
     fetchData();
-  }, [selectedTags, selectedCategories]);
+  }, [selectedTags, selectedCategories, search]);
 
   const handlePageChange = (page) => {
     fetchData(page);
@@ -45,6 +54,9 @@ const BlogStandard = () => {
     }
     else if (filterType === "category") {
       setSelectedCategories(filterId);
+    } else if (filterType === "search"){
+      // console.log("search",filterId);
+      setSearch(filterId);
     }
   };
   
