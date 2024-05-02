@@ -2,3 +2,6 @@
 
 venv/
 
+account/__pycache__
+blog/__pycache__
+t2/__pycache__
