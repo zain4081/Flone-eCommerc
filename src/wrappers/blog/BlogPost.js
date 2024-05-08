@@ -28,7 +28,7 @@ const BlogPost = () => {
     console.log("fetchBlogPost")
     try {
       const post_id = id ? id : post[0].id
-      const url = `http://127.0.0.1:8000/blog/posts_wp/${post_id}/`;
+      const url = `http://127.0.0.1:8000/blog/posts/details/${post_id}/`;
       const response = await fetch(url);
       
       if (!response.ok) {
@@ -67,7 +67,7 @@ const BlogPost = () => {
     const fetchAdjacentPosts = async () => {
       console.log("fetchAdjacentPosts")
       try {
-        const response = await fetch("http://127.0.0.1:8000/blog/posts_wp/");
+        const response = await fetch("http://127.0.0.1:8000/blog/posts/details");
         if (!response.ok) {
           throw new Error("Failed to fetch data");
         }

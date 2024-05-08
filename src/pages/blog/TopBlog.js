@@ -16,7 +16,7 @@ const TopBlog = () => {
   const fetchData = async (page = 1) => {
     console.log("fetching", page);
     try {
-      const url = `http://127.0.0.1:8000/blog/posts_top/?p=${page}`;
+      const url = `http://127.0.0.1:8000/blog/posts/top?p=${page}`;
       console.log(url);
       const response = await fetch(url);
       if (!response.ok) {

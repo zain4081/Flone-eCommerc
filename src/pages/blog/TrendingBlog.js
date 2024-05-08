@@ -11,7 +11,7 @@ const TrendingBlog = () => {
   console.log("trending")
   const fetchData = async () => {
     try {
-      const url = `http://127.0.0.1:8000/blog/posts/trending/`;
+      const url = `http://127.0.0.1:8000/blog/posts/trending`;
       console.log(url);
       const response = await fetch(url);
       if (!response.ok) {

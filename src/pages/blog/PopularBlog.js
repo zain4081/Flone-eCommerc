@@ -11,7 +11,7 @@ const TrendingBlog = () => {
 
   const fetchData = async () => {
     try {
-      const url = `http://127.0.0.1:8000/blog/posts/popular/`;
+      const url = `http://127.0.0.1:8000/blog/posts/popular`;
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error("Failed to fetch data");

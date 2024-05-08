@@ -29,7 +29,7 @@ const BlogPosts = (posts) => {
         <div className="blog-content-2">
           <div className="blog-meta-2">
             <ul>
-              <li><li>{formatDate(post.date_created)}</li></li>
+              <li><li>{formatDate(post.date)}</li></li>
               <li>
                 <Link to={process.env.PUBLIC_URL + "/blog-details-standard"}>
                   {post.likes_count} <i className="fa fa-comments-o" />
