@@ -1,5 +1,6 @@
 .env
-
+.pylintrc
+elastic_config.json
 venv/
 
 account/__pycache__/
