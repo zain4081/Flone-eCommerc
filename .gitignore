@@ -10,6 +10,11 @@
 
 # production
 /build
+<<<<<<< HEAD
+=======
+/dist
+/demo-*
+>>>>>>> zain-admin-ui/master
 
 # misc
 .DS_Store
@@ -21,7 +26,17 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+<<<<<<< HEAD
 _gsdata_
 
 #extra files
 src/wrappers/blog/BlogLikes.js
+=======
+
+.docz
+.eslintcache
+.vscode
+
+
+views/misc.js
+>>>>>>> zain-admin-ui/master

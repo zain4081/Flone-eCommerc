@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { Suspense, lazy, useEffect } from "react";
 import ScrollToTop from "./helpers/scroll-top";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
@@ -451,3 +452,19 @@ const App = () => {
 };
 
 export default App;
+=======
+import React, { Suspense } from "react";
+
+// ** Router Import
+import Router from "./router/Router";
+
+const App = () => {
+  return (
+    <Suspense fallback={null}>
+      <Router />
+    </Suspense>
+  );
+};
+
+export default App;
+>>>>>>> zain-admin-ui/master
