@@ -90,7 +90,8 @@ class PostViewTrending(viewsets.ModelViewSet):
     API endpoint that allows trending posts to be viewed.
     """
     queryset = Post.objects.filter(
-        comments__date__gte=timezone.now() - timedelta(days=7)).distinct()[:3].prefetch_related('post_likes')
+        comments__date__gte=timezone.now() - timedelta(days=7)
+        ).distinct()[:3].prefetch_related('post_likes')
     serializer_class = PostSerializer
 
 class PostViewPopular(viewsets.ModelViewSet):
@@ -119,11 +120,10 @@ class AdminImageUpload(APIView):
     """
     parser_classes = [MultiPartParser, FormParser]
 
-    def post(self, request, format=None):
+    def post(self, request, format=None):# pylint: disable=redefined-builtin, unused-argument
         """
         Handles POST requests for image uploads.
         """
-        print(request.data)
         serializer = PostSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -197,7 +197,6 @@ class LikePostSet(viewsets.ModelViewSet):
         """
         queryset = self.get_queryset()
         count = queryset.count()
-        
         data = {
             'count': count,
         }
@@ -209,7 +208,7 @@ class UserVoteView(APIView):
     """
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, post_id, format=None):
+    def get(self, request, post_id, format=None):# pylint: disable=redefined-builtin, unused-argument
         """
         Handles GET requests for retrieving a user's vote on a post.
         """
@@ -222,6 +221,7 @@ class UserVoteView(APIView):
         if like:
             serializer = LikeSerializer(like)
             return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({"message": "No vote found."}, status=status.HTTP_200_OK)
 
 class CategoryViewSet(viewsets.ModelViewSet):
     """

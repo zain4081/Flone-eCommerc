@@ -1,7 +1,6 @@
 """
 URL configuration for the blog app.
 """
-from django.urls import path
 from rest_framework.routers import DefaultRouter
 from blog import views
 
@@ -17,13 +16,3 @@ router.register(r'posts/(?P<post_id>\d+)/comments', views.CommentViewSet, basena
 router.register(r'posts/(?P<post_id>\d+)/likes', views.LikeViewSet, basename='post-likes')
 router.register('tags', views.TagViewSet, basename='tag')
 router.register('categories', views.CategoryViewSet, basename='category')
-
-# Define additional URL patterns
-urlpatterns = [
-    path('posts/create/', views.AdminImageUpload.as_view(), name='post_create'),
-    path('first-post-id/', views.FirstPostIdView.as_view(), name='first-post-id'),
-    path('user-votes/<int:post_id>/', views.UserVoteView.as_view(), name='user-votes'),
-]
-
-# Include router URLs
-urlpatterns += router.urls

@@ -12,10 +12,8 @@ from django.contrib.auth import authenticate
 # Local application/library specific imports
 from account.models import User
 from account.serializers import (
-    SendPasswordResetEmailSerializer,
     UserChangePasswordSerializer,
     UserLoginSerializer,
-    UserPasswordResetSerializer,
     UserProfileSerializer,
     UserRegistrationSerializer
 )
@@ -117,15 +115,13 @@ class UserLoginView(APIView):
             if user.tc:
                 token = get_tokens_for_user(user)
                 return Response({'token':token, 'msg':'Login Success'},
-                                status=status.HTTP_200_OK)
-            else:
-                return Response(
-                  {'errors':{'non_field_errors':['Email Not Verified']}},
-                  status=status.HTTP_400_BAD_REQUEST)
-        else:
+                    status=status.HTTP_200_OK)
             return Response(
-              {'errors':{'non_field_errors':['Email or Password is not Valid']}},
-              status=status.HTTP_404_NOT_FOUND)
+                {'errors':{'non_field_errors':['Email Not Verified']}},
+                    status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {'errors':{'non_field_errors':['Email or Password is not Valid']}},
+                status=status.HTTP_404_NOT_FOUND)
 
 class AdminLoginView(APIView):
     """
@@ -154,14 +150,12 @@ class AdminLoginView(APIView):
                 return Response(
                   {'token':token, 'msg':'Login Success'},
                   status=status.HTTP_200_OK)
-            else:
-                return Response(
-                  {'errors':{'non_field_errors':['Only Admin can Logged In']}},
-                  status=status.HTTP_400_BAD_REQUEST)
-        else:
             return Response(
-              {'errors':{'non_field_errors':['Email or Password is not Valid']}},
-              status=status.HTTP_404_NOT_FOUND)
+                {'errors':{'non_field_errors':['Only Admin can Logged In']}},
+                status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {'errors':{'non_field_errors':['Email or Password is not Valid']}},
+            status=status.HTTP_404_NOT_FOUND)
 
 class UserProfileView(APIView):
     """
@@ -204,49 +198,49 @@ class UserChangePasswordView(APIView):
         serializer.is_valid(raise_exception=True)
         return Response({'msg':'Password Changed Successfully'}, status=status.HTTP_200_OK)
 
-class SendPasswordResetEmailView(APIView):
-    """
-    API view for sending password reset email.
-    """
-    renderer_classes = [UserRenderer]
-    def post(self, request):
-        """
-        Handles POST request for sending password reset email.
+# class SendPasswordResetEmailView(APIView):
+#     """
+#     API view for sending password reset email.
+#     """
+#     renderer_classes = [UserRenderer]
+#     def post(self, request):
+#         """
+#         Handles POST request for sending password reset email.
 
-        Args:
-        - request: Request object containing the email address for password reset.
-        - format: Optional format suffix.
+#         Args:
+#         - request: Request object containing the email address for password reset.
+#         - format: Optional format suffix.
 
-        Returns:
-        - Response: Response object with password reset status.
-        """
-        serializer = SendPasswordResetEmailSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        return Response(
-          {'msg':'Password Reset link send. Please check your Email'},
-          status=status.HTTP_200_OK)
+#         Returns:
+#         - Response: Response object with password reset status.
+#         """
+#         serializer = SendPasswordResetEmailSerializer(data=request.data)
+#         serializer.is_valid(raise_exception=True)
+#         return Response(
+#           {'msg':'Password Reset link send. Please check your Email'},
+#           status=status.HTTP_200_OK)
 
-class UserPasswordResetView(APIView):
-    """
-    API view for resetting user password.
-    """
-    renderer_classes = [UserRenderer]
-    def post(self, request, uid, token):
-        """
-        Handles POST request for resetting user password.
+# class UserPasswordResetView(APIView):
+#     """
+#     API view for resetting user password.
+#     """
+#     renderer_classes = [UserRenderer]
+#     def post(self, request, uid, token):
+#         """
+#         Handles POST request for resetting user password.
 
-        Args:
-        - request: Request object containing the new password data.
-        - uid: User ID for whom the password is to be reset.
-        - token: Token for password reset verification.
-        - format: Optional format suffix.
+#         Args:
+#         - request: Request object containing the new password data.
+#         - uid: User ID for whom the password is to be reset.
+#         - token: Token for password reset verification.
+#         - format: Optional format suffix.
 
-        Returns:
-        - Response: Response object with password reset status.
-        """
-        serializer = UserPasswordResetSerializer(
-          data=request.data,
-          context={'uid':uid, 'token':token}
-          )
-        serializer.is_valid(raise_exception=True)
-        return Response({'msg':'Password Reset Successfully'}, status=status.HTTP_200_OK)
+#         Returns:
+#         - Response: Response object with password reset status.
+#         """
+#         serializer = UserPasswordResetSerializer(
+#           data=request.data,
+#           context={'uid':uid, 'token':token}
+#           )
+#         serializer.is_valid(raise_exception=True)
+#         return Response({'msg':'Password Reset Successfully'}, status=status.HTTP_200_OK)
