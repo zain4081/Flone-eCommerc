@@ -1,0 +1,79 @@
+# backend t2
+zain-backend/.env
+zain-backend/.pylintrc
+zain-backend/elastic_config.json
+zain-backend/venv/
+
+zain-backend/account/__pycache__/
+zain-backend/blog/__pycache__/
+zain-backend/t2/__pycache__/
+
+zain-backend/.venv
+
+#frontend
+
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+zain-blog-ui/flone/node_modules
+zain-blog-ui/flone/.pnp
+zain-blog-ui/flone/.pnp.js
+
+# testing
+zain-blog-ui/flone/coverage
+
+# production
+zain-blog-ui/flone/build
+
+# misc
+zain-blog-ui/flone/.DS_Store
+zain-blog-ui/flone/.env.local
+zain-blog-ui/flone/.env.development.local
+zain-blog-ui/flone/.env.test.local
+zain-blog-ui/flone/.env.production.local
+
+zain-blog-ui/flone/npm-debug.log*
+zain-blog-ui/flone/yarn-debug.log*
+zain-blog-ui/flone/yarn-error.log*
+zain-blog-ui/flone/_gsdata_
+
+#extra files
+zain-blog-ui/flone/src/wrappers/blog/BlogLikes.js
+
+
+
+#admin
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+zain-admin-ui/node_modules
+zain-admin-ui/.pnp
+zain-admin-ui/.pnp.js
+
+# testing
+zain-admin-ui/coverage
+
+# production
+zain-admin-ui/build
+zain-admin-ui/dist
+zain-admin-ui/demo-*
+
+# misc
+zain-admin-ui/.DS_Store
+zain-admin-ui/.env.local
+zain-admin-ui/.env.development.local
+zain-admin-ui/.env.test.local
+zain-admin-ui/.env.production.local
+
+zain-admin-ui/npm-debug.log*
+zain-admin-ui/yarn-debug.log*
+zain-admin-ui/yarn-error.log*
+
+zain-admin-ui/.docz
+zain-admin-ui/.eslintcache
+zain-admin-ui/.vscode
+
+
+zain-admin-ui/views/misc.js
+
+
