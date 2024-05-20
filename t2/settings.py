@@ -64,13 +64,13 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
       # for cors
-
 ]
-#Middleware Order: 
-# If you're using middleware, ensure that 
+#Middleware Order:
+# If you're using middleware, ensure that
 # django.contrib.auth.middleware.AuthenticationMiddleware
-# is placed after rest_framework_simplejwt.middleware.JWTAuthenticationMiddleware in the MIDDLEWARE setting.
-
+# is placed after
+# rest_framework_simplejwt.middleware.JWTAuthenticationMiddleware
+# in the MIDDLEWARE setting.
 ROOT_URLCONF = 't2.urls'
 
 TEMPLATES = [
@@ -100,14 +100,13 @@ DATABASES = {
     #     'ENGINE': 'django.db.backends.sqlite3',
     #     'NAME': BASE_DIR / 'db.sqlite3',
     # }
-    
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'flone2',
         'USER': 'root',
         'PASSWORD': 'Root@12',
-        'HOST': '127.0.0.1',  # or '127.0.0.1' if 'localhost' doesn't work
-        'PORT': '3307',       # Update the port here
+        'HOST': '127.0.0.1',
+        'PORT': '3307',
     }
 }
 
@@ -183,17 +182,14 @@ AUTHENTICATION_BACKENDS = (
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=120),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=3),
-
     'AUTH_HEADER_TYPES': ('Bearer',),
     'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
     'USER_ID_FIELD': 'id',
     'USER_ID_CLAIM': 'user_id',
-    'USER_AUTHENTICATION_RULE': 'rest_framework_simplejwt.authentication.default_user_authentication_rule',
-
+    'USER_AUTHENTICATION_RULE': 'rest_framework_simplejwt.authentication.default_user_authentication_rule', # pylint: disable=line-too-long
     'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
     'TOKEN_TYPE_CLAIM': 'token_type',
     'TOKEN_USER_CLASS': 'rest_framework_simplejwt.models.TokenUser',
-
     'JTI_CLAIM': 'jti',
 }
 
@@ -228,7 +224,6 @@ CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Asia/Karachi'
-
 
 ELASTICSEARCH_DSL = {
     'default': {
