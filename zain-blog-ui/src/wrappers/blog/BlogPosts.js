@@ -21,7 +21,7 @@ const BlogPosts = (posts, url) => {
               <img
                 src={post.image}
                 alt={post.title}
-              />
+          git     />
             </Link>
           </div>
           <div className="blog-content-2">
@@ -44,7 +44,7 @@ const BlogPosts = (posts, url) => {
 
             <div className="blog-share-comment">
               <div className="blog-btn-2">
-                <Link to={process.env.PUBLIC_URL + "/blog-details-standard"}>
+                <Link to={process.env.PUBLIC_URL + "/blog-details-standard/"+post.id}>
                   read more
                 </Link>
               </div>
