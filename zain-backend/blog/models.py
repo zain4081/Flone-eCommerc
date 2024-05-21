@@ -3,7 +3,9 @@
 Module for defining blog models.
 """
 from django.db import models
+from django.db.models import Q
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from simple_history.models import HistoricalRecords
@@ -23,6 +25,13 @@ class Category(models.Model):
     name = models.CharField(max_length=100)
     def __str__(self):
         return f"{self.name}"
+class PostQuerySet(models.QuerySet):
+    def available(self):
+        now = timezone.now()
+        return self.filter(Q(scheduled_date__lte=now) | Q(scheduled_date__isnull=True))
+class PostManager(models.Manager):
+    def get_queryset(self):
+        return PostQuerySet(self.model, using=self._db).available()
 class Post(models.Model):
     """Model for representing Posts."""
     title = models.CharField(max_length=100)
@@ -35,6 +44,7 @@ class Post(models.Model):
     top = models.BooleanField(default=False)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
     history = HistoricalRecords()
+    objects = PostManager()
     def __str__(self):
         return f"{self.title}"
 class Comment(models.Model):
