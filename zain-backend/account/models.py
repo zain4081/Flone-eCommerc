@@ -73,14 +73,14 @@ class User(AbstractBaseUser):
     def __str__(self):
         return f"{self.email}"
 
-    def has_perm(self):
+    def has_perm(self, app_label): # pylint: disable=unused-argument
         """
         Does the user have a specific permission?
         """
         # Simplest possible answer: Yes, always
         return self.is_admin
 
-    def has_module_perms(self):
+    def has_module_perms(self, app_label): # pylint: disable=unused-argument
         """
         Does the user have permissions to view the app `app_label`?
         """
@@ -111,3 +111,5 @@ class User(AbstractBaseUser):
         """
         # Simplest possible answer: All admins are staff
         return self.is_admin
+# Import necessary models
+

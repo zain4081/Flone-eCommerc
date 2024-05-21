@@ -8,6 +8,7 @@ const BlogPost = () => {
   const { id } = useParams();
   const check = id;
   const [post, setPost] = useState(null);
+  const [tags, setTags] = useState(null);
   const [prevID, setPrevPostId] = useState(null);
   const [nextID, setNextPostId] = useState(null);
   const { access_token } = getToken();
@@ -37,6 +38,12 @@ const BlogPost = () => {
       
       const postData = await response.json();
       setPost(postData);
+      const mergedTags = postData.tag.reduce((acc, tagId, index) => {
+        acc[tagId] = postData.tags_name[index];
+        return acc;
+      }, {});
+      setTags(mergedTags)
+
     } catch (error) {
       console.error("Error fetching data:", error);
       // Optionally, you can handle the error here
@@ -46,6 +53,7 @@ const BlogPost = () => {
     console.log("fetchPostVote")
     try {
       const response = await getVote({"postId": id ? id : post[0].id, "access_token": access_token});
+      console.log("vote data", response);
       if(response.data){
         
         setVote(response.data)
@@ -235,21 +243,15 @@ const BlogPost = () => {
       <div className="tag-share">
         <div className="dec-tag">
           <ul>
-            <li>
-              <Link to={process.env.PUBLIC_URL + "/blog-standard"}>
-                lifestyle ,
+          
+          {Object.entries(tags).map(([tagId, tagName], index, array) => (
+            <li key={tagId}>
+              <Link to={process.env.PUBLIC_URL + "/blog-standard/" + tagId}>
+                {tagName}{index === array.length - 1 ? '' : ', '}
               </Link>
             </li>
-            <li>
-              <Link to={process.env.PUBLIC_URL + "/blog-standard"}>
-                interior ,
-              </Link>
-            </li>
-            <li>
-              <Link to={process.env.PUBLIC_URL + "/blog-standard"}>
-                outdoor
-              </Link>
-            </li>
+          ))}
+          
           </ul>
         </div>
         <div className="blog-share">

@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation} from "react-router-dom";
 import SEO from "../../components/seo";
 import LayoutOne from "../../layouts/LayoutOne";
 import Breadcrumb from "../../wrappers/breadcrumb/Breadcrumb";
@@ -8,12 +8,13 @@ import BlogPagination from "../../wrappers/blog/BlogPagination";
 import BlogPosts from "../../wrappers/blog/BlogPosts";
 
 const BlogStandard = () => {
-  const [totalPages, setTotalPages] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
   const [posts, setPosts] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [search, setSearch] = useState(null);
   const { pathname } = useLocation();
+  
 
   const fetchData = async (page = 1) => {
     try {
@@ -84,6 +85,7 @@ const BlogStandard = () => {
               <div className="col-lg-3">
                 {/* blog sidebar */}
                 <BlogSidebar onFilterChange={handleFilterChange} />
+
               </div>
             </div>
           </div>

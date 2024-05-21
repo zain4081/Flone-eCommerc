@@ -11,6 +11,7 @@ class PostSerializer(serializers.ModelSerializer):
     """
     likes_count = serializers.SerializerMethodField()
     comments_count = serializers.SerializerMethodField()
+    tags_name = serializers.SerializerMethodField()
     def get_likes_count(self, post):
         """
         Get the number of likes for a post.
@@ -32,7 +33,17 @@ class PostSerializer(serializers.ModelSerializer):
             int: The number of comments for the post.
         """
         return Comment.objects.filter(post=post).count()
+    def get_tags_name(self, post):
+        """
+        Get the names of tags for a post.
 
+        Args:
+            post: The Post object for which to get the tags.
+
+        Returns:
+            list: A list of tag names for the post.
+        """
+        return [tag.name for tag in post.tag.all()]
     class Meta:
         """
         PostSerialiezer Meta is contains all fields in Model
@@ -48,7 +59,6 @@ class RecursiveCommentSerializer(serializers.ModelSerializer):
     """
     likes_count = serializers.SerializerMethodField()
     user_name = serializers.SerializerMethodField()
-
     def get_likes_count(self, comment):
         """
         Get the number of likes for a comment.
@@ -103,6 +113,12 @@ class RecursiveCommentSerializer(serializers.ModelSerializer):
             return []
         serializer = RecursiveCommentSerializer(replies, many=True, context=self.context)
         return serializer.data
+    class Meta:
+        """
+        Replies of comments Serialiezer Meta is contains all fields in Model
+        """
+        model = Comment
+        fields = "__all__"
 class CommentSerializer(serializers.ModelSerializer):
     """
     Serializer for the Comment model.

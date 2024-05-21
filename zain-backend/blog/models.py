@@ -8,15 +8,19 @@ from django.utils.translation import gettext_lazy as _
 
 from ckeditor.fields import RichTextField
 User = get_user_model()
-def upload_to(filename):
+def upload_to(filename, file): # pylint: disable=unused-argument
     """set image filename"""
     return f'blog/{filename}'
 class Tag(models.Model):
     """Model for representing tags."""
     name = models.CharField(max_length=50)
+    def __str__(self):
+        return f"{self.name}"
 class Category(models.Model):
     """Model for representing Categories."""
     name = models.CharField(max_length=100)
+    def __str__(self):
+        return f"{self.name}"
 class Post(models.Model):
     """Model for representing Posts."""
     title = models.CharField(max_length=100)
@@ -28,6 +32,8 @@ class Post(models.Model):
     featured = models.BooleanField(default=False)
     top = models.BooleanField(default=False)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
+    def __str__(self):
+        return f"{self.title}"
 class Comment(models.Model):
     """Model for representing Comments."""
     date = models.DateField(auto_now_add=True)

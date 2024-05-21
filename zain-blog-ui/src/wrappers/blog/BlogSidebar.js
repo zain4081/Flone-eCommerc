@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import {
   useGetCategoriesMutation,
   useGetTagsMutation,
 } from "../../services/blogApi";
 import { useSelector } from "react-redux";
 
-const BlogSidebar = ({ onFilterChange }) => {
+const BlogSidebar = ({ onFilterChange}) => {
+  const { tag } = useParams();
   const [getTags] = useGetTagsMutation();
   const [getCategories] = useGetCategoriesMutation();
   const [tags, setTags] = useState(null);
@@ -38,6 +39,13 @@ const BlogSidebar = ({ onFilterChange }) => {
     fetchTagsCategories();
   
   },[]);
+// if url contains param of tag then
+  useEffect(() => {
+    if (tag) {
+      handleTags(tag);
+      
+    }
+  }, []);
 
   const handleFilterChange = (filterType, filterId) => {
     onFilterChange(filterType, filterId);
@@ -142,8 +150,10 @@ const BlogSidebar = ({ onFilterChange }) => {
         <h4 className="pro-sidebar-title">Categories</h4>
         <div className="sidebar-widget-list sidebar-widget-list--blog mt-20">
           <ul>
-            {categories &&
-              categories.map((category) => (
+          {categories &&
+            categories.map((category) => (
+              // Check if category.posts_count is greater than 0
+              category.posts_count > 0 && (
                 <li key={category.id}>
                   <div className="sidebar-widget-list-left">
                     <input
@@ -157,7 +167,8 @@ const BlogSidebar = ({ onFilterChange }) => {
                     <span className="checkmark" />
                   </div>
                 </li>
-              ))}
+              )
+            ))}
           </ul>
         </div>
       </div>
@@ -165,16 +176,21 @@ const BlogSidebar = ({ onFilterChange }) => {
         <h4 className="pro-sidebar-title">Tag </h4>
         <div className="sidebar-widget-tag mt-25">
           <ul>
-            {tags &&
+          {tags &&
               tags.map((tag) => (
-                <li 
-                  key={tag.id} 
-                >
-                  <Link onClick={() => handleTags(tag.id)} className={selectedTags.includes(tag.id) ? "active" : ""} >
-                    {tag.name} {selectedTags.includes(tag.id) ? tag.posts_count : ""}
-                  </Link>
-                </li>
+                // Check if tag.posts_count is greater than 0
+                tag.posts_count > 0 && (
+                  <li key={tag.id}>
+                    <Link
+                      onClick={() => handleTags(tag.id)}
+                      className={selectedTags.includes(tag.id) ? "active" : ""}
+                    >
+                      {tag.name}
+                    </Link>
+                  </li>
+                )
               ))}
+              {typeof selectedTags}
           </ul>
         </div>
       </div>

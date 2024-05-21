@@ -16,7 +16,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from blog.models import Post, Comment, Like
+from blog.models import Post, Comment, Like, Tag, Category
 from blog.paginator import DefaultPaginator
 from blog.serializer import PostSerializer, CommentSerializer
 from blog.serializer import LikeSerializer, CategorySerializer
@@ -221,18 +221,20 @@ class UserVoteView(APIView):
         if like:
             serializer = LikeSerializer(like)
             return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response({"message": "No vote found."}, status=status.HTTP_200_OK)
+        return Response({"message": "No vote found."}, status=status.HTTP_404_NOT_FOUND)
 
 class CategoryViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows categories to be viewed or edited.
     """
+    queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
 class TagViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows tags to be viewed or edited.
     """
+    queryset = Tag.objects.all()
     serializer_class = TagSerializer
 
 class LikeViewSet(viewsets.ModelViewSet):

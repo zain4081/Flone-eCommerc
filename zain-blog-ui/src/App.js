@@ -396,6 +396,10 @@ const App = () => {
                 path={process.env.PUBLIC_URL + "/blog-details-standard/:id"}
                 element={access_token ? <BlogDetailsStandard/> : <Navigate to="/login-register"/>}
               /> 
+              <Route
+                path={process.env.PUBLIC_URL + "/blog-standard/:tag"}
+                element={access_token ? <BlogStandard/> : <Navigate to="/login-register"/>}
+              /> 
 
 
               {/* Other pages */}
