@@ -37,12 +37,7 @@ const BlogPost = () => {
       }
       
       const postData = await response.json();
-      setPost(postData);
-      const mergedTags = postData.tag.reduce((acc, tagId, index) => {
-        acc[tagId] = postData.tags_name[index];
-        return acc;
-      }, {});
-      setTags(mergedTags)
+      setPost(postData);      
 
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -69,7 +64,15 @@ const BlogPost = () => {
     }
   }
   
-
+  useEffect(() => {
+    if(post) {
+      const mergedTags = post.tag.reduce((acc, tagId, index) => {
+        acc[tagId] = post.tags_name[index];
+        return acc;
+      }, {});
+      setTags(mergedTags)
+    }
+  },[post])
   // next previous post id
   useEffect(() => {
     const fetchAdjacentPosts = async () => {
@@ -244,7 +247,7 @@ const BlogPost = () => {
         <div className="dec-tag">
           <ul>
           
-          {Object.entries(tags).map(([tagId, tagName], index, array) => (
+          {tags && Object.entries(tags).map(([tagId, tagName], index, array) => (
             <li key={tagId}>
               <Link to={process.env.PUBLIC_URL + "/blog-standard/" + tagId}>
                 {tagName}{index === array.length - 1 ? '' : ', '}
