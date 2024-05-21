@@ -54,7 +54,7 @@ const LoginRegister = () => {
   const [registerFormData, setRegisterFormData] = useState({
     name: "",
     email: "",
-    role: "",
+    role: "creator",
     password: "",
     password2: "",
   });
