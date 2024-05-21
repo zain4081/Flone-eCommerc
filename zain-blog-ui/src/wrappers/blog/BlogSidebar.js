@@ -41,9 +41,9 @@ const BlogSidebar = ({ onFilterChange}) => {
   },[]);
 // if url contains param of tag then
   useEffect(() => {
+    const tagInt = parseInt(tag);
     if (tag) {
-      handleTags(tag);
-      
+      handleTags(tagInt);
     }
   }, []);
 
