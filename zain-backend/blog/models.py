@@ -6,6 +6,8 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 
+from simple_history.models import HistoricalRecords
+
 from ckeditor.fields import RichTextField
 User = get_user_model()
 def upload_to(filename, file): # pylint: disable=unused-argument
@@ -32,6 +34,7 @@ class Post(models.Model):
     featured = models.BooleanField(default=False)
     top = models.BooleanField(default=False)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
+    history = HistoricalRecords()
     def __str__(self):
         return f"{self.title}"
 class Comment(models.Model):
