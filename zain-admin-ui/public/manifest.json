@@ -1,8 +1,4 @@
 {
-<<<<<<< HEAD
-  "short_name": "Flone React",
-  "name": "React Minimalist eCommerce Template",
-=======
   "short_name": "React App",
   "name": "Create React App Sample",
   "icons": [
@@ -12,7 +8,6 @@
       "type": "image/x-icon"
     }
   ],
->>>>>>> zain-admin-ui/master
   "start_url": ".",
   "display": "standalone",
   "theme_color": "#000000",

@@ -9,17 +9,6 @@ const storeToken = (value) => {
     }
 }
 
-<<<<<<< HEAD
-const storePostId = (value) => {
-    console.log("storepostId", value)
-    if (value) {
-        console.log("post",value)
-        localStorage.setItem('firstPostId', value)
-    }
-}
-
-=======
->>>>>>> zain-admin-ui/master
 const getToken = () => {
     let access_token = localStorage.getItem('access_token');
     let refresh_token = localStorage.getItem('refresh_token');
@@ -36,13 +25,4 @@ const removeToken = () => {
 
 
 
-<<<<<<< HEAD
-const getPostId = () => {
-    let firstPostId = localStorage.getItem('firstPostId');
-    return firstPostId
-}
-
-export {getToken, storeToken, removeToken, storePostId, getPostId};
-=======
 export {getToken, storeToken, removeToken};
->>>>>>> zain-admin-ui/master

@@ -8,6 +8,12 @@ export default [
     navLink: "/home",
   },
   {
+    id: "managePosts",
+    title: "Manage Posts",
+    icon: <Mail size={20} />,
+    navLink: "/manage-posts",
+  },
+  {
     id: "secondPage",
     title: "Second Page",
     icon: <Mail size={20} />,

@@ -5,32 +5,6 @@ export const userAuthApi = createApi({
   reducerPath: 'userAuthApi',
   baseQuery: fetchBaseQuery({ baseUrl: 'http://127.0.0.1:8000/account/' }),
   endpoints: (builder) => ({
-<<<<<<< HEAD
-    registerUser: builder.mutation({
-        query:(user)=>{
-            return{
-                url:'register/',
-                method: 'POST',
-                body: user,
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-            }
-        }
-    }),
-    verifyUser: builder.mutation({
-        query:(token)=>{
-            return{
-                url:'verify-email/',
-                method: 'GET',
-                headers: {
-                    'Authorization': `bearer ${token}`,
-                },
-            }
-        }
-    }),
-=======
->>>>>>> zain-admin-ui/master
     loginUser: builder.mutation({
       query:(user)=>{
           return{
@@ -73,8 +47,4 @@ export const userAuthApi = createApi({
 
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
-<<<<<<< HEAD
-export const { useRegisterUserMutation, useLoginUserMutation, useGetLoggedUserMutation, useChangePasswordMutation, useVerifyUserMutation } = userAuthApi;
-=======
-export const { useLoginUserMutation, useGetLoggedUserMutation, useChangePasswordMutation, useVerifyUserMutation } = userAuthApi;
->>>>>>> zain-admin-ui/master
+export const { useLoginUserMutation, useGetLoggedUserMutation, useChangePasswordMutation } = userAuthApi;

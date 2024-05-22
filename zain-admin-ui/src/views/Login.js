@@ -56,11 +56,11 @@ const Login = () => {
     const res = await loginUser(loginFormData)
     
     console.log("res", res)
-    if(res.error){
+    if(res && res.error){
       setServerError(res.error.data.errors)
       console.log("errors are", res.error.data.errors)
     }
-    if(res.data){
+    if(res && res.data){
       console.log("data is ", res.data.token)
       storeToken(res.data.token)
       setServerError(null)
