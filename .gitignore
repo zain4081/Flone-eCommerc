@@ -37,6 +37,8 @@ zain-blog-ui/flone/yarn-debug.log*
 zain-blog-ui/flone/yarn-error.log*
 zain-blog-ui/flone/_gsdata_
 
+zain-blog-ui/flone/.env
+
 #extra files
 zain-blog-ui/flone/src/wrappers/blog/BlogLikes.js
 
