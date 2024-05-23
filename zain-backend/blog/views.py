@@ -22,6 +22,26 @@ from blog.serializer import PostSerializer, CommentSerializer
 from blog.serializer import LikeSerializer, CategorySerializer
 from blog.serializer import TagSerializer, FirstPostIdSerializer
 
+def recursive(comment):
+    comment_serializer = CommentSerializer2(comment)
+    comment = comment_serializer.data
+    print("comment",comment)
+    replies = Comment.objects.filter(parent_comment=comment['id'])
+    print("replies 9", replies)
+    if replies:
+        for index, reply in enumerate(replies):
+            print("reply", reply)
+            r = recursive(reply)
+            print("r", r)
+            if r.length > 0:
+                reply['replies'] = r
+            replies[index] = reply
+            print("replies", replies)
+        return replies
+    else:
+        return comment
+
+
 class PostViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows posts to be viewed or edited.
@@ -162,24 +182,22 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         """
-        Returns the queryset for the comments of a specific post.
+        Returns Comments Objects for specific Post.
         """
         post_id = self.kwargs.get('post_id')
         return Comment.objects.filter(post_id=post_id)
-
     def list(self, request, *args, **kwargs):
         """
-        Returns a list of comments for a specific post.
-        """
-        queryset = self.get_queryset().prefetch_related('comment_likes')
+    #     Returns a list of comments and their replies
+    #     """
+        queryset = Comment.objects.filter( parent_comment__isnull=True).prefetch_related('comment_likes')
         count = queryset.count()
-        serializer = self.get_serializer(queryset, many=True, context={'depth': 3})
+        serializer = CommentSerializer(queryset, many=True, context={'depth': 3})
         data = {
             'count': count,
             'comments': serializer.data,
         }
-        return Response(data)
-
+        return Response(data, status=status.HTTP_200_OK)
 class LikePostSet(viewsets.ModelViewSet):
     """
     API endpoint that allows posts to be liked.
@@ -242,3 +260,21 @@ class LikeViewSet(viewsets.ModelViewSet):
     API endpoint that allows likes to be viewed or edited.
     """
     serializer_class = LikeSerializer
+    
+    
+    
+    
+
+          
+            
+                
+
+
+
+                        
+                        
+                
+            
+
+
+                

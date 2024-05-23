@@ -42,7 +42,6 @@ class UserRegistrationView(APIView):
     API view for user registration.
     """
     renderer_classes = [UserRenderer]
-    @method_decorator(csrf_protect)
     def post(self, request):
         """
         Handles POST request for user registration.

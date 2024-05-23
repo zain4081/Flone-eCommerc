@@ -13,7 +13,6 @@ class PostSerializer(serializers.ModelSerializer):
     comments_count = serializers.SerializerMethodField()
     tags_name = serializers.SerializerMethodField()
     image_url = serializers.SerializerMethodField('get_image_url')
-
     def get_likes_count(self, post):
         """
         Get the number of likes for a post.
@@ -46,7 +45,6 @@ class PostSerializer(serializers.ModelSerializer):
             list: A list of tag names for the post.
         """
         return [tag.name for tag in post.tag.all()]
-    
     def get_image_url(self, obj):
         return obj.image.url
     class Meta:
@@ -55,75 +53,6 @@ class PostSerializer(serializers.ModelSerializer):
         """
         model = Post
         fields = "__all__"
-class RecursiveCommentSerializer(serializers.ModelSerializer):
-    """
-    Serializer for handling recursive comments.
-
-    This serializer recursively serializes comments and their replies,
-    ensuring that replies are nested under their parent comments.
-    """
-    likes_count = serializers.SerializerMethodField()
-    user_name = serializers.SerializerMethodField()
-    def get_likes_count(self, comment):
-        """
-        Get the number of likes for a comment.
-
-        Args:
-            comment: The Comment object for which to get the likes count.
-
-        Returns:
-            int: The number of likes for the comment.
-        """
-        return Like.objects.filter(comment=comment).count()
-
-    def to_representation(self, instance):
-        """
-        Serialize the comment instance.
-
-        Args:
-            instance: The Comment instance to serialize.
-
-        Returns:
-            dict: The serialized representation of the comment instance.
-        """
-        representation = super().to_representation(instance)
-        if self.context.get('depth', 0) <= 0:
-            return representation
-        representation['replies'] = self.get_replies(instance)
-        return representation
-    def get_user_name(self, comment):
-        """
-        Get the name of the user who posted the comment.
-
-        Args:
-            comment: The Comment object for which to get the user name.
-
-        Returns:
-            str: The name of the user who posted the comment.
-        """
-        return comment.user.name if comment.user else None
-
-    def get_replies(self, obj):
-        """
-        Get the replies to a comment.
-
-        Args:
-            obj: The parent Comment object.
-
-        Returns:
-            list: A list of serialized replies to the comment.
-        """
-        replies = obj.replies.all()
-        if self.context.get('depth', 0) <= 1:
-            return []
-        serializer = RecursiveCommentSerializer(replies, many=True, context=self.context)
-        return serializer.data
-    class Meta:
-        """
-        Replies of comments Serialiezer Meta is contains all fields in Model
-        """
-        model = Comment
-        fields = "__all__"
 class CommentSerializer(serializers.ModelSerializer):
     """
     Serializer for the Comment model.
@@ -131,9 +60,8 @@ class CommentSerializer(serializers.ModelSerializer):
     comment and recursively includes replies to each comment.
     """
     likes_count = serializers.SerializerMethodField()
-    replies = RecursiveCommentSerializer(many=True, read_only=True)
     user_name = serializers.SerializerMethodField()
-
+    replies = serializers.SerializerMethodField()
     def get_likes_count(self, comment):
         """
         Get the number of likes for a comment.
@@ -156,12 +84,17 @@ class CommentSerializer(serializers.ModelSerializer):
             str: The name of the user who posted the comment.
         """
         return comment.user.name if comment.user else None
+    def get_replies(self, obj):
+        if obj.replies.exists():
+            return CommentSerializer(obj.replies.all(), many=True).data
+        return None
     class Meta:
         """
         commentSerialiezer Meta is contains all fields in Model
         """
         model = Comment
         fields = "__all__"
+    
 class TagSerializer(serializers.ModelSerializer):
     """
     Serializer for the Tag model.
@@ -237,3 +170,5 @@ class FirstPostIdSerializer(serializers.ModelSerializer):
         """
         model = Post
         fields = ['id']
+
+    

@@ -9,6 +9,7 @@ import SEO from "../../components/seo";
 import LayoutOne from "../../layouts/LayoutOne";
 import Breadcrumb from "../../wrappers/breadcrumb/Breadcrumb";
 import { setUserToken } from "../../store/slices/auth-slice";
+import ReCAPTCHA from "react-google-recaptcha"
 
 const LoginRegister = () => {
   let { pathname } = useLocation();
@@ -18,7 +19,11 @@ const LoginRegister = () => {
   const [loginUser] = useLoginUserMutation();
   const [ server_error, setServerError ] = useState({});
   const [ success, setSuccess ] = useState();
-
+  const [ capVal, setCapVal ] = useState(null);
+  const [ registerCapVal, setRegisterCapVal ] = useState(null);
+  // REACT_APP_RECAPTCHA_SECRET_KEY
+  console.log("SITE KEY",process.env.REACT_APP_RECAPTCHA_SITE_KEY)
+  
   // login handle
   const [loginFormData, setLoginFormData] = useState({
     email: "",
@@ -43,7 +48,7 @@ const LoginRegister = () => {
       let { access_token } = getToken()
       dispatch(setUserToken({ access_token: access_token }))
       navigate('/')
-    }
+    }  
   };
   let { access_token } = getToken()
   useEffect(() => {
@@ -59,7 +64,6 @@ const LoginRegister = () => {
     password2: "",
   });
 
-  
 
   const handleRegisterChange = (e) => {
     setRegisterFormData({
@@ -67,7 +71,6 @@ const LoginRegister = () => {
       [e.target.name]: e.target.value,
     });
   };
-console.log(process.env.REACT_APP_API_URL)
   
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
@@ -160,9 +163,13 @@ console.log(process.env.REACT_APP_API_URL)
                                     Forgot Password?
                                   </Link>
                                 </div>
-                                <button type="submit">
-                                  <span>Login</span>
-                                </button>
+                                <ReCAPTCHA
+                                  sitekey= {process.env.REACT_APP_RECAPTCHA_SITE_KEY}
+                                  onChange={(val)=> setCapVal(val)}
+                                />
+                                  <button disabled={capVal==null || capVal=={}} type="submit">
+                                    <span>Login</span>
+                                  </button>
                               </div>
                               <span 
                                 className="error" 
@@ -240,9 +247,13 @@ console.log(process.env.REACT_APP_API_URL)
                                   <option value="editor">Editor</option>
                               </select>
                               <div className="button-box">
-                                <button type="submit">
-                                  <span>Register</span>
-                                </button>
+                              <ReCAPTCHA
+                                  sitekey= {process.env.REACT_APP_RECAPTCHA_SITE_KEY}
+                                  onChange={(val)=> setRegisterCapVal(val)}
+                                />
+                                  <button disabled={registerCapVal==null || registerCapVal=={}} type="submit">
+                                    <span>Register</span>
+                                  </button>
                               </div>
                               <span 
                                 className="error" 

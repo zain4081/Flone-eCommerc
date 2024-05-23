@@ -22,4 +22,7 @@ urlpatterns = [
     path('', include(router.urls)),
     path('user-votes/<int:post_id>', views.UserVoteView.as_view(), name='user-votes'),
     path('first-post-id/', views.FirstPostIdView.as_view(), name='first-post-id'),
+    
+    # # new urls
+    # path('posts-s/<int:post_id>/', views.CommentApiView.as_view(), name='c'),
 ]
