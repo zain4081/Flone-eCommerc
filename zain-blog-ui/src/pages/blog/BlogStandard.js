@@ -6,6 +6,7 @@ import Breadcrumb from "../../wrappers/breadcrumb/Breadcrumb";
 import BlogSidebar from "../../wrappers/blog/BlogSidebar";
 import BlogPagination from "../../wrappers/blog/BlogPagination";
 import BlogPosts from "../../wrappers/blog/BlogPosts";
+import { useGetPostsMutation } from "../../services/blogApi";
 
 const BlogStandard = () => {
     const [totalPages, setTotalPages] = useState(0);
@@ -14,6 +15,7 @@ const BlogStandard = () => {
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [search, setSearch] = useState(null);
   const { pathname } = useLocation();
+  const [ getPosts ] = useGetPostsMutation();
   
 
   const fetchData = async (page = 1) => {
@@ -21,13 +23,14 @@ const BlogStandard = () => {
       let tags = selectedTags && selectedTags.length > 0 ? '&tags=[' + selectedTags+ ']': "";
       let categories = selectedCategories && selectedCategories.length > 0 ? '&category=[' + selectedCategories+ ']': "";
 
-      const url = `http://127.0.0.1:8000/blog/posts/?p=${page}${search && search.length > 0 ? search : ''}${tags && tags.length > 0 ? tags : ''}${categories && categories.length > 0 ? categories : ''}`;
-      const response = await fetch(url);
+      const p_url = `posts/?p=${page}${search && search.length > 0 ? search : ''}${tags && tags.length > 0 ? tags : ''}${categories && categories.length > 0 ? categories : ''}`;
+      const response = await getPosts(p_url);
+      if (response.data) {
+        setPosts(response.data.results);
+        setTotalPages(response.data.total_pages);
+      }
      
-      const sData = await response.json();
-      const data = sData.results;
-      setPosts(data);
-      setTotalPages(sData.total_pages);
+      
     } catch (error) {
       console.error("Error fetching data:", error);
     }

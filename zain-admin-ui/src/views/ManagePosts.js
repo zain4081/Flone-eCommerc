@@ -21,7 +21,7 @@ const ManagePosts = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Create Awesome 🙌</CardTitle>
+        <CardTitle>Manage Posts</CardTitle>
       </CardHeader>
       <CardBody>
         <CardText>This is your second page.</CardText>

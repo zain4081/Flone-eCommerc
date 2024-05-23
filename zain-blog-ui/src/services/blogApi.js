@@ -1,21 +1,46 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
+
 // Define a service using a base URL and expected endpoints
 export const blogApi = createApi({
   reducerPath: 'blogApi',
-  baseQuery: fetchBaseQuery({ baseUrl: 'http://127.0.0.1:8000/blog/' }),
+  baseQuery: fetchBaseQuery({ baseUrl: `${process.env.REACT_APP_API_URL}/blog/` }),
   endpoints: (builder) => ({
+    getPosts: builder.mutation({
+      query:(p_url)=>{
+          console.log('post query url',p_url)
+          return{
+              url: p_url,
+              method: 'GET',
+              headers: {
+                  'Content-Type': 'application/json',
+                  'ngrok-skip-browser-warning':"1233",
+              },
+          }
+      }
+    }),
     // Comments Queries-------------
     submitComment: builder.mutation({
         query:({data, access_token, postId})=>{
-            console.log('q userdata',data)
-            console.log('q access_token',access_token)
             return{
                 url:`posts/${postId}/comments/`,
                 method: 'POST',
                 body: data,
                 headers: {
                     'authorization': `Bearer ${access_token}`,
+                    'ngrok-skip-browser-warning':"1233",
+                },
+            }
+        }
+      }),
+      getComment: builder.mutation({
+        query:({access_token, postId})=>{
+            return{
+                url:`posts/${postId}/comments/`,
+                method: 'GET',
+                headers: {
+                    'authorization': `Bearer ${access_token}`,
+                    'ngrok-skip-browser-warning':"1233",
                 },
             }
         }
@@ -29,6 +54,7 @@ export const blogApi = createApi({
                 body: data,
                 headers: {
                     'authorization': `Bearer ${access_token}`,
+                    'ngrok-skip-browser-warning':"1233",
                 },
             }
         }
@@ -42,6 +68,7 @@ export const blogApi = createApi({
                 method: 'GET',
                 headers: {
                   'authorization': `Bearer ${access_token}`,
+                  'ngrok-skip-browser-warning':"1233",
               },
             }
         }
@@ -54,7 +81,8 @@ export const blogApi = createApi({
                 method: 'POST',
                 body: data,
                 headers: {
-                  'Content-Type': 'application/json'
+                  'Content-Type': 'application/json',
+                  'ngrok-skip-browser-warning':"1233",
               },
             }
         }
@@ -67,7 +95,8 @@ export const blogApi = createApi({
                 method: 'PUT',
                 body: data,
                 headers: {
-                  'Content-Type': 'application/json'
+                  'Content-Type': 'application/json',
+                  'ngrok-skip-browser-warning':"1233",
               },
             }
         }
@@ -80,7 +109,8 @@ export const blogApi = createApi({
                 url:`tags/`,
                 method: 'GET',
                 headers: {
-                  'Content-Type': 'application/json'
+                  'Content-Type': 'application/json',
+                  'ngrok-skip-browser-warning':"1233",
                 },
             }
         }
@@ -91,7 +121,8 @@ export const blogApi = createApi({
                 url:`categories/`,
                 method: 'GET',
                 headers: {
-                  'Content-Type': 'application/json'
+                  'Content-Type': 'application/json',
+                  'ngrok-skip-browser-warning':"1233",
                 },
             }
         }
@@ -101,4 +132,4 @@ export const blogApi = createApi({
 
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
-export const { useSubmitCommentMutation, useGetTagsMutation, useGetCategoriesMutation, useSubmitReplyMutation, useSubmitVoteMutation, useUpdateVoteMutation, useGetVoteMutation,  } = blogApi;
+export const { useSubmitCommentMutation, useGetTagsMutation, useGetCategoriesMutation, useSubmitReplyMutation, useSubmitVoteMutation, useUpdateVoteMutation, useGetVoteMutation, useGetPostsMutation, useGetCommentMutation } = blogApi;

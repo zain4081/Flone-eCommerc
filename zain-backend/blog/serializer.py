@@ -12,6 +12,8 @@ class PostSerializer(serializers.ModelSerializer):
     likes_count = serializers.SerializerMethodField()
     comments_count = serializers.SerializerMethodField()
     tags_name = serializers.SerializerMethodField()
+    image_url = serializers.SerializerMethodField('get_image_url')
+
     def get_likes_count(self, post):
         """
         Get the number of likes for a post.
@@ -44,6 +46,9 @@ class PostSerializer(serializers.ModelSerializer):
             list: A list of tag names for the post.
         """
         return [tag.name for tag in post.tag.all()]
+    
+    def get_image_url(self, obj):
+        return obj.image.url
     class Meta:
         """
         PostSerialiezer Meta is contains all fields in Model

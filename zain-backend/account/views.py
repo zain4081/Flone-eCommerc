@@ -8,6 +8,8 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_protect
 
 # Local application/library specific imports
 from account.models import User
@@ -40,6 +42,7 @@ class UserRegistrationView(APIView):
     API view for user registration.
     """
     renderer_classes = [UserRenderer]
+    @method_decorator(csrf_protect)
     def post(self, request):
         """
         Handles POST request for user registration.

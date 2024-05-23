@@ -31,7 +31,7 @@ import { useState } from "react";
 import { useLoginUserMutation } from "../services/userAuthApi";
 import { storeToken } from "../services/localStorageService";
 
-
+console.log("url: ", import.meta.env.VITE_API_URL)
 const Login = () => {
   const { skin } = useSkin();
   const [ loginUser ] = useLoginUserMutation();

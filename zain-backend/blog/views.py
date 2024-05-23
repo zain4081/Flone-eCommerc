@@ -26,7 +26,7 @@ class PostViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows posts to be viewed or edited.
     """
-    queryset = Post.objects.prefetch_related('post_likes')
+    queryset = Post.objects.prefetch_related('post_likes').order_by('-date') 
     serializer_class = PostSerializer
     pagination_class = DefaultPaginator
     filter_backends = [filters.SearchFilter]
@@ -134,14 +134,14 @@ class Postswithoutpagination(viewsets.ModelViewSet):
     """
     API endpoint that allows posts to be viewed without pagination.
     """
-    queryset = Post.objects.prefetch_related('post_likes')
+    queryset = Post.objects.prefetch_related('post_likes').order_by('-date')
     serializer_class = PostSerializer
 
 class TopPosts(viewsets.ModelViewSet):
     """
     API endpoint that allows top posts to be viewed.
     """
-    queryset = Post.objects.filter(top=True).prefetch_related('post_likes')
+    queryset = Post.objects.filter(top=True).prefetch_related('post_likes').order_by('-date') 
     serializer_class = PostSerializer
     pagination_class = DefaultPaginator
 
@@ -149,7 +149,7 @@ class FeaturedPosts(viewsets.ModelViewSet):
     """
     API endpoint that allows featured posts to be viewed.
     """
-    queryset = Post.objects.filter(featured=True).prefetch_related('post_likes')
+    queryset = Post.objects.filter(featured=True).prefetch_related('post_likes').order_by('-date') 
     serializer_class = PostSerializer
     pagination_class = DefaultPaginator
 

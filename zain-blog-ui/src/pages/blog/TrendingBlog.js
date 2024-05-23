@@ -4,21 +4,23 @@ import SEO from "../../components/seo";
 import LayoutOne from "../../layouts/LayoutOne";
 import Breadcrumb from "../../wrappers/breadcrumb/Breadcrumb";
 import BlogPostsNoSidebar from "../../wrappers/blog/BlogPostsNoSidebar";
+import { useGetPostsMutation } from "../../services/blogApi";
 
 const TrendingBlog = () => {
   const [posts, setPosts] = useState([]);
   const { pathname } = useLocation();
-  console.log("trending")
+  const [ getPosts ] = useGetPostsMutation();
+  
   const fetchData = async () => {
     try {
-      const url = `http://127.0.0.1:8000/blog/posts/trending`;
-      console.log(url);
-      const response = await fetch(url);
+      const p_url = `posts/trending`;
+      const response = await getPosts(p_url);
+      if (response.data) {
+        setPosts(response.data);
+      }
       if (!response.ok) {
         throw new Error("Failed to fetch data");
       }
-      const data = await response.json();
-      setPosts(data);
     } catch (error) {
       console.error("Error fetching data:", error);
     }

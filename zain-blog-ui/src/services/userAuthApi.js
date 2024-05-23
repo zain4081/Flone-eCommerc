@@ -1,9 +1,10 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
+
 // Define a service using a base URL and expected endpoints
 export const userAuthApi = createApi({
   reducerPath: 'userAuthApi',
-  baseQuery: fetchBaseQuery({ baseUrl: 'http://127.0.0.1:8000/account/' }),
+  baseQuery: fetchBaseQuery({ baseUrl: `${process.env.REACT_APP_API_URL}/account/` }),
   endpoints: (builder) => ({
     registerUser: builder.mutation({
         query:(user)=>{
@@ -12,7 +13,8 @@ export const userAuthApi = createApi({
                 method: 'POST',
                 body: user,
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'ngrok-skip-browser-warning':"1233",
                 },
             }
         }
@@ -24,6 +26,7 @@ export const userAuthApi = createApi({
                 method: 'GET',
                 headers: {
                     'Authorization': `bearer ${token}`,
+                    'ngrok-skip-browser-warning':"1233",
                 },
             }
         }
@@ -35,7 +38,8 @@ export const userAuthApi = createApi({
               method: 'POST',
               body: user,
               headers: {
-                  'Content-Type': 'application/json'
+                  'Content-Type': 'application/json',
+                  'ngrok-skip-browser-warning':"1233",
               },
           }
       }
@@ -47,6 +51,7 @@ export const userAuthApi = createApi({
                 method: 'GET',
                 headers: {
                     'authorization': `Bearer ${access_token}`,
+                    'ngrok-skip-browser-warning':"1233",
                 },
             }
         }
@@ -61,6 +66,7 @@ export const userAuthApi = createApi({
                 body: userdata,
                 headers: {
                     'authorization': `Bearer ${access_token}`,
+                    'ngrok-skip-browser-warning':"1233",
                 },
             }
         }

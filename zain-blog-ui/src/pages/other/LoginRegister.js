@@ -67,7 +67,7 @@ const LoginRegister = () => {
       [e.target.name]: e.target.value,
     });
   };
-
+console.log(process.env.REACT_APP_API_URL)
   
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();

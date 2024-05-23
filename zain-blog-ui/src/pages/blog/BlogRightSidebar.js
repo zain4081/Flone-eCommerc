@@ -6,6 +6,7 @@ import Breadcrumb from "../../wrappers/breadcrumb/Breadcrumb";
 import BlogSidebar from "../../wrappers/blog/BlogSidebar";
 import BlogPagination from "../../wrappers/blog/BlogPagination";
 import BlogPosts from "../../wrappers/blog/BlogPosts";
+import { useGetPostsMutation } from "../../services/blogApi";
 
 const BlogRightSidebar = () => {
   const [totalPages, setTotalPages] = useState(0);
@@ -14,6 +15,7 @@ const BlogRightSidebar = () => {
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [search, setSearch] = useState(null);
   const { pathname } = useLocation();
+  const [ getPosts ] = useGetPostsMutation();
 
   const fetchData = async (page = 1) => {
     console.log("fetching", page);
@@ -22,20 +24,16 @@ const BlogRightSidebar = () => {
       let categories = selectedCategories && selectedCategories.length > 0 ? '&category=[' + selectedCategories+ ']': "";
       console.log("search",search);
 
-      const url = `http://127.0.0.1:8000/blog/posts/?p=${page}${search && search.length > 0 ? search : ''}${tags && tags.length > 0 ? tags : ''}${categories && categories.length > 0 ? categories : ''}`;
-      console.log(url);
-      const response = await fetch(url);
+      const p_url = `posts/?p=${page}${search && search.length > 0 ? search : ''}${tags && tags.length > 0 ? tags : ''}${categories && categories.length > 0 ? categories : ''}`;
+      const response = await getPosts(p_url);
+      if (response.data) {
+        console.log("response: standard", response.data)
+        setPosts(response.data.results);
+        setTotalPages(response.data.total_pages);
+      }
       if (!response.ok) {
         throw new Error("Failed to fetch data");
       }
-      const sData = await response.json();
-      const data = sData.results;
-      // for (const post of data){
-      // }
-      console.log("data result")
-      console.log(data)
-      setPosts(data);
-      setTotalPages(sData.total_pages);
     } catch (error) {
       console.error("Error fetching data:", error);
     }

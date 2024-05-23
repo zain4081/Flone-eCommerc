@@ -18,10 +18,11 @@ const BlogPosts = (posts, url) => {
         <div className="blog-wrap-2 mb-30">
           <div className="blog-img-2">
             <Link to={process.env.PUBLIC_URL + "/blog-details-standard/"+post.id}>
+              
               <img
-                src={post.image}
+                src={process.env.REACT_APP_PUBLIC_URL+post.image_url}
                 alt={post.title}
-          git     />
+             />
             </Link>
           </div>
           <div className="blog-content-2">

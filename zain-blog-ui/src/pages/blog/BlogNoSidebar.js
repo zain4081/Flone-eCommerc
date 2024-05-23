@@ -5,6 +5,8 @@ import LayoutOne from "../../layouts/LayoutOne";
 import Breadcrumb from "../../wrappers/breadcrumb/Breadcrumb";
 import BlogPagination from "../../wrappers/blog/BlogPagination";
 import BlogPostsNoSidebar from "../../wrappers/blog/BlogPostsNoSidebar";
+import { useGetPostsMutation } from "../../services/blogApi";
+
 
 
 const BlogNoSidebar = () => {
@@ -12,20 +14,22 @@ const BlogNoSidebar = () => {
   let { pathname } = useLocation();
   const [totalPages, setTotalPages] = useState(0);
   const [posts, setPosts] = useState([]);
+  const [getPosts] = useGetPostsMutation();
 
   const fetchData = async (page = 1) => {
     console.log("fetching", page);
     try {
-      const url = `http://127.0.0.1:8000/blog/posts/?p=${page}`;
-      console.log(url);
-      const response = await fetch(url);
+      const p_url = `posts/?p=${page}`;
+      const response = await getPosts(p_url);
+      if (response.data) {
+        console.log("response: standard", response.data)
+        setPosts(response.data.results);
+        setTotalPages(response.data.total_pages);
+      }
+     
       if (!response.ok) {
         throw new Error("Failed to fetch data");
       }
-      const sData = await response.json();
-      const data = sData.results;
-      setPosts(data);
-      setTotalPages(sData.total_pages);
     } catch (error) {
       console.error("Error fetching data:", error);
     }

@@ -59,6 +59,7 @@ zain-admin-ui/coverage
 zain-admin-ui/build
 zain-admin-ui/dist
 zain-admin-ui/demo-*
+zain-admin-ui/.env
 
 # misc
 zain-admin-ui/.DS_Store
