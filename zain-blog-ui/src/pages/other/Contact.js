@@ -1,12 +1,42 @@
-import { Fragment } from "react"; 
+import { Fragment, useState } from "react"; 
 import { useLocation } from "react-router-dom";
 import SEO from "../../components/seo";
 import LayoutOne from "../../layouts/LayoutOne";
 import Breadcrumb from "../../wrappers/breadcrumb/Breadcrumb";
-import GoogleMap from "../../components/google-map"
+import GoogleMap from "../../components/google-map";
+import React, { useRef } from 'react';
+import emailjs from '@emailjs/browser';
 
 const Contact = () => {
   let { pathname } = useLocation();
+  const form = useRef();
+  const [ serverResponse, setServerResponse] = useState({});
+  const temp_id = process.env.REACT_APP_TEMPLATE_ID;
+  const service_id = process.env.REACT_APP_SERVICE_ID;
+  
+
+  const sendEmail = (e) => {
+    e.preventDefault();
+
+    emailjs
+      .sendForm(service_id, temp_id, form.current, {
+        publicKey: process.env.REACT_APP_PUBLIC_KEY,
+      })
+      .then(
+        () => {
+          console.log('SUCCESS!');
+          setServerResponse({})
+          form.current.reset()
+          setServerResponse({"success": "Your Message Processd Successfully. we will Contact you Shortly"})
+        },
+        (error) => {
+          console.log('FAILED...', error.text);
+          setServerResponse({})
+          
+          setServerResponse({"error": error.text})
+        },
+      );
+  };
 
   return (
     <Fragment>
@@ -102,19 +132,34 @@ const Contact = () => {
                   <div className="contact-title mb-30">
                     <h2>Get In Touch</h2>
                   </div>
-                  <form className="contact-form-style">
+                  <span 
+                    style={{color: "red"}}
+                  >
+                    {serverResponse.error ? serverResponse.error: null}
+                  </span>
+                  <span 
+                    style={{color: "green"}}
+                  >
+                    {serverResponse.success ? serverResponse.success: null}
+                  </span>
+                  <form 
+                    className="contact-form-style"
+                    ref={form}
+                    onSubmit={sendEmail}
+                  >
                     <div className="row">
                       <div className="col-lg-6">
-                        <input name="name" placeholder="Name*" type="text" />
+                        <input name="from_name" placeholder="Name*" type="text" required/>
                       </div>
                       <div className="col-lg-6">
-                        <input name="email" placeholder="Email*" type="email" />
+                        <input name="user_email" placeholder="Email*" type="email" required/>
                       </div>
                       <div className="col-lg-12">
                         <input
                           name="subject"
                           placeholder="Subject*"
                           type="text"
+                          required
                         />
                       </div>
                       <div className="col-lg-12">
@@ -122,6 +167,7 @@ const Contact = () => {
                           name="message"
                           placeholder="Your Message*"
                           defaultValue={""}
+                          required
                         />
                         <button className="submit" type="submit">
                           SEND
