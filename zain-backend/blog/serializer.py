@@ -3,7 +3,9 @@ Serializers for the blog app.
 .
 """
 from rest_framework import serializers
+from django_elasticsearch_dsl_drf.serializers import DocumentSerializer
 from blog.models import Post, Like, Comment, Category, Tag
+from blog.document import PostDocument
 
 class PostSerializer(serializers.ModelSerializer):
     """
@@ -170,5 +172,16 @@ class FirstPostIdSerializer(serializers.ModelSerializer):
         """
         model = Post
         fields = ['id']
+#Elastic Search
+class PostDocumentSerializer(DocumentSerializer):
+    class Meta:
+        model = Post
+        document = PostDocument
 
-    
+        fields = ('title', 'content')
+        
+    def get_location(self, obj):
+        try:
+            return obj.location.to_dict()
+        except:
+            return {}

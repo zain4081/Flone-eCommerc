@@ -16,11 +16,23 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from django_elasticsearch_dsl_drf.viewsets import DocumentViewSet
+from django_elasticsearch_dsl_drf.filter_backends import (
+    FilteringFilterBackend,
+    CompoundSearchFilterBackend,
+)
 from blog.models import Post, Comment, Like, Tag, Category
 from blog.paginator import DefaultPaginator
-from blog.serializer import PostSerializer, CommentSerializer
-from blog.serializer import LikeSerializer, CategorySerializer
-from blog.serializer import TagSerializer, FirstPostIdSerializer
+from blog.serializer import (
+    PostSerializer,
+    CommentSerializer,
+    LikeSerializer,
+    CategorySerializer,
+    FirstPostIdSerializer,
+    TagSerializer,
+    PostDocumentSerializer
+)
+from blog.document import PostDocument
 
 def recursive(comment):
     comment_serializer = CommentSerializer2(comment)
@@ -261,9 +273,21 @@ class LikeViewSet(viewsets.ModelViewSet):
     """
     serializer_class = LikeSerializer
     
+class PostDocumentViewSet(DocumentViewSet):
+    document = PostDocument
+    serializer_class = PostDocumentSerializer
     
+    filter_backends = [
+        FilteringFilterBackend,
+        CompoundSearchFilterBackend,
+    ]
     
-    
+    search_fields = ('title', 'content')
+    multi_match_search_fields = ('title', 'content')
+    filter_fields = {
+        'title': 'title',
+        'content': 'content'
+    }
 
           
             
