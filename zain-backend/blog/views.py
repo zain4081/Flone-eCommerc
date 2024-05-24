@@ -18,9 +18,12 @@ from rest_framework.views import APIView
 
 from django_elasticsearch_dsl_drf.viewsets import DocumentViewSet
 from django_elasticsearch_dsl_drf.filter_backends import (
+    SearchFilterBackend,
     FilteringFilterBackend,
-    CompoundSearchFilterBackend,
+    SuggesterFilterBackend,
+    FunctionalSuggesterFilterBackend
 )
+from django_elasticsearch_dsl_drf.constants import SUGGESTER_COMPLETION
 from blog.models import Post, Comment, Like, Tag, Category
 from blog.paginator import DefaultPaginator
 from blog.serializer import (
@@ -279,15 +282,25 @@ class PostDocumentViewSet(DocumentViewSet):
     
     filter_backends = [
         FilteringFilterBackend,
-        CompoundSearchFilterBackend,
+        SearchFilterBackend,
+        SuggesterFilterBackend,
+        FunctionalSuggesterFilterBackend
     ]
-    
-    search_fields = ('title', 'content')
-    multi_match_search_fields = ('title', 'content')
+    search_fields = (
+        'title',
+    )
     filter_fields = {
-        'title': 'title',
-        'content': 'content'
+        'category': 'category.id'
     }
+    suggester_fields = {
+        'title': {
+            'field': 'title.suggest',
+            'suggesters': [
+                SUGGESTER_COMPLETION,
+            ],
+        },
+    }
+
 
           
             

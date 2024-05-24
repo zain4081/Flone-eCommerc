@@ -175,13 +175,8 @@ class FirstPostIdSerializer(serializers.ModelSerializer):
 #Elastic Search
 class PostDocumentSerializer(DocumentSerializer):
     class Meta:
-        model = Post
         document = PostDocument
-
-        fields = ('title', 'content')
-        
-    def get_location(self, obj):
-        try:
-            return obj.location.to_dict()
-        except:
-            return {}
+        fields = (
+            'title',
+            'category'
+        )

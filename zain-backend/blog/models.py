@@ -4,11 +4,16 @@ Module for defining blog models.
 """
 from django.db import models
 from django.db.models import Q
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
+
 from simple_history.models import HistoricalRecords
+from django_elasticsearch_dsl.registries import registry
+
 
 from ckeditor.fields import RichTextField
 User = get_user_model()
@@ -88,3 +93,24 @@ class Like(models.Model):
             models.UniqueConstraint(fields=['user', 'comment'], name='unique_user_comment'),
             models.UniqueConstraint(fields=['user', 'post'], name='unique_user_post')
         ]
+#signals for Post Model for ElasticSearch
+@receiver(post_save)
+def update_document(sender, **kwargs):
+    app_label = sender._meta.app_label
+    model_name = sender._meta.model_name
+    instance = kwargs['instance']
+    if app_label == 'posts':
+        if model_name == 'post':
+            instances = instance.post.all()
+            for _instance in instances:
+                registry.update(_instance)
+@receiver(post_delete)
+def delete_document(sender, **kwargs):
+    app_label = sender._meta.app_label
+    model_name = sender._meta.model_name
+    instance = kwargs['instance']
+    if app_label == 'posts':
+        if model_name == 'post':
+            instances = instance.post.all()
+            for _instance in instances:
+                registry.update(_instance)

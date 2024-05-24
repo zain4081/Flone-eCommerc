@@ -17,12 +17,12 @@ router.register(r'posts/(?P<post_id>\d+)/comments', views.CommentViewSet, basena
 router.register(r'posts/(?P<post_id>\d+)/likes', views.LikeViewSet, basename='post-likes')
 router.register('tags', views.TagViewSet, basename='tag')
 router.register('categories', views.CategoryViewSet, basename='category')
+router.register(r'post-search', views.PostDocumentViewSet, basename='post-search')
 
 urlpatterns = [
     path('', include(router.urls)),
     path('user-votes/<int:post_id>', views.UserVoteView.as_view(), name='user-votes'),
     path('first-post-id/', views.FirstPostIdView.as_view(), name='first-post-id'),
-    path('search/', views.PostDocumentViewSet.as_view({'get': 'list'}))
     
     # # new urls
     # path('posts-s/<int:post_id>/', views.CommentApiView.as_view(), name='c'),

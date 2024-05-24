@@ -19,6 +19,19 @@ export const blogApi = createApi({
           }
       }
     }),
+    getElasticIndex: builder.mutation({
+      query:(p_url)=>{
+          console.log('post query url',p_url)
+          return{
+              url: p_url,
+              method: 'GET',
+              headers: {
+                  'Content-Type': 'application/json',
+                  'ngrok-skip-browser-warning':"1233",
+              },
+          }
+      }
+    }),
     // Comments Queries-------------
     submitComment: builder.mutation({
         query:({data, access_token, postId})=>{
@@ -132,4 +145,4 @@ export const blogApi = createApi({
 
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
-export const { useSubmitCommentMutation, useGetTagsMutation, useGetCategoriesMutation, useSubmitReplyMutation, useSubmitVoteMutation, useUpdateVoteMutation, useGetVoteMutation, useGetPostsMutation, useGetCommentMutation } = blogApi;
+export const { useSubmitCommentMutation, useGetTagsMutation, useGetCategoriesMutation, useSubmitReplyMutation, useSubmitVoteMutation, useUpdateVoteMutation, useGetVoteMutation, useGetPostsMutation, useGetCommentMutation, useGetElasticIndexMutation } = blogApi;

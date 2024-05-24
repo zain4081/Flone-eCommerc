@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 import SEO from "../../components/seo";
 import LayoutOne from "../../layouts/LayoutOne";
 import Breadcrumb from "../../wrappers/breadcrumb/Breadcrumb";
-import BlogSidebar from "../../wrappers/blog/BlogSidebar";
+import RightSidebar from "../../wrappers/blog/RightSidebar";
 import BlogPagination from "../../wrappers/blog/BlogPagination";
 import BlogPosts from "../../wrappers/blog/BlogPosts";
 import { useGetPostsMutation } from "../../services/blogApi";
@@ -11,8 +11,6 @@ import { useGetPostsMutation } from "../../services/blogApi";
 const BlogRightSidebar = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [posts, setPosts] = useState([]);
-  const [selectedTags, setSelectedTags] = useState([]);
-  const [selectedCategories, setSelectedCategories] = useState([]);
   const [search, setSearch] = useState(null);
   const { pathname } = useLocation();
   const [ getPosts ] = useGetPostsMutation();
@@ -20,11 +18,8 @@ const BlogRightSidebar = () => {
   const fetchData = async (page = 1) => {
     console.log("fetching", page);
     try {
-      let tags = selectedTags && selectedTags.length > 0 ? '&tags=[' + selectedTags+ ']': "";
-      let categories = selectedCategories && selectedCategories.length > 0 ? '&category=[' + selectedCategories+ ']': "";
-      console.log("search",search);
 
-      const p_url = `posts/?p=${page}${search && search.length > 0 ? search : ''}${tags && tags.length > 0 ? tags : ''}${categories && categories.length > 0 ? categories : ''}`;
+      const p_url = `posts/?p=${page}${search && search.length > 0 ? search : ''}`;
       const response = await getPosts(p_url);
       if (response.data) {
         console.log("response: standard", response.data)
@@ -41,18 +36,13 @@ const BlogRightSidebar = () => {
 
   useEffect(() => {
     fetchData();
-  }, [selectedTags, selectedCategories, search]);
+  }, [search]);
 
   const handlePageChange = (page) => {
     fetchData(page);
   };
   const handleFilterChange = (filterType, filterId) => {
-    if (filterType === "tag") {
-      setSelectedTags(filterId);
-    }
-    else if (filterType === "category") {
-      setSelectedCategories(filterId);
-    } else if (filterType === "search"){
+    if (filterType === "search"){
       // console.log("search",filterId);
       setSearch(filterId);
     }
@@ -77,7 +67,7 @@ const BlogRightSidebar = () => {
             <div className="row flex-row-reverse">
             <div className="col-lg-3">
                 {/* blog sidebar */}
-                <BlogSidebar onFilterChange={handleFilterChange} />
+                <RightSidebar onFilterChange={handleFilterChange} />
               </div>
               <div className="col-lg-9">
                 <div className="ml-20">

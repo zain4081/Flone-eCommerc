@@ -1,32 +1,29 @@
-from django_elasticsearch_dsl import (
-    Document, fields, Index
-)
-from .models import Post
-
-PUBLISHER_INDEX = Index('post')
-
-PUBLISHER_INDEX.settings(
-    number_of_shards =1,
-    number_of_replicas =1
-)
-
-@PUBLISHER_INDEX.doc_type
+# articles/documents.py
+from django_elasticsearch_dsl import Document, fields
+from django_elasticsearch_dsl.registries import registry
+from blog.models import Post
+@registry.register_document
 class PostDocument(Document):
-    id = fields.IntegerField(attr="id")
     title = fields.TextField(
-        fields = {
-            "raw": {
-                "type": "keyword",
-            }
+        attr='title',
+        fields={
+            'raw': fields.TextField(),
+            'suggest': fields.CompletionField(),
         }
     )
-    content = fields.TextField(
-        fields = {
-            "raw": {
-                "type": "keyword",
-            }
+    category = fields.ObjectField(
+        attr='category',
+        properties={
+            'id': fields.IntegerField(),
+            'name': fields.TextField(
+                attr='name',
+                fields={
+                    'raw': fields.KeywordField(),
+                }
+            )
         }
     )
-    
-    class Django(object):
+    class Index:
+        name = 'posts'
+    class Django:
         model = Post
