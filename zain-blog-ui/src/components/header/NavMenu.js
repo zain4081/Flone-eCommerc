@@ -502,8 +502,8 @@ const NavMenu = ({ menuWhiteClass, sidebarMenu }) => {
                 </Link>
               </li>
               <li>
-                <Link to={process.env.PUBLIC_URL + "/blog-right-sidebar"}>
-                  {t("blog_right_sidebar")}
+                <Link to={process.env.PUBLIC_URL + "/blog_elasticsearch"}>
+                  {t("blog_elasticsearch")}
                 </Link>
               </li>
               <li>

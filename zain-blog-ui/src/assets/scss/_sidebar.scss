@@ -306,33 +306,23 @@
 
 #suggestion_list
 .suggestionList {
-  padding: 0;
-  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px; /* Adjust as needed */
 }
 
 .suggestion {
-  background-color: #f8f9fa;
+  background-color: #f0f0f0; /* Adjust as needed */
+  padding: 5px 10px;
   border-radius: 5px;
-  margin: 5px;
-  padding: 10px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.suggestion:hover {
-  background-color: #e9ecef;
 }
 
 .postTitle {
-  font-size: 16px;
-  color: #343a40;
-  margin-right: 10px;
+  font-weight: bold;
 }
 
 .postCategory {
-  font-size: 14px;
-  color: #ffc107;
-  background-color: #343a40;
-  padding: 3px 8px;
-  border-radius: 3px;
+  font-style: italic;
+  color: #666; /* Adjust as needed */
 }

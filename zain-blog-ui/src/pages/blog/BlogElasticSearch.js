@@ -3,12 +3,12 @@ import { useLocation } from "react-router-dom";
 import SEO from "../../components/seo";
 import LayoutOne from "../../layouts/LayoutOne";
 import Breadcrumb from "../../wrappers/breadcrumb/Breadcrumb";
-import RightSidebar from "../../wrappers/blog/RightSidebar";
+import Searchbar from "../../wrappers/blog/Searchbar";
 import BlogPagination from "../../wrappers/blog/BlogPagination";
-import BlogPosts from "../../wrappers/blog/BlogPosts";
+import BlogPostsNoSidebar from "../../wrappers/blog/BlogPostsNoSidebar";
 import { useGetPostsMutation } from "../../services/blogApi";
 
-const BlogRightSidebar = () => {
+const BlogElasticSearch = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [posts, setPosts] = useState([]);
   const [search, setSearch] = useState(null);
@@ -62,18 +62,18 @@ const BlogRightSidebar = () => {
             { label: "Blog", path: process.env.PUBLIC_URL + pathname },
           ]}
         />
-        <div className="blog-area pt-100 pb-100">
+        <div className="blog-area pt-20 pb-100">
           <div className="container">
             <div className="row flex-row-reverse">
-            <div className="col-lg-3">
-                {/* blog sidebar */}
-                <RightSidebar onFilterChange={handleFilterChange} />
+            <div className="col-lg-12">
+                {/* blog searchbar */}
+                <Searchbar onFilterChange={handleFilterChange} />
               </div>
-              <div className="col-lg-9">
+              <div className="col-lg-12">
                 <div className="ml-20">
                   <div className="row">
                     {/* blog posts */}
-                    <BlogPosts posts={posts} />
+                    <BlogPostsNoSidebar posts={posts} />
                   </div>
 
                   {/* blog pagination */}
@@ -92,4 +92,4 @@ const BlogRightSidebar = () => {
   );
 };
 
-export default BlogRightSidebar;
+export default BlogElasticSearch;

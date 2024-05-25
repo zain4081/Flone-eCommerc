@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useGetElasticIndexMutation } from "../../services/blogApi";
 
-const RightSidebar = ({ onFilterChange}) => {
+const Searchbar = ({ onFilterChange}) => {
   const [ search , setSearch ] = useState(null);
   const [ indexData, setIndexData ] = useState(null);
   const [check, setCheck] = useState(0);
@@ -14,6 +14,7 @@ const RightSidebar = ({ onFilterChange}) => {
       const p_url = `post-search/suggest/?title__completion=${search_index}`;
       const response = await getElasticData(p_url);
       const data_list = response.data["title__completion"][0]["options"]
+      console.log("lenght", data_list.length);
         if(data_list.length > 0){
 
           console.log("datalist", data_list)
@@ -78,7 +79,7 @@ console.log(indexData ? indexData : null)
 
   useEffect(() => {
     fetchIndexing(searchFormData.custom)
-  }, [searchFormData.custom]);
+  }, [searchFormData.custom, searchFormData]);
 
 
   return (
@@ -106,7 +107,7 @@ console.log(indexData ? indexData : null)
                     onClick={() => selectSuggestionHandler(data.text)}
                   >
                     <span className="postTitle">{data.text}</span>
-                    <span className="postCategory">{data._source['category'].name}</span>
+                    <span className="postCategory">Category:{data._source['category'].name}</span>
                   </div>
                 ))}
               </div>
@@ -121,4 +122,4 @@ console.log(indexData ? indexData : null)
   );
 };
 
-export default RightSidebar;
+export default Searchbar;

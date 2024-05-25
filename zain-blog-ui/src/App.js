@@ -89,7 +89,7 @@ const ProductFixedImage = lazy(() =>
 // blog pages
 const BlogStandard = lazy(() => import("./pages/blog/BlogStandard"));
 const BlogNoSidebar = lazy(() => import("./pages/blog/BlogNoSidebar"));
-const BlogRightSidebar = lazy(() => import("./pages/blog/BlogRightSidebar"));
+const BlogElasticSearch = lazy(() => import("./pages/blog/BlogElasticSearch"));
 const BlogDetailsStandard = lazy(() =>import("./pages/blog/BlogDetailsStandard"));
 // blog pages // top-featured-etc
 const TrendingBlog = lazy(() => import("./pages/blog/TrendingBlog"));
@@ -383,8 +383,8 @@ const App = () => {
                 element={access_token ? <BlogNoSidebar/> : <Navigate to="/login-register"/>}
               />
               <Route
-                path={process.env.PUBLIC_URL + "/blog-right-sidebar"}
-                element={access_token ? <BlogRightSidebar/> : <Navigate to="/login-register"/>}
+                path={process.env.PUBLIC_URL + "/blog_elasticsearch"}
+                element={access_token ? <BlogElasticSearch/> : <Navigate to="/login-register"/>}
               />
               <Route
                 path={process.env.PUBLIC_URL + "/blog-details-standard"}
