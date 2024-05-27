@@ -2,6 +2,8 @@
 """
 Module for defining blog models.
 """
+import os
+
 from django.db import models
 from django.db.models import Q
 from django.db.models.signals import post_save, post_delete
@@ -14,8 +16,9 @@ from django.utils.translation import gettext_lazy as _
 from simple_history.models import HistoricalRecords
 from django_elasticsearch_dsl.registries import registry
 
-
 from ckeditor.fields import RichTextField
+
+from account.utils import Util
 User = get_user_model()
 def upload_to(filename, file): # pylint: disable=unused-argument
     """set image filename"""
@@ -104,6 +107,24 @@ def update_document(sender, **kwargs):
             instances = instance.post.all()
             for _instance in instances:
                 registry.update(_instance)
+            
+
+@receiver(post_save)
+def newsletter(sender, **kwargs):
+    print("sender", sender)
+    post = kwargs['instance']
+    if sender._meta.model_name == 'post':
+        email_list = list(User.objects.filter(tc='1').values_list('email', flat=True))
+        print("users",email_list)
+        verification_link = f"{os.environ.get('WEBSITE')}/blog-details-standard/{post.id}"
+        print(verification_link)
+        data = {
+            'subject': 'New Post Added',
+            'body': f"New Post '{post.title}' added by of category {post.category.name}.<br>please Click on Link to View the Post.<br><button><a href='{verification_link}'>View Post</a></button>",
+            'to_email': email_list
+        }
+        Util.send_email(data)
+
 @receiver(post_delete)
 def delete_document(sender, **kwargs):
     app_label = sender._meta.app_label

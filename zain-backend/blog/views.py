@@ -37,26 +37,6 @@ from blog.serializer import (
 )
 from blog.document import PostDocument
 
-def recursive(comment):
-    comment_serializer = CommentSerializer2(comment)
-    comment = comment_serializer.data
-    print("comment",comment)
-    replies = Comment.objects.filter(parent_comment=comment['id'])
-    print("replies 9", replies)
-    if replies:
-        for index, reply in enumerate(replies):
-            print("reply", reply)
-            r = recursive(reply)
-            print("r", r)
-            if r.length > 0:
-                reply['replies'] = r
-            replies[index] = reply
-            print("replies", replies)
-        return replies
-    else:
-        return comment
-
-
 class PostViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows posts to be viewed or edited.
