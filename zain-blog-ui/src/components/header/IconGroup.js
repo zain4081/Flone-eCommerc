@@ -29,6 +29,7 @@ const IconGroup = ({ iconWhiteClass }) => {
         name: null,
         email: null,
         role: null,
+        is_phone_verified: null,
       }))
       console.log("logout");
       
@@ -85,6 +86,14 @@ const IconGroup = ({ iconWhiteClass }) => {
               </li>
             </>
             }
+            {access_token != null && user_info && user_info.is_phone_verified == false ?
+            (
+              <li>
+                <Link to={process.env.PUBLIC_URL + "/verify-number"}>
+                  Verify Number
+                </Link>
+              </li>
+            )  :null}
           </ul>
         </div>
       </div>

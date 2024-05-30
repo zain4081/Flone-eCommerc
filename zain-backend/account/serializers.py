@@ -1,7 +1,9 @@
 """
 Serializers for user authentication and management.
 """
+import datetime
 import os
+import random
 from rest_framework import serializers
 # from django.contrib.auth.tokens import PasswordResetTokenGenerator
 # from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
@@ -9,6 +11,8 @@ from rest_framework import serializers
 # from django.utils.encoding import DjangoUnicodeDecodeError
 from account.models import User
 from account.utils import Util
+
+from django.conf import settings
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     """
@@ -34,18 +38,25 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         """
         password = validated_data.pop('password')
         password2 = validated_data.pop('password2')
+        max_otp_out = datetime.timezone.now()
         if password != password2:
             raise serializers.ValidationError("Password and Confirm Password don't match")
-        user = User.objects.create_user(**validated_data, password=password)
+        user = User.objects.create_user(
+            **validated_data, 
+            password=password,
+            max_otp_out=max_otp_out,
+            )
+        print("user", user)
         user.generate_verification_token()
         user.save()
+        email_list = [user.email]
 
         verification_link = f"{os.environ.get('WEBSITE')}/verify-email/{user.verification_token}"
         print(verification_link)
         data = {
             'subject': 'Email verification',
-            'body': f"Please click the following link to verify your email: {verification_link}",
-            'to_email': user.email
+            'body': f"Please click the following link to verify your email.<br><a href='{verification_link}'>Activation Link</a>",
+            'to_email': email_list
         }
         Util.send_email(data)
         return user
@@ -71,7 +82,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
         """sending email name id with role of user on successful login
         """
         model = User
-        fields = ['id', 'email', 'name', 'role']
+        fields = ['id', 'email', 'name', 'role', 'is_phone_verified']
 
 class UserChangePasswordSerializer(serializers.Serializer): # pylint: disable=abstract-method
     """

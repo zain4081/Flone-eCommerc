@@ -19,7 +19,7 @@ const LoginRegister = () => {
   const [loginUser] = useLoginUserMutation();
   const [ server_error, setServerError ] = useState({});
   const [ success, setSuccess ] = useState();
-  const [ capVal, setCapVal ] = useState(null);
+  const [ capVal, setCapVal ] = useState(1);
   const [ registerCapVal, setRegisterCapVal ] = useState(null);
   // REACT_APP_RECAPTCHA_SECRET_KEY
   console.log("SITE KEY",process.env.REACT_APP_RECAPTCHA_SITE_KEY)
@@ -62,6 +62,7 @@ const LoginRegister = () => {
     role: "creator",
     password: "",
     password2: "",
+    phone_number: "+92"
   });
 
 
@@ -167,7 +168,8 @@ const LoginRegister = () => {
                                   sitekey= {process.env.REACT_APP_RECAPTCHA_SITE_KEY}
                                   onChange={(val)=> setCapVal(val)}
                                 />
-                                  <button disabled={capVal==null || capVal=={}} type="submit">
+                                  {/* <button disabled={capVal==null || capVal=={}} type="submit"> */}
+                                  <button  type="submit">
                                     <span>Login</span>
                                   </button>
                               </div>
@@ -195,6 +197,18 @@ const LoginRegister = () => {
                                 name="name"
                                 placeholder="Username"
                                 value={registerFormData.name}
+                                onChange={handleRegisterChange}
+                              />
+                              <span 
+                                className="error" 
+                              >
+                                {server_error.phone_number ? server_error.phone_number[0]: null}
+                              </span>
+                              <input
+                                type="text"
+                                name="phone_number"
+                                placeholder="+92XXXXXXXXXX"
+                                value={registerFormData.phone_number}
                                 onChange={handleRegisterChange}
                               />
                               <span 

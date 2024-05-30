@@ -2,12 +2,18 @@
 Module: Contains views for user authentication and profile management.
 """
 # Third party imports
+import datetime
+import random
+from django.conf import settings
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet
+from rest_framework.decorators import action
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_protect
 
@@ -20,6 +26,7 @@ from account.serializers import (
     UserRegistrationSerializer
 )
 from account.renderers import UserRenderer
+from account.utils import Util
 
 def get_tokens_for_user(user):
     """
@@ -91,7 +98,6 @@ class UserEmailVerification(APIView):
         if user.verify_email(token):
             return Response({'msg': 'Email verified successfully'}, status=status.HTTP_200_OK)
         return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
-
 class UserLoginView(APIView):
     """
     API view for user login.
@@ -124,7 +130,6 @@ class UserLoginView(APIView):
         return Response(
             {'errors':{'non_field_errors':['Email or Password is not Valid']}},
                 status=status.HTTP_404_NOT_FOUND)
-
 class AdminLoginView(APIView):
     """
     API view for admin login.
@@ -199,6 +204,97 @@ class UserChangePasswordView(APIView):
         serializer = UserChangePasswordSerializer(data=request.data, context={'user':request.user})
         serializer.is_valid(raise_exception=True)
         return Response({'msg':'Password Changed Successfully'}, status=status.HTTP_200_OK)
+
+
+class UserOtpVerify(ModelViewSet):
+    http_method_names = ['patch']
+    renderer_classes = [UserRenderer]
+    queryset = User.objects.all()
+    """
+       View for Phone Verification Otp Genearator
+    """
+    @action(detail=True, methods=["PATCH"])
+    def verify_otp(self, request, pk=None):
+        instance = self.get_object()
+        if (
+            not instance.is_phone_verified
+            and instance.otp == request.data.get("otp")
+            and instance.otp_expiry
+            and timezone.now() < instance.otp_expiry
+        ):
+            instance.is_phone_verified = True
+            instance.otp_expiry = None
+            instance.max_otp_try = settings.MAX_OTP_TRY
+            instance.max_otp_out = timezone.now()
+            instance.save()
+            return Response(
+                "Successfully verified the user.", status=status.HTTP_200_OK
+            )
+        if(not instance.is_phone_verified):
+            if(instance.otp_expiry == None or instance.otp_expiry > timezone.now()):
+                print("instance.otp ", instance.otp)
+                print("request.data.get('otp') ", request)
+                if(instance.otp == request.data.get("otp")):
+                    instance.is_phone_verified = True
+                    instance.otp_expiry = None
+                    instance.max_otp_try = settings.MAX_OTP_TRY
+                    instance.max_otp_out = timezone.now()
+                    instance.save()
+                    return Response(
+                        "Successfully verified the user.", status=status.HTTP_200_OK
+                    )
+                return Response(
+                    "Otp is Incorrect",
+                    status=status.HTTP_400_BAD_REQUEST,)
+            return Response(
+                "Otp is Expired",
+                status=status.HTTP_400_BAD_REQUEST,)
+        return Response(
+            "User Phone is Already Verified",
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    @action(detail=True, methods=["PATCH"])
+    def regenerate_otp(self, request, pk=None):
+        """
+        Regenerate OTP for the given user and send it to the user.
+        """
+        instance = self.get_object()
+        if int(instance.max_otp_try) == 0 and timezone.now() < instance.max_otp_out:
+            time_difference =instance.max_otp_out - timezone.now()
+            difference = round(time_difference.total_seconds() / 60)
+            # except Exception as e:
+            #     difference_in_minutes += " hour"
+            return Response(
+                f"Max OTP try reached, try after {difference} minutes",
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        otp = random.randint(1000, 9999)
+        otp_expiry = timezone.now() + datetime.timedelta(minutes=10)
+        max_otp_try = int(instance.max_otp_try) - 1
+
+        instance.otp = otp
+        instance.otp_expiry = otp_expiry
+        instance.max_otp_try = max_otp_try
+        if max_otp_try == 0:
+            # Set cool down time
+            max_otp_out = timezone.now() + datetime.timedelta(hours=1)
+            instance.max_otp_out = max_otp_out
+        elif max_otp_try == -1:
+            instance.max_otp_try = settings.MAX_OTP_TRY
+        else:
+            instance.max_otp_out = None
+            instance.max_otp_try = max_otp_try
+        instance.save()
+        # data ={
+        #     "OTP": instance.otp,
+        #     "PHONE_NUMBER": instance.phone_number
+        # }
+        # Util.send_otp(data)
+        print("otp", instance.otp)
+        return Response("Successfully generate new OTP.", status=status.HTTP_200_OK)
+        
 
 # class SendPasswordResetEmailView(APIView):
 #     """

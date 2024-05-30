@@ -3,13 +3,18 @@ Custom User model for authentication in Django.
 """
 import secrets
 from django.db import models
+from django.conf import settings
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
+from django.core.validators import RegexValidator
 
+phone_regex = RegexValidator(
+    regex=r'^\+92\d{10}', message="Must be start with +92"
+)
 class UserManager(BaseUserManager):
     """
     User Manager
     """
-    def create_user(self, email, name, role, password=None):
+    def create_user(self, email, name, role, phone_number, password=None):
         """
         Creates and saves a User with the given email, name, role, and password.
         """
@@ -20,6 +25,7 @@ class UserManager(BaseUserManager):
             email=self.normalize_email(email),
             name=name,
             role=role,
+            phone_number= phone_number,
         )
 
         user.set_password(password)
@@ -38,7 +44,7 @@ class UserManager(BaseUserManager):
         )
         user.tc = True
         user.is_admin = True
-        user.is_verified = True
+        user.is_phone_verified = True
         user.save(using=self._db)
         return user
 
@@ -58,11 +64,22 @@ class User(AbstractBaseUser):
         ('creator', 'creator'),
         ('editor', 'editor'),
     ), default='editor')
+    phone_number = models.CharField(
+        max_length=14,
+        null=False,
+        blank = False,
+        default='00000000000',
+        validators=[phone_regex]
+    )
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    is_verified = models.BooleanField(default=False)
+    otp = models.CharField(max_length=4)
+    otp_expiry = models.DateTimeField(blank=True, null=True)
+    max_otp_try = models.CharField(max_length=2, default=settings.MAX_OTP_TRY)
+    max_otp_out = models.DateTimeField(blank=True, null=True)
+    is_phone_verified = models.BooleanField(default=False)
     verification_token = models.CharField(max_length=100, blank=True)
 
     objects = UserManager()

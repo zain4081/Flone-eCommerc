@@ -31,6 +31,7 @@ const AuthComponent = () => {
             name: null,
             email: null,
             role: null,
+            is_phone_verified: null,
           })
         );
       });
@@ -44,6 +45,7 @@ const AuthComponent = () => {
             name: data.name,
             email: data.email,
             role: data.role,
+            is_phone_verified: data.is_phone_verified,
           })
         );
       });

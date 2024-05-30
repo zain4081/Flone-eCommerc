@@ -5,6 +5,7 @@ const initialState = {
     name: "",
     email: "",
     role: "",
+    is_phone_verified: "",
 }
 const userInfoSlice = createSlice({
     name: "user_info",
@@ -15,6 +16,7 @@ const userInfoSlice = createSlice({
             state.name = action.payload.name;
             state.email = action.payload.email;
             state.role = action.payload.role;
+            state.is_phone_verified = action.payload.is_phone_verified;
 
         },
         unsetUserInfo(state, action) {
@@ -22,7 +24,7 @@ const userInfoSlice = createSlice({
             state.name = action.payload.name;
             state.email = action.payload.email;
             state.role = action.payload.role;
-
+            state.is_phone_verified = action.payload.is_phone_verified;
         },
     },
 });

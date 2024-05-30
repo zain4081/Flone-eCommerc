@@ -71,9 +71,33 @@ export const userAuthApi = createApi({
             }
         }
       }),
-  }),
+      verifyOtp: builder.mutation({
+        query:({data, user_id})=>{
+            console.log("otp", data)
+            return{
+                url:`otp/${user_id}/verify_otp/`,
+                method: 'PATCH',
+                body: data,
+                headers: {
+                    'ngrok-skip-browser-warning':"1233",
+                },
+            }
+        }
+    }),
+    sendOtp: builder.mutation({
+        query:(user_id)=>{
+            return{
+                url:`otp/${user_id}/regenerate_otp/`,
+                method: 'PATCH',
+                headers: {
+                    'ngrok-skip-browser-warning':"1233",
+                },
+            }
+        }
+    }),
+}),
 })
 
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
-export const { useRegisterUserMutation, useLoginUserMutation, useGetLoggedUserMutation, useChangePasswordMutation, useVerifyUserMutation } = userAuthApi;
+export const { useRegisterUserMutation, useLoginUserMutation, useGetLoggedUserMutation, useChangePasswordMutation, useVerifyUserMutation, useSendOtpMutation, useVerifyOtpMutation } = userAuthApi;

@@ -107,9 +107,10 @@ const Cart = lazy(() => import("./pages/other/Cart"));
 const Wishlist = lazy(() => import("./pages/other/Wishlist"));
 const Compare = lazy(() => import("./pages/other/Compare"));
 const Checkout = lazy(() => import("./pages/other/Checkout"));
-
+const VerifyNumber = lazy(() => import("./pages/other/VerifyNumber"));
 const VerifyEmail = lazy(() => import("./pages/other/VerifyEmail"));
 const NotFound = lazy(() => import("./pages/other/NotFound"));
+
 
 const App = () => {
   const { access_token } = useSelector(state => state.auth)
@@ -423,6 +424,10 @@ const App = () => {
               <Route
                 path={process.env.PUBLIC_URL + "/verify-email/:token"}
                 element={<VerifyEmail/>}
+              />
+              <Route
+                path={process.env.PUBLIC_URL + "/verify-number"}
+                element={access_token ? <VerifyNumber/> : <Navigate to="/login-register"/>}
               />
               <Route
                 path={process.env.PUBLIC_URL + "/"}

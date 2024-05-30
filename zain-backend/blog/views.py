@@ -6,6 +6,7 @@ from datetime import timedelta
 import json
 
 from django.db.models import Count, Q
+from django.http import HttpResponseServerError
 from django.utils import timezone
 from django.utils.dateparse import parse_date
 from django.utils.translation import gettext_lazy as _
@@ -104,18 +105,36 @@ class PostViewTrending(viewsets.ModelViewSet):
     """
     API endpoint that allows trending posts to be viewed.
     """
-    queryset = Post.objects.filter(
-        comments__date__gte=timezone.now() - timedelta(days=7)
-        ).distinct()[:3].prefetch_related('post_likes')
     serializer_class = PostSerializer
+    def get_queryset(self):
+        """
+            override get_querset to get Trending Post. access posts which are recently accessed by useres
+        """
+        try:
+            queryset = Post.objects.filter(
+                comments__date__gte=timezone.now() - timedelta(days=7)
+                ).distinct()[:3].prefetch_related('post_likes')
+            return queryset
+        except Exception as e:
+            return Response({"errors": e}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class PostViewPopular(viewsets.ModelViewSet):
     """
     API endpoint that allows popular posts to be viewed.
     """
-    queryset = Post.objects.annotate(
-        like_count=Count('post_likes')).order_by('-like_count')[:3].prefetch_related('post_likes')
+    
     serializer_class = PostSerializer
+    def get_queryset(self):
+        """
+            override get_querset to get Populer Post. access posts which comments and likes are high
+        """
+        try:
+            queryset = Post.objects.annotate(
+                like_count=Count('post_likes')).order_by('-like_count')[:3].prefetch_related('post_likes')
+            return queryset
+        except Exception as e:
+            return Response({"errors": e}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 class FirstPostIdView(generics.ListAPIView):
     """
@@ -129,44 +148,52 @@ class FirstPostIdView(generics.ListAPIView):
         """
         return Post.objects.all()[:1]
 
-class AdminImageUpload(APIView):
-    """
-    API endpoint for uploading images by an admin user.
-    """
-    parser_classes = [MultiPartParser, FormParser]
-
-    def post(self, request, format=None):# pylint: disable=redefined-builtin, unused-argument
-        """
-        Handles POST requests for image uploads.
-        """
-        serializer = PostSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors)
-
 class Postswithoutpagination(viewsets.ModelViewSet):
     """
     API endpoint that allows posts to be viewed without pagination.
     """
-    queryset = Post.objects.prefetch_related('post_likes').order_by('-date')
     serializer_class = PostSerializer
+    def get_queryset(self):
+        """
+            override get_querset to get Post witout pagination.
+        """
+        try:
+            queryset = Post.objects.prefetch_related('post_likes')
+            return queryset
+        except Exception as e:
+            return Response({"errors": e}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class TopPosts(viewsets.ModelViewSet):
     """
     API endpoint that allows top posts to be viewed.
     """
-    queryset = Post.objects.filter(top=True).prefetch_related('post_likes').order_by('-date') 
     serializer_class = PostSerializer
     pagination_class = DefaultPaginator
+    def get_queryset(self):
+        """
+            override get_querset to get Top Posts.
+        """
+        try:
+            queryset = Post.objects.filter(top=True).prefetch_related('post_likes').order_by('-date') 
+            return queryset
+        except Exception as e:
+            return Response({"errors": e}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class FeaturedPosts(viewsets.ModelViewSet):
     """
     API endpoint that allows featured posts to be viewed.
     """
-    queryset = Post.objects.filter(featured=True).prefetch_related('post_likes').order_by('-date') 
     serializer_class = PostSerializer
     pagination_class = DefaultPaginator
+    def get_queryset(self):
+        """
+            override get_querset to get Feature Posts.
+        """
+        try:
+            queryset = Post.objects.filter(featured=True).prefetch_related('post_likes') 
+            return queryset
+        except Exception as e:
+            return Response({"errors": e}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class CommentViewSet(viewsets.ModelViewSet):
     """
@@ -183,16 +210,20 @@ class CommentViewSet(viewsets.ModelViewSet):
         return Comment.objects.filter(post_id=post_id)
     def list(self, request, *args, **kwargs):
         """
-    #     Returns a list of comments and their replies
-    #     """
-        queryset = Comment.objects.filter( parent_comment__isnull=True).prefetch_related('comment_likes')
-        count = queryset.count()
-        serializer = CommentSerializer(queryset, many=True, context={'depth': 3})
-        data = {
-            'count': count,
-            'comments': serializer.data,
-        }
-        return Response(data, status=status.HTTP_200_OK)
+        Returns a list of comments and their replies
+        """
+        try:
+            queryset = Comment.objects.filter( parent_comment__isnull=True).prefetch_related('comment_likes')
+            count = queryset.count()
+            serializer = CommentSerializer(queryset, many=True, context={'depth': 3})
+            data = {
+                'count': count,
+                'comments': serializer.data,
+            }
+            return Response(data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"errors": e}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
 class LikePostSet(viewsets.ModelViewSet):
     """
     API endpoint that allows posts to be liked.
@@ -202,19 +233,25 @@ class LikePostSet(viewsets.ModelViewSet):
         """
         Returns the queryset for the likes of a specific post.
         """
-        post_id = self.kwargs.get('post_id')
-        return Comment.objects.filter(post_id=post_id)
+        try:
+            post_id = self.kwargs.get('post_id')
+            queryset = Comment.objects.filter(post_id=post_id)
+            return queryset
+        except Exception as e:
+            return Response({"errors": e}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
     def list(self, request, *args, **kwargs):
         """
         Returns the count of likes for a specific post.
         """
-        queryset = self.get_queryset()
-        count = queryset.count()
-        data = {
-            'count': count,
-        }
-        return Response(data)
-
+        try:
+            queryset = self.get_queryset()
+            count = queryset.count()
+            data = {
+                'count': count,
+            }
+            return Response(data)
+        except Exception as e:
+            return Response({"errors": e}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
 class UserVoteView(APIView):
     """
     API endpoint for users to vote on posts.
@@ -240,21 +277,45 @@ class CategoryViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows categories to be viewed or edited.
     """
-    queryset = Category.objects.all()
+    
     serializer_class = CategorySerializer
+    def get_queryset(self):
+        """
+        Returns the queryset for Category objects
+        """
+        try:
+            return Category.objects.all()
+        except Exception as e:
+            return Response({"errors": e}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class TagViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows tags to be viewed or edited.
     """
-    queryset = Tag.objects.all()
+    
     serializer_class = TagSerializer
+    def get_queryset(self):
+        """
+        Returns the queryset for Category objects
+        """
+        try:
+            return Tag.objects.all()
+        except Exception as e:
+            return Response({"errors": e}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class LikeViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows likes to be viewed or edited.
     """
     serializer_class = LikeSerializer
+    def get_queryset(self):
+        """
+        Returns the queryset for Like objects
+        """
+        try:
+            return Like.objects.all()
+        except Exception as e:
+            return Response({"errors": e}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
     
 class PostDocumentViewSet(DocumentViewSet):
     document = PostDocument
