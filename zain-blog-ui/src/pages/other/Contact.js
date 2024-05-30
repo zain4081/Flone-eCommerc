@@ -165,7 +165,8 @@ const Contact = () => {
                       <div className="col-lg-12">
                         <textarea
                           name="message"
-                          placeholder="Your Message*"
+                          maxLength={350}
+                          placeholder="Your Message*  (max 350 caracters allowed)"
                           defaultValue={""}
                           required
                         />
