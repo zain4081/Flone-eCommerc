@@ -326,3 +326,87 @@
   font-style: italic;
   color: #666; /* Adjust as needed */
 }
+
+
+// customfilter
+
+/* Style for the popover/modal */
+.popover {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0;
+  z-index: 1000;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+}
+
+/* Style for the popover/modal content */
+.popover-content {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+/* Style for checkboxes */
+.popover-content input[type="checkbox"] {
+  margin-right: 5px;
+}
+
+/* Style for labels next to checkboxes */
+.popover-content label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+/* Style for the "Select Tags" button */
+.btn-secondary {
+  background-color: #6c757d;
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+/* Style for the "Select Tags" button on hover */
+.btn-secondary:hover {
+  background-color: #495057;
+}
+// customfilter --------------------
+
+/* Style for checkboxes */
+.popover-content input[type="checkbox"] {
+  margin-right: 8px;
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
+  position: relative;
+  top: 2px; /* Adjust vertical alignment */
+  appearance: none; /* Remove default appearance */
+  border: 1px solid #adb5bd; /* Add border */
+  border-radius: 3px; /* Rounded corners */
+  cursor: pointer;
+}
+
+/* Style for checked state */
+.popover-content input[type="checkbox"]:checked::before {
+  content: '\2713'; /* Unicode checkmark symbol */
+  display: block;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #495057; /* Color of checkmark */
+}
+
+/* Style for labels next to checkboxes */
+.popover-content label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+

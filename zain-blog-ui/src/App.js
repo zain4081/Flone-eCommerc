@@ -107,9 +107,12 @@ const Cart = lazy(() => import("./pages/other/Cart"));
 const Wishlist = lazy(() => import("./pages/other/Wishlist"));
 const Compare = lazy(() => import("./pages/other/Compare"));
 const Checkout = lazy(() => import("./pages/other/Checkout"));
-const VerifyNumber = lazy(() => import("./pages/other/VerifyNumber"));
 const VerifyEmail = lazy(() => import("./pages/other/VerifyEmail"));
+const VerifyNumber = lazy(() => import("./pages/other/VerifyNumber"));
 const NotFound = lazy(() => import("./pages/other/NotFound"));
+
+//reports
+const BlogReport = lazy(() => import("./pages/reports/BlogReport"));
 
 
 const App = () => {
@@ -449,7 +452,11 @@ const App = () => {
               <Route
                 path={process.env.PUBLIC_URL + "/checkout"}
                 element={<Checkout/>}
-              /> 
+              />
+              <Route
+                path={process.env.PUBLIC_URL + "/blog-report"}
+                element={<BlogReport/>}
+              />  
 
               <Route path="*" element={<NotFound/>} />
             </Routes>

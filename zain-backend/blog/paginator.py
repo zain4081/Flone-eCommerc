@@ -26,3 +26,10 @@ class DefaultPaginator(PageNumberPagination):
             'previous_url': self.get_previous_link(),
             'results': data
         })
+        
+class NoPagination(PageNumberPagination):
+    """
+    Custom paginator that sets 
+    the page size to None. means to explicit.
+    """
+    page_size = None

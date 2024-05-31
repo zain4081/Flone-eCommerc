@@ -26,7 +26,7 @@ from django_elasticsearch_dsl_drf.filter_backends import (
 )
 from django_elasticsearch_dsl_drf.constants import SUGGESTER_COMPLETION
 from blog.models import Post, Comment, Like, Tag, Category
-from blog.paginator import DefaultPaginator
+from blog.paginator import DefaultPaginator, NoPagination
 from blog.serializer import (
     PostSerializer,
     CommentSerializer,
@@ -44,7 +44,7 @@ class PostViewSet(viewsets.ModelViewSet):
     """
     queryset = Post.objects.prefetch_related('post_likes').order_by('-date') 
     serializer_class = PostSerializer
-    pagination_class = DefaultPaginator
+
     filter_backends = [filters.SearchFilter]
     search_fields = [
         'tag__id',
@@ -55,6 +55,17 @@ class PostViewSet(viewsets.ModelViewSet):
         '^title', 'title'
     ]
     filterset_fields = ['category', 'tags', 'created_at']
+    
+    def get_pagination_class(self):
+        """
+        Allow Parm "paginate=false" to return data without pagination
+        """
+        paginate_param = self.request.query_params.get('paginate')
+        print("paginate_param",paginate_param)
+        if paginate_param and paginate_param.lower() == 'false':
+            print("paginate_param",paginate_param)
+            return NoPagination
+        return DefaultPaginator
 
     def get_queryset(self):
         """

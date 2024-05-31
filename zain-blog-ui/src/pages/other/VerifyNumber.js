@@ -7,7 +7,7 @@ import { useSendOtpMutation, useVerifyOtpMutation } from "../../services/userAut
 import { useDispatch, useSelector } from "react-redux";
 import { setUserInfo } from "../../store/slices/userInfo-slice";
 
-const VerifyEmail = () => {
+const VerifyNumber = () => {
     const [otp, setOTP] = useState(['', '', '', '']);
     const [isOtpGenerated, setIsOtpGenerated] = useState(0);
     const [serverSuccess, setServerSuccess] = useState(null);
@@ -161,6 +161,6 @@ const VerifyEmail = () => {
     );
 };
 
-export default VerifyEmail;
+export default VerifyNumber;
 
 

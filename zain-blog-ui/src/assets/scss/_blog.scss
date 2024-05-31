@@ -554,3 +554,34 @@
     }
   }
 }
+
+
+// blog reports
+
+/* Assuming $themeColor is your theme color variable */
+$themeColor: #007bff;
+
+.blog-posts-table {
+  max-width:95% !important;
+  margin-right: 20px;
+  border-collapse: collapse;
+}
+
+.blog-posts-table th,
+.blog-posts-table td {
+  padding: 12px;
+  border: 1px solid #ddd;
+}
+
+.blog-posts-table th {
+  background-color: $themeColor;
+  color: #fff; /* Text color for header */
+}
+
+.blog-posts-table tbody tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.blog-posts-table tbody tr:hover {
+  background-color: #ddd;
+}
