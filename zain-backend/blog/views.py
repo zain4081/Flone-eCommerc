@@ -95,6 +95,7 @@ class PostViewSet(viewsets.ModelViewSet):
                 pass
         start_date_param = self.request.query_params.get('start_date')
         end_date_param = self.request.query_params.get('end_date')
+        print("end_date", end_date_param)
         if (start_date_param and end_date_param):
             start_date = parse_date(start_date_param)
             end_date = parse_date(end_date_param)
