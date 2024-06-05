@@ -66,6 +66,7 @@ class PostViewSet(viewsets.ModelViewSet):
             print("paginate_param",paginate_param)
             return NoPagination
         return DefaultPaginator
+    pagination_class = property(fget=get_pagination_class)
 
     def get_queryset(self):
         """
