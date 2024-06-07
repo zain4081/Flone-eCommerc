@@ -287,11 +287,11 @@ class UserOtpVerify(ModelViewSet):
             instance.max_otp_out = None
             instance.max_otp_try = max_otp_try
         instance.save()
-        # data ={
-        #     "OTP": instance.otp,
-        #     "PHONE_NUMBER": instance.phone_number
-        # }
-        # Util.send_otp(data)
+        data ={
+            "OTP": instance.otp,
+            "PHONE_NUMBER": instance.phone_number
+        }
+        Util.send_otp(data)
         print("otp", instance.otp)
         return Response("Successfully generate new OTP.", status=status.HTTP_200_OK)
         

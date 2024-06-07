@@ -1,8 +1,12 @@
 import { Suspense, lazy, useEffect } from "react";
 import ScrollToTop from "./helpers/scroll-top";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import AuthComponent from "./components/AuthComponent";
+import { getToken } from "./services/localStorageService";
+import connectWebSocket from "./components/websocketService"
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 
 // home pages
@@ -114,10 +118,12 @@ const NotFound = lazy(() => import("./pages/other/NotFound"));
 //reports
 const BlogReport = lazy(() => import("./pages/reports/BlogReport"));
 
-
 const App = () => {
-  const { access_token } = useSelector(state => state.auth)
-
+  const { access_token } = getToken();
+  const dispatch = useDispatch();
+  const message = useSelector((state) => state.websocket.message);
+  
+  
   useEffect(() => {
     console.log('Token changed:', access_token);
     // Perform any other actions you need here
@@ -137,6 +143,7 @@ const App = () => {
             }
           >
             <AuthComponent />
+            
             <Routes>
               <Route
                 path={process.env.PUBLIC_URL + "/"}
@@ -460,6 +467,7 @@ const App = () => {
 
               <Route path="*" element={<NotFound/>} />
             </Routes>
+            <ToastContainer />
           </Suspense>
         </ScrollToTop>
       </Router>

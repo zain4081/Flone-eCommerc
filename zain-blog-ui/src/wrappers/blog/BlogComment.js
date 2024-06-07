@@ -7,17 +7,20 @@ import {
   useSubmitCommentMutation,
   useSubmitReplyMutation,
 } from "../../services/blogApi";
+import { useAddNotificationMutation } from "../../services/notifyApi";
 
 const BlogComment = (firstPostId) => {
   const { access_token } = getToken();
   const { id } = useParams();
   const [comments, setComments] = useState([]);
+  const [recipient, setRecipient] = useState();
   const [count, setCount] = useState(0);
   const [expandedComments, setExpandedComments] = useState([]);
   const [currentPostId, setCurrentPostId] = useState();
   const user_info = useSelector((state) => state.user);
   const [submitCommentForm] = useSubmitCommentMutation();
   const [submitReplyForm] = useSubmitReplyMutation();
+  const [addNotification] = useAddNotificationMutation();
   const [isReplying, setIsReplying] = useState(false);
 
 
@@ -52,6 +55,7 @@ const BlogComment = (firstPostId) => {
     }
     if (res.data) {
       console.log("response of comments are",res.data);
+      
       fetchComments(); // Fetch comments again after submitting a new comment
       setCommentFormData({  // Reset the form data
         content: "",
@@ -67,7 +71,8 @@ const BlogComment = (firstPostId) => {
     commentId: null,
   });
 
-  const toggleEditForm = (commentId, content) => {
+  const toggleEditForm = (commentId, content, comment_user) => {
+    setRecipient(comment_user)
     setEditFormData({
       content: content,
       parent_comment: commentId,
@@ -89,6 +94,19 @@ const BlogComment = (firstPostId) => {
       console.log("errors are", res.error);
     }
     if (res.data) {
+      const message = `${user_info.name} Reply to your Comment`;
+      const data ={
+        "recipient": recipient,
+        "message": message,
+      }
+
+      console.log("notfication data", data);
+      const response = await addNotification({'data': data, 'access_token':access_token});
+      if(response.data){
+        console.log("add notfication", response.data);
+      }else{
+        console.log("add notfication", response);
+      }
       fetchComments();
       console.log("res.data", res.data)
       // setIsEditing(null);
@@ -202,7 +220,7 @@ const BlogComment = (firstPostId) => {
                       value={editFormData.content}
                       onChange={handleEditChange}
                     />
-                    <button type="submit" onClick={() => toggleEditForm(comment.id, editFormData.content)}><i className="fa fa-angle-right"></i></button>
+                    <button type="submit" onClick={() => toggleEditForm(comment.id, editFormData.content, comment.user)}><i className="fa fa-angle-right"></i></button>
                   </div>
                 </div>
               </div>

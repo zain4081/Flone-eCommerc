@@ -1,235 +1,126 @@
-import { Fragment } from "react";
+import * as React from 'react';
+import { Fragment, useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { getDiscountPrice } from "../../helpers/product";
 import SEO from "../../components/seo";
 import LayoutOne from "../../layouts/LayoutOne";
 import Breadcrumb from "../../wrappers/breadcrumb/Breadcrumb";
-import Rating from "../../components/product/sub-components/ProductRating";
-import { addToCart } from "../../store/slices/cart-slice";
-import { deleteFromCompare } from "../../store/slices/compare-slice";
+import { useGetNotificationsMutation, useMarkReadMutation } from "../../services/notifyApi";
+import Avatar from '@mui/material/Avatar';
+import Box from '@mui/material/Box';
+import Paper from '@mui/material/Paper';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
+import { styled } from '@mui/material/styles';
+import { getToken } from '../../services/localStorageService';
+
+
+const Item = styled(Paper)(({ theme }) => ({
+  backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
+  ...theme.typography.body2,
+  padding: theme.spacing(2),
+  textAlign: 'left',
+  color: theme.palette.text.secondary,
+  maxWidth: '100%',
+  marginBottom: theme.spacing(2),
+}));
 
 const Compare = () => {
   const dispatch = useDispatch();
   let { pathname } = useLocation();
+  const [getNotifications] = useGetNotificationsMutation();
+  const [markRead] = useMarkReadMutation();
+  const [notifications, setNotifications] = useState([]);
+  const {access_token} = getToken();
 
-  const currency = useSelector((state) => state.currency);
-  const { compareItems } = useSelector((state) => state.compare);
-  const { cartItems } = useSelector((state) => state.cart);
+  const fetchData = async () => {
+    try {
+      const response = await getNotifications(access_token);
+      if (response.data) {
+        setNotifications(response.data.notifications);
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  const notificationReadHandler = async () => {
+    const data = { read: true };
+    try {
+      const response = await markRead({'data': data, 'access_token': access_token});
+      if (response.data) {
+        fetchData(); // Fetch updated notifications after marking as read
+      }
+    } catch (error) {
+      console.error("Error updating data:", error);
+    }
+  };
+
+  const getTimeDifference = (timestamp) => {
+    const now = new Date();
+    const notificationTime = new Date(timestamp);
+    const differenceInSeconds = Math.floor((now - notificationTime) / 1000);
+
+    if (differenceInSeconds < 60) {
+      return `${differenceInSeconds} seconds ago`;
+    } else if (differenceInSeconds < 3600) {
+      const minutes = Math.floor(differenceInSeconds / 60);
+      return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+    } else if (differenceInSeconds < 86400) {
+      const hours = Math.floor(differenceInSeconds / 3600);
+      return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+    } else {
+      const days = Math.floor(differenceInSeconds / 86400);
+      return `${days} day${days > 1 ? 's' : ''} ago`;
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const unreadNotifications = notifications.filter(notification => !notification.read);
 
   return (
     <Fragment>
       <SEO
-        titleTemplate="Compare"
-        description="Compare page of flone react minimalist eCommerce template."
+        titleTemplate="Notifications"
+        description="Notification page of flone react minimalist eCommerce template."
       />
       <LayoutOne headerTop="visible">
         {/* breadcrumb */}
-        <Breadcrumb 
+        <Breadcrumb
           pages={[
-            {label: "Home", path: process.env.PUBLIC_URL + "/" },
-            {label: "Compare", path: process.env.PUBLIC_URL + pathname }
-          ]} 
+            { label: "Home", path: process.env.PUBLIC_URL + "/" },
+            { label: "Notifications", path: process.env.PUBLIC_URL + pathname }
+          ]}
         />
-        <div className="compare-main-area pt-90 pb-100">
-          <div className="container">
-            {compareItems && compareItems.length >= 1 ? (
-              <div className="row">
-                <div className="col-lg-12">
-                  <div className="compare-page-content">
-                    <div className="compare-table table-responsive">
-                      <table className="table table-bordered mb-0">
-                        <tbody>
-                          <tr>
-                            <th className="title-column">Product Info</th>
-                            {compareItems.map((compareItem, key) => {
-                              const cartItem = cartItems.find(
-                                item => item.id === compareItem.id
-                              );
-                              return (
-                                <td className="product-image-title" key={key}>
-                                  <div className="compare-remove">
-                                    <button
-                                      onClick={() =>
-                                        dispatch(deleteFromCompare(compareItem.id))
-                                      }
-                                    >
-                                      <i className="pe-7s-trash" />
-                                    </button>
-                                  </div>
-                                  <Link
-                                    to={
-                                      process.env.PUBLIC_URL +
-                                      "/product/" +
-                                      compareItem.id
-                                    }
-                                    className="image"
-                                  >
-                                    <img
-                                      className="img-fluid"
-                                      src={
-                                        process.env.PUBLIC_URL +
-                                        compareItem.image[0]
-                                      }
-                                      alt=""
-                                    />
-                                  </Link>
-                                  <div className="product-title">
-                                    <Link
-                                      to={
-                                        process.env.PUBLIC_URL +
-                                        "/product/" +
-                                        compareItem.id
-                                      }
-                                    >
-                                      {compareItem.name}
-                                    </Link>
-                                  </div>
-                                  <div className="compare-btn">
-                                    {compareItem.affiliateLink ? (
-                                      <a
-                                        href={compareItem.affiliateLink}
-                                        rel="noopener noreferrer"
-                                        target="_blank"
-                                      >
-                                        {" "}
-                                        Buy now{" "}
-                                      </a>
-                                    ) : compareItem.variation &&
-                                      compareItem.variation.length >= 1 ? (
-                                      <Link
-                                        to={`${process.env.PUBLIC_URL}/product/${compareItem.id}`}
-                                      >
-                                        Select Option
-                                      </Link>
-                                    ) : compareItem.stock &&
-                                      compareItem.stock > 0 ? (
-                                      <button
-                                        onClick={() =>
-                                          dispatch(addToCart(compareItem))
-                                        }
-                                        className={
-                                          cartItem !== undefined &&
-                                          cartItem.quantity > 0
-                                            ? "active"
-                                            : ""
-                                        }
-                                        disabled={
-                                          cartItem !== undefined &&
-                                          cartItem.quantity > 0
-                                        }
-                                        title={
-                                          compareItem !== undefined
-                                            ? "Added to cart"
-                                            : "Add to cart"
-                                        }
-                                      >
-                                        {cartItem !== undefined &&
-                                        cartItem.quantity > 0
-                                          ? "Added"
-                                          : "Add to cart"}
-                                      </button>
-                                    ) : (
-                                      <button disabled className="active">
-                                        Out of Stock
-                                      </button>
-                                    )}
-                                  </div>
-                                </td>
-                              );
-                            })}
-                          </tr>
-                          <tr>
-                            <th className="title-column">Price</th>
-                            {compareItems.map((compareItem, key) => {
-                              const discountedPrice = getDiscountPrice(
-                                compareItem.price,
-                                compareItem.discount
-                              );
-                              const finalProductPrice = (
-                                compareItem.price * currency.currencyRate
-                              ).toFixed(2);
-                              const finalDiscountedPrice = (
-                                discountedPrice * currency.currencyRate
-                              ).toFixed(2);
-                              return (
-                                <td className="product-price" key={key}>
-                                  {discountedPrice !== null ? (
-                                    <Fragment>
-                                      <span className="amount old">
-                                        {currency.currencySymbol +
-                                          finalProductPrice}
-                                      </span>
-                                      <span className="amount">
-                                        {currency.currencySymbol +
-                                          finalDiscountedPrice}
-                                      </span>
-                                    </Fragment>
-                                  ) : (
-                                    <span className="amount">
-                                      {currency.currencySymbol +
-                                        finalProductPrice}
-                                    </span>
-                                  )}
-                                </td>
-                              );
-                            })}
-                          </tr>
-
-                          <tr>
-                            <th className="title-column">Description</th>
-                            {compareItems.map((compareItem, key) => {
-                              return (
-                                <td className="product-desc" key={key}>
-                                  <p>
-                                    {compareItem.shortDescription
-                                      ? compareItem.shortDescription
-                                      : "N/A"}
-                                  </p>
-                                </td>
-                              );
-                            })}
-                          </tr>
-
-                          <tr>
-                            <th className="title-column">Rating</th>
-                            {compareItems.map((compareItem, key) => {
-                              return (
-                                <td className="product-rating" key={key}>
-                                  <Rating ratingValue={compareItem.rating} />
-                                </td>
-                              );
-                            })}
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="row">
-                <div className="col-lg-12">
-                  <div className="item-empty-area text-center">
-                    <div className="item-empty-area__icon mb-30">
-                      <i className="pe-7s-shuffle"></i>
-                    </div>
-                    <div className="item-empty-area__text">
-                      No items found in compare <br />{" "}
-                      <Link to={process.env.PUBLIC_URL + "/shop-grid-standard"}>
-                        Add Items
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
+        <Box sx={{ flexGrow: 1, overflow: 'hidden', px: 3 }}>
+          {unreadNotifications.length > 0 && (
+            <Button variant="contained" color="primary" onClick={notificationReadHandler} sx={{ mb: 2 }}>
+              Mark as Read
+            </Button>
+          )}
+          {notifications.length > 0 ? (
+            notifications.map((notification, index) => (
+              <Item key={index}>
+                <Stack spacing={2} direction="row" alignItems="center">
+                  <Avatar>{notification.message.charAt(0).toUpperCase()}</Avatar>
+                  <Stack sx={{ minWidth: 0 }}>
+                    <Typography noWrap variant="body1">{notification.message}</Typography>
+                    <Typography variant="body2" color="textSecondary">{getTimeDifference(notification.timestamp)}</Typography>
+                  </Stack>
+                </Stack>
+              </Item>
+            ))
+          ) : (
+            <Typography variant="body1">No notifications found {notifications}</Typography>
+          )}
+        </Box>
       </LayoutOne>
     </Fragment>
   );
 };
 
 export default Compare;
-

@@ -6,6 +6,8 @@ zain-backend/venv/
 
 zain-backend/account/migrations/__pycache__/
 zain-backend/account/__pycache__/
+zain-backend/notification/migrations/__pycache__/
+zain-backend/notification/__pycache__/
 zain-backend/blog/__pycache__/
 zain-backend/blog/migrations/__pycache__/
 zain-backend/t2/__pycache__/

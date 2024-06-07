@@ -168,10 +168,10 @@ const LoginRegister = () => {
                                   sitekey= {process.env.REACT_APP_RECAPTCHA_SITE_KEY}
                                   onChange={(val)=> setCapVal(val)}
                                 />
-                                  {/* <button disabled={capVal==null || capVal=={}} type="submit"> */}
-                                  <button  type="submit">
+                                  <button disabled={capVal==null || capVal=={}} type="submit">Login</button>
+                                  {/* <button  type="submit">
                                     <span>Login</span>
-                                  </button>
+                                  </button> */}
                               </div>
                               <span 
                                 className="error" 
