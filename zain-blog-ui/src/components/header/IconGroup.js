@@ -39,6 +39,8 @@ const IconGroup = ({ iconWhiteClass }) => {
   const { wishlistItems } = useSelector((state) => state.wishlist);
   const { cartItems } = useSelector((state) => state.cart);
   const user_info = useSelector((state) => state.user);
+  const count = useSelector(state => state.websocket.count);
+
 
   return (
     <div className={clsx("header-right-wrap", iconWhiteClass)} >
@@ -99,10 +101,22 @@ const IconGroup = ({ iconWhiteClass }) => {
       </div>
       <div className="same-style header-compare">
         <Link to={process.env.PUBLIC_URL + "/compare"}>
-          <i className="pe-7s-shuffle" />
-          <span className="count-style">
-            {compareItems && compareItems.length ? compareItems.length : 0}
-          </span>
+          {count && count > 0 ? (
+            <>
+            <i className="pe-7s-bell highlited-icon" />
+            <span className="count-style highlited">
+              {count && count > 0 ? count : 0}
+            </span>
+            </>
+          ):(
+            <>
+            <i className="pe-7s-bell" />
+            <span className="count-style">
+              {count && count > 0 ? count : 0}
+            </span>
+            </>
+          )}
+          
         </Link>
       </div>
       <div className="same-style header-wishlist">

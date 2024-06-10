@@ -13,6 +13,9 @@ const AuthComponent = () => {
   const navigate = useNavigate();
   console.log("access token: ", access_token)
 
+
+  
+
   useEffect(() => {
     if (access_token) {
       getLoggedUser(access_token);
@@ -50,7 +53,16 @@ const AuthComponent = () => {
         );
       });
     }
-  }, [data, isSuccess, isError, dispatch]);
+  }, [data, isSuccess, isError, dispatch, navigate]);
+
+  useEffect(() => {
+    if (data && access_token) {
+      console.log("data", data);
+      dispatch({ type: 'auth/loginSuccess', payload: { data } });
+    } else {
+      dispatch({ type: 'auth/logoutSuccess' });
+    }
+  }, [data, access_token, dispatch]);
 
   return null; // This component doesn't render anything visible
 };
