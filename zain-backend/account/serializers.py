@@ -29,7 +29,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         only selected fields are allowed for registertion
         """
         model = User
-        fields = ['email', 'name', 'password', 'password2', 'tc', 'role']
+        fields = ['email', 'name', 'phone_number', 'password', 'password2', 'tc', 'role']
         extra_kwargs = {
             'password': {'write_only': True}
             }
@@ -39,7 +39,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         """
         password = validated_data.pop('password')
         password2 = validated_data.pop('password2')
-        max_otp_out = datetime.timezone.now()
+        max_otp_out = timezone.now()
         if password != password2:
             raise serializers.ValidationError("Password and Confirm Password don't match")
         user = User.objects.create_user(

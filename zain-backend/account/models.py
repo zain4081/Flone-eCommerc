@@ -14,7 +14,7 @@ class UserManager(BaseUserManager):
     """
     User Manager
     """
-    def create_user(self, email, name, role, phone_number, password=None):
+    def create_user(self, email, name, role, phone_number, max_otp_out, password=None):
         """
         Creates and saves a User with the given email, name, role, and password.
         """
@@ -26,6 +26,7 @@ class UserManager(BaseUserManager):
             name=name,
             role=role,
             phone_number= phone_number,
+            max_otp_out= max_otp_out,
         )
 
         user.set_password(password)
