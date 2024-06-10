@@ -30,25 +30,28 @@ class UserNotifications(APIView):
         If there are unread notifications, it sends a WebSocket message to update
         the unread notification count for the user.
         """
-        notifications = Notification.objects.filter(read=False, recipient=request.user)
-        serializer = NotificationSerializer(notifications, many=True)
+        try:
+            notifications = Notification.objects.filter(read=False, recipient=request.user)
+            serializer = NotificationSerializer(notifications, many=True)
 
-        if notifications:
-            # Send update count via WebSocket
-            channel_layer = get_channel_layer()
-            async_to_sync(channel_layer.group_send)(
-                f'notifications_{request.user.id}',
-                {
-                    'type': 'send_notification',
-                    'message': 'update',
-                    'unread_count': notifications.count(),
-                }
-            )
-        data = {
-            "notifications": serializer.data,
-            "unread_count": notifications.count(),
-        }
-        return Response(data, status=status.HTTP_200_OK)
+            if notifications:
+                # Send update count via WebSocket
+                channel_layer = get_channel_layer()
+                async_to_sync(channel_layer.group_send)(
+                    f'notifications_{request.user.id}',
+                    {
+                        'type': 'send_notification',
+                        'message': 'update',
+                        'unread_count': notifications.count(),
+                    }
+                )
+            data = {
+                "notifications": serializer.data,
+                "unread_count": notifications.count(),
+            }
+            return Response(data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class AddNotification(APIView):
@@ -70,24 +73,27 @@ class AddNotification(APIView):
         and sends a WebSocket message to notify the recipient of the new
         notification and update the unread notification count.
         """
-        serializer = AddNotifcation(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        notification = serializer.save()
-        unread_count = Notification.objects.filter(read=False, recipient=notification.recipient.id).count()
-        
-        if notification:
-            # Send notification via WebSocket
-            channel_layer = get_channel_layer()
-            async_to_sync(channel_layer.group_send)(
-                f'notifications_{notification.recipient.id}',
-                {
-                    'type': 'send_notification',
-                    'message': notification.message,
-                    'unread_count': unread_count,
-                }
-            )
-            return Response({'msg': 'Notify Successfully'}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            serializer = AddNotifcation(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            notification = serializer.save()
+            unread_count = Notification.objects.filter(read=False, recipient=notification.recipient.id).count()
+            
+            if notification:
+                # Send notification via WebSocket
+                channel_layer = get_channel_layer()
+                async_to_sync(channel_layer.group_send)(
+                    f'notifications_{notification.recipient.id}',
+                    {
+                        'type': 'send_notification',
+                        'message': notification.message,
+                        'unread_count': unread_count,
+                    }
+                )
+                return Response({'msg': 'Notify Successfully'}, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
 class EditNotificationReadStatus(APIView):
     """
@@ -114,7 +120,7 @@ class EditNotificationReadStatus(APIView):
         message to update the unread notification count for the user.
         """
         try:
-            # Ensure atomic database operations
+            # Ensure that all transactions are Atomic to avoid Race condition issues
             with transaction.atomic():
                 notification_query = Notification.objects.filter(recipient=request.user, read=False).update(read=True)
                 updated_notifications = Notification.objects.filter(read=False, recipient=request.user)
