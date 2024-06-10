@@ -33,7 +33,10 @@ class UserNotifications(APIView):
         try:
             notifications = Notification.objects.filter(read=False, recipient=request.user)
             serializer = NotificationSerializer(notifications, many=True)
-
+            data = {
+                "notifications": serializer.data,
+                "unread_count": notifications.count(),
+            }
             if notifications:
                 # Send update count via WebSocket
                 channel_layer = get_channel_layer()
@@ -45,14 +48,10 @@ class UserNotifications(APIView):
                         'unread_count': notifications.count(),
                     }
                 )
-            data = {
-                "notifications": serializer.data,
-                "unread_count": notifications.count(),
-            }
-            return Response(data, status=status.HTTP_200_OK)
+                return Response({'msg':'Notify Successfully', 'notifications': data['notifications']}, status=status.HTTP_200_OK)
+            return Response({'error': 'No unread notifications to send update'}, status=status.HTTP_204_NO_CONTENT)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 
 class AddNotification(APIView):
     """
@@ -91,7 +90,7 @@ class AddNotification(APIView):
                     }
                 )
                 return Response({'msg': 'Notify Successfully'}, status=status.HTTP_201_CREATED)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'Failed to create notification'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
