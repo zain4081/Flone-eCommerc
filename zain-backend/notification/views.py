@@ -120,22 +120,22 @@ class EditNotificationReadStatus(APIView):
         """
         try:
             # Ensure that all transactions are Atomic to avoid Race condition issues
-            with transaction.atomic():
-                notification_query = Notification.objects.filter(recipient=request.user, read=False).update(read=True)
-                updated_notifications = Notification.objects.filter(read=False, recipient=request.user)
+            # with transaction.atomic():
+            notification_query = Notification.objects.filter(recipient=request.user, read=False).update(read=True)
+            updated_notifications = Notification.objects.filter(read=False, recipient=request.user)
 
-                if notification_query:
-                    # Send update count via WebSocket
-                    channel_layer = get_channel_layer()
-                    async_to_sync(channel_layer.group_send)(
-                        f'notifications_{request.user.id}',
-                        {
-                            'type': 'send_notification',
-                            'message': 'update',
-                            'unread_count': updated_notifications.count(),
-                        }
-                    )
-                    return Response({'msg': 'Successfully Marked as Read'}, status=status.HTTP_200_OK)
+            if notification_query:
+                # Send update count via WebSocket
+                channel_layer = get_channel_layer()
+                async_to_sync(channel_layer.group_send)(
+                    f'notifications_{request.user.id}',
+                    {
+                        'type': 'send_notification',
+                        'message': 'update',
+                        'unread_count': updated_notifications.count(),
+                    }
+                )
+                return Response({'msg': 'Successfully Marked as Read'}, status=status.HTTP_200_OK)
 
             return Response({'error': 'Error in updating count'}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
