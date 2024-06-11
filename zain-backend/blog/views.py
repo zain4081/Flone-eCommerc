@@ -6,6 +6,7 @@ from datetime import timedelta
 import json
 
 from django.db.models import Count, Q
+from django.core.cache import cache
 from django.http import HttpResponseServerError
 from django.utils import timezone
 from django.utils.dateparse import parse_date
@@ -16,6 +17,8 @@ from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
+CACHE_TTL = 60 * 1500
 
 from django_elasticsearch_dsl_drf.viewsets import DocumentViewSet
 from django_elasticsearch_dsl_drf.filter_backends import (
@@ -74,6 +77,17 @@ class PostViewSet(viewsets.ModelViewSet):
         start and end date range.
         """
         queryset = Post.objects.all()
+        # Implement Cache on filterbase and also on all posts--
+        cache_key = 'posts_{}_{}_{}_{}'.format(
+            self.request.query_params.get('tags', ''),
+            self.request.query_params.get('category', ''),
+            self.request.query_params.get('start_date', ''),
+            self.request.query_params.get('end_date', '')
+        )
+        cached_queryset = cache.get(cache_key)
+        if cached_queryset:
+            print("returning Cached Data")
+            return cached_queryset
         tags_param = self.request.query_params.get('tags')
         category_param = self.request.query_params.get('category')
         if tags_param:
@@ -112,6 +126,7 @@ class PostViewSet(viewsets.ModelViewSet):
             end_date += timedelta(days=1)
             if end_date:
                 queryset = queryset.filter(date__lte=end_date)
+        cache.set(cache_key, queryset, CACHE_TTL)
         return queryset
 
 class PostViewTrending(viewsets.ModelViewSet):
