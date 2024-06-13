@@ -1,7 +1,4 @@
-// ** React Imports
 import { Fragment, useState, useEffect } from 'react'
-
-// ** Third Party Components
 import classnames from 'classnames'
 import {
   Share2,
@@ -12,18 +9,13 @@ import {
   Facebook,
   Linkedin,
   CornerUpLeft,
-  MessageSquare
+  MessageSquare,
+  Trash2
 } from 'react-feather'
-
-// ** Utils
 import { kFormatter } from '@utils'
-
-// ** Custom Components
 import Sidebar from '../BlogSidebar'
 import Avatar from '@components/avatar'
 import Breadcrumbs from '@components/breadcrumbs'
-
-// ** Reactstrap Imports
 import {
   Row,
   Col,
@@ -42,51 +34,70 @@ import {
   DropdownToggle,
   UncontrolledDropdown
 } from 'reactstrap'
-
-// ** Styles
 import '@styles/base/pages/page-blog.scss'
-
-// ** Images
 import cmtImg from '@src/assets/images/portrait/small/avatar-s-6.jpg'
-import { useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import axiosInstance from '../../../../interceptor/axios'
+import Dialog from '@mui/material/Dialog'
+import DialogActions from '@mui/material/DialogActions'
+import DialogContent from '@mui/material/DialogContent'
+import DialogContentText from '@mui/material/DialogContentText'
+import DialogTitle from '@mui/material/DialogTitle'
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const BlogDetails = () => {
-  // ** States
   const [data, setData] = useState(null)
   const [comments, setComments] = useState(null)
-  const { id } = useParams();
-  const nav = useNavigate();
+  const [open, setOpen] = useState(false)
+  const { id } = useParams()
+  const nav = useNavigate()
   
-    useEffect(() => {
-      const fetchData = async (postId) => {
-        try {
-          let url = `/blog/posts/${postId}`;
-          const response = await axiosInstance.get(url);
-          console.log("detals", response)
-          setData(response.data);
-        } catch (error) {
-          nav("/pages/blog/list");
-          console.error("Error fetching data:", error);
-        }
-      };
-      const fetchComments = async (postId) => {
-        try {
-          let url = `/blog/posts/${postId}/comments`;
-          const response = await axiosInstance.get(url);
-          console.log("comments", response.data)
-          setComments(response.data.comments);
-        } catch (error) {
-          console.error("Error fetching data:", error);
-          // navigate("/pages/blog/list");
-        }
-      };
-      fetchData(id);
-      fetchComments(id);
-    }, [id]);
+  useEffect(() => {
+    const fetchData = async (postId) => {
+      try {
+        const response = await axiosInstance.get(`/blog/posts/${postId}`)
+        setData(response.data)
+      } catch (error) {
+        nav("/pages/blog/list")
+        console.error("Error fetching data:", error)
+      }
+    }
 
-    console.log("posts ", data)
-    console.log("comments ", comments)
+    const fetchComments = async (postId) => {
+      try {
+        const response = await axiosInstance.get(`/blog/posts/${postId}/comments`)
+        setComments(response.data.comments)
+      } catch (error) {
+        console.error("Error fetching comments:", error)
+      }
+    }
+
+    fetchData(id)
+    fetchComments(id)
+  }, [id, nav])
+
+  const handleClickOpen = () => {
+    setOpen(true)
+  }
+
+  const handleClose = () => {
+    setOpen(false)
+  }
+
+  const handleDelete = async () => {
+    try {
+      const res = await axiosInstance.delete(`/blog/posts/${id}`)
+      nav("/pages/blog/list")
+      if(res.status == 204){
+        toast.success('Post deleted successfully!')
+      }
+    } catch (error) {
+      console.error("Error deleting post:", error)
+    } finally {
+      handleClose()
+    }
+  }
 
   const badgeColorsArr = {
     Quote: 'light-info',
@@ -97,55 +108,48 @@ const BlogDetails = () => {
   }
 
   const renderTags = () => {
-    return data.tags_name.map((tag, index) => {
-      return (
-        <a key={index} href='/' onClick={e => e.preventDefault()}>
-          <Badge
-            className={classnames({
-              'me-50': index !== data.tags_name.length - 1
-            })}
-            color={badgeColorsArr[tag]}
-            pill
-          >
-            {tag}
-          </Badge>
-        </a>
-      )
-    })
+    return data.tags_name.map((tag, index) => (
+      <a key={index} href='/' onClick={e => e.preventDefault()}>
+        <Badge
+          className={classnames({ 'me-50': index !== data.tags_name.length - 1 })}
+          color={badgeColorsArr[tag]}
+          pill
+        >
+          {tag}
+        </Badge>
+      </a>
+    ))
   }
 
-//   const renderComments = () => {
-
-// // content ,date, id, likes_count, parent_comment, post, replies, user, user_name
-//     return comments && comments.map(comment => {
-//       return (
-//         <Card className='mb-3' key={comment.id}>
-//           <CardBody>
-//             <div className='d-flex'>
-//               <div>
-//                 <Avatar className='me-75' img={comment.user_name} imgHeight='38' imgWidth='38' />
-//               </div>
-//               <div>
-//                 <h6 className='fw-bolder mb-25'>{comment.user_name}</h6>
-//                 <CardText>{comment.date}</CardText>
-//                 <CardText>{comment.content}</CardText>
-//                 <a href='/' onClick={e => e.preventDefault()}>
-//                   <div className='d-inline-flex align-items-center'>
-//                     <CornerUpLeft size={18} className='me-50' />
-//                     <span>Reply</span>
-//                   </div>
-//                 </a>
-//               </div>
-//             </div>
-//           </CardBody>
-//         </Card>
-//       )
-//     })
-//   }
+  const renderComments = () => {
+    return comments && comments.map(comment => (
+      <Card className='mb-3' key={comment.id}>
+        <CardBody>
+          <div className='d-flex'>
+            <div>
+              <Avatar className='me-75' img={comment.user_name} imgHeight='38' imgWidth='38' />
+            </div>
+            <div>
+              <h6 className='fw-bolder mb-25'>{comment.user_name}</h6>
+              <CardText>{comment.date}</CardText>
+              <CardText>{comment.content}</CardText>
+              <a href='/' onClick={e => e.preventDefault()}>
+                <div className='d-inline-flex align-items-center'>
+                  <CornerUpLeft size={18} className='me-50' />
+                  <span>Reply</span>
+                </div>
+              </a>
+            </div>
+          </div>
+        </CardBody>
+      </Card>
+    ))
+  }
 
   return (
     <Fragment>
       <Breadcrumbs title='Blog Details' data={[{ title: 'Pages' }, { title: 'Blog' }, { title: 'Details' }]} />
+      <ToastContainer />
       <div className='blog-wrapper'>
         <div className='content-detached content-left'>
           <div className='content-body'>
@@ -153,27 +157,12 @@ const BlogDetails = () => {
               <Row>
                 <Col sm='12'>
                   <Card className='mb-3'>
-                    <CardImg src={import.meta.env.VITE_API_URL+data.image_url} className='img-fluid' top />
+                    <CardImg src={import.meta.env.VITE_API_URL + data.image_url} className='img-fluid' top />
                     <CardBody>
                       <CardTitle tag='h4'>{data.title}</CardTitle>
-                      {/* <div className='d-flex'>
-                        <Avatar className='me-50' img={data.avatar} imgHeight='24' imgWidth='24' />
-                        <div>
-                          <small className='text-muted me-25'>by</small>
-                          <small>
-                            <a className='text-body' href='/' onClick={e => e.preventDefault()}>
-                              {data.userFullName}
-                            </a>
-                          </small>
-                          <span className='text-muted ms-50 me-25'>|</span>
-                          <small className='text-muted'>{data.createdTime}</small>
-                        </div>
-                      </div> */}
                       <div className='my-1 py-25'>{renderTags()}</div>
                       <div
-                        dangerouslySetInnerHTML={{
-                          __html: data.content
-                        }}
+                        dangerouslySetInnerHTML={{ __html: data.content }}
                       ></div>
                       <div className='d-flex'>
                         <div>
@@ -198,6 +187,13 @@ const BlogDetails = () => {
                               <div className='text-body align-middle'>{kFormatter(data.comments_count)}</div>
                             </a>
                           </div>
+                          <Link className='fw-bold' to={`/pages/blog/edit/${data.id}`}>
+                            Edit
+                          </Link>
+                          <Button color='danger' className='ms-1' onClick={handleClickOpen}>
+                            <Trash2 size={18} className='align-middle' />
+                            <span className='align-middle ms-1'>Delete</span>
+                          </Button>
                           <div className='d-flex align-items-center'>
                             <a className='me-50' href='/' onClick={e => e.preventDefault()}>
                               <Bookmark size={21} className='text-body align-middle' />
@@ -233,9 +229,9 @@ const BlogDetails = () => {
                     </CardBody>
                   </Card>
                 </Col>
-                {/* <Col sm='12' id='blogComment'>
+                <Col sm='12' id='blogComment'>
                   <h6 className='section-label'>Comment</h6>
-                  {renderComments(data.id)}
+                  {renderComments()}
                 </Col>
                 <Col sm='12'>
                   <h6 className='section-label'>Leave a Comment</h6>
@@ -278,13 +274,34 @@ const BlogDetails = () => {
                       </Form>
                     </CardBody>
                   </Card>
-                </Col> */}
+                </Col>
               </Row>
             ) : null}
           </div>
         </div>
         <Sidebar />
       </div>
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">{"Confirm Delete"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Are you sure you want to delete this post? This action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleDelete} color="secondary" autoFocus>
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Fragment>
   )
 }

@@ -120,6 +120,9 @@ console.log("data", data);
                   <MessageSquare size={15} className='text-body me-50' />
                   <span className='text-body fw-bold'>{item.comments_count} Comments</span>
                 </Link>
+                <Link className='fw-bold' to={`/pages/blog/edit/${item.id}`}>
+                  Edit
+                </Link>
                 <Link className='fw-bold' to={`/pages/blog/detail/${item.id}`}>
                   Read More
                 </Link>
