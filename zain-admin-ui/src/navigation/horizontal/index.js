@@ -1,4 +1,6 @@
-import { Mail, Home } from "react-feather";
+import { Mail, Home, Circle } from "react-feather";
+
+
 
 export default [
   {
@@ -8,10 +10,29 @@ export default [
     navLink: "/home",
   },
   {
-    id: "managePosts",
-    title: "Manage Posts",
-    icon: <Mail size={20} />,
-    navLink: "/manage-posts",
+    id: 'blog',
+    title: 'Blog',
+    icon: <Circle size={12} />,
+    children: [
+      {
+        id: 'blogList',
+        title: 'List',
+        permissions: ['admin', 'editor'],
+        navLink: '/pages/blog/list'
+      },
+      {
+        id: 'blogDetail',
+        title: 'Detail',
+        permissions: ['admin', 'editor'],
+        navLink: '/pages/blog/detail'
+      },
+      {
+        id: 'blogEdit',
+        title: 'Edit',
+        permissions: ['admin', 'editor'],
+        navLink: '/pages/blog/edit'
+      }
+    ]
   },
   {
     id: "secondPage",

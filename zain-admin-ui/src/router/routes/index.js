@@ -31,7 +31,10 @@ const Login = lazy(() => import("../../views/Login"));
 const Register = lazy(() => import("../../views/Register"));
 const ForgotPassword = lazy(() => import("../../views/ForgotPassword"));
 const Error = lazy(() => import("../../views/Error"));
-const ManagePosts = lazy(() => import("../../views/ManagePosts"))
+const BlogList = lazy(() => import("../../views/pages/blog/list"))
+const BlogEdit = lazy(() => import('../../views/pages/blog/edit'))
+const BlogDetails = lazy(() => import('../../views/pages/blog/details'))
+const BlogAdd = lazy(() => import('../../views/pages/blog/add'))
 
 // ** Merge Routes
 const Routes = [
@@ -45,8 +48,28 @@ const Routes = [
     element: <Home />,
   },
   {
-    path: "/manage-posts",
-    element: <ManagePosts />,
+    path: '/pages/blog/add',
+    element: <BlogAdd/>
+  },
+  {
+    path: '/pages/blog/list',
+    element: <BlogList />
+  },
+  {
+    path: '/pages/blog/detail/:id',
+    element: <BlogDetails />
+  },
+  {
+    path: '/pages/blog/detail',
+    element: <Navigate to='/pages/blog/detail/1' />
+  },
+  {
+    path: '/pages/blog/edit/:id',
+    element: <BlogEdit />
+  },
+  {
+    path: '/pages/blog/edit',
+    element: <Navigate to='/pages/blog/edit/1' />
   },
   {
     path: "/second-page",

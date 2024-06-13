@@ -9,3 +9,25 @@ NOTE:
 ------
 PLACE HERE YOUR OWN SCSS CODES AND IF NEEDED, OVERRIDE THE STYLES FROM THE OTHER STYLESHEETS.
 WE WILL RELEASE FUTURE UPDATES SO IN ORDER TO NOT OVERWRITE YOUR STYLES IT'S BETTER LIKE THIS.  */
+
+
+// ----------- Blog Image Dropzone --------------- //
+.dropzone {
+	border: 2px dashed #007bff;
+	border-radius: 4px;
+	padding: 20px;
+	text-align: center;
+	cursor: pointer;
+	transition: background-color 0.3s ease;
+	
+	&:hover {
+	  background-color: #f8f9fa;
+	}
+  }
+  
+  .dropzone-placeholder {
+	font-size: 16px;
+	color: #6c757d;
+	margin: 20px 0;
+  }
+  
