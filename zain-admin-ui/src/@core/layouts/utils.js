@@ -96,7 +96,9 @@ const checkForVisibleChild = (arr, ability) => {
     if (i.children) {
       return checkForVisibleChild(i.children, ability);
     } else {
-      return ability.can(i.action, i.resource);
+      // added return true to bypass ability check
+      // return ability.can(i.action, i.resource);
+      return true;
     }
   });
 };
