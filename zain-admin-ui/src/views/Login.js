@@ -30,12 +30,16 @@ import "@styles/react/pages/page-authentication.scss";
 import { useState } from "react";
 import { useLoginUserMutation } from "../services/userAuthApi";
 import { storeToken } from "../services/localStorageService";
+import axiosInstance from "../interceptor/axios";
+import { setUserInfo } from "../redux/slices/userInfo-slice";
+import { batch, useDispatch } from "react-redux";
 
 console.log("url: ", import.meta.env.VITE_API_URL)
 const Login = () => {
   const { skin } = useSkin();
   const [ loginUser ] = useLoginUserMutation();
   const  navigate = useNavigate();
+  const dispatch = useDispatch();
   const [serverError, setServerError ] = useState(null);
   const [loginFormData, setLoginFormData] = useState({
     email: "",
@@ -48,7 +52,6 @@ const Login = () => {
       [e.target.name]: e.target.value,
     });
   };
-  
   const handleLoginSubmit = async (e) => {
     
     e.preventDefault();
@@ -65,8 +68,34 @@ const Login = () => {
       localStorage.clear();
       localStorage.setItem("access_token", res.data.token.access);
       localStorage.setItem("refresh_token", res.data.token.refresh);
+      axiosInstance.defaults.headers["Authorization"] ="Bearer " + localStorage.getItem("access_token");
+      try{
+        let url = '/account/profile';
+        const response = await axiosInstance.get(url);
+        console.log("response account", response)
+        if(response.status === 200){
+          localStorage.setItem("user_name", response.data.name);
+          localStorage.setItem("user_role", response.data.role);
+          batch(() => { 
+            dispatch(
+              setUserInfo({
+                id: response.data.id,
+                name: response.data.name,
+                email: response.data.email,
+                role: response.data.role,
+              })
+            );
+          });
+        }
+      }catch(error) {
+        console.error(error);
+      }
+      
       setServerError(null)
-      navigate('/home')
+      window.location.reload()
+      setTimeout(() => {
+        navigate('/home'); // Navigate to home after 2 seconds
+      }, 2000)
       console.log("logineed")
     }
     
