@@ -61,8 +61,10 @@ const Login = () => {
       console.log("errors are", res.error.data.errors)
     }
     if(res && res.data){
-      console.log("data is ", res.data.token)
-      storeToken(res.data.token)
+      console.log("data is ", res.data.token.access)
+      localStorage.clear();
+      localStorage.setItem("access_token", res.data.token.access);
+      localStorage.setItem("refresh_token", res.data.token.refresh);
       setServerError(null)
       navigate('/home')
       console.log("logineed")

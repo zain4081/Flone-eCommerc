@@ -18,7 +18,7 @@ const Home = () => {
   const [getLoggedUser, { data, isSuccess, isError }] = useGetLoggedUserMutation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  console.log("access token: ", access_token)
+  console.log("access token: ", localStorage.getItem("access_token"));
 
   useEffect(() => {
     if (access_token) {
