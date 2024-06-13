@@ -13,6 +13,29 @@ import PublicRoute from "@components/routes/PublicRoute";
 // ** Utils
 import { isObjEmpty } from "@utils";
 
+// ** Function to check for access token
+const hasAccessToken = () => {
+  return !!localStorage.getItem('access_token');
+};
+const hasCreateAccess = () => {
+  const role = localStorage.getItem('user_role');
+  if(role === 'creator' || role === 'superuser') {
+    return true
+  }
+  return false
+};
+const hasEditorAccess = () => {
+  const role = localStorage.getItem('user_role');
+  if(role == 'editor' || role == 'superuser') {
+    return true;
+  }
+  return false;
+};
+console.log("hasAccessToken", hasAccessToken())
+console.log("hasEditorAccess", hasEditorAccess())
+console.log("hasCreateAccess", hasCreateAccess())
+
+
 const getLayout = {
   blank: <BlankLayout />,
   vertical: <VerticalLayout />,
@@ -41,43 +64,43 @@ const Routes = [
   {
     path: "/",
     index: true,
-    element: <Navigate replace to={DefaultRoute} />,
+    element: hasAccessToken() ? <Navigate replace to={DefaultRoute} /> : <Navigate replace to="/login" />,
   },
   {
     path: "/home",
-    element: <Home />,
+    element: hasAccessToken() ? <Home /> : <Navigate replace to="/login" />,
   },
   {
     path: '/pages/blog/add',
-    element: <BlogAdd/>
+    element: hasAccessToken() ? (hasCreateAccess() ? <BlogAdd/> : <Navigate replace to="/pages/blog/list" />) :<Navigate replace to="/login" />,
   },
   {
     path: '/pages/blog/list',
-    element: <BlogList />
+    element: hasAccessToken() ? <BlogList /> : <Navigate replace to="/login" />,
   },
   {
     path: '/pages/blog/detail/:id',
-    element: <BlogDetails />
+    element: hasAccessToken() ? <BlogDetails /> : <Navigate replace to="/login" />,
   },
   {
     path: '/pages/blog/detail',
-    element: <Navigate to='/pages/blog/detail/1' />
+    element: hasAccessToken() ? <Navigate to='/pages/blog/detail/1' /> : <Navigate replace to="/login" />,
   },
   {
     path: '/pages/blog/edit/:id',
-    element: <BlogEdit />
+    element: hasAccessToken() ? (hasEditorAccess() ? <BlogEdit /> : <Navigate replace to="/pages/blog/list" />) : <Navigate replace to="/login" />,
   },
   {
     path: '/pages/blog/edit',
-    element: <Navigate to='/pages/blog/edit/1' />
+    element: hasAccessToken() ? (hasEditorAccess() ? <BlogEdit /> : <Navigate replace to="/pages/blog/list" />) : <Navigate replace to="/login" />,
   },
   {
     path: "/second-page",
-    element: <SecondPage />,
+    element: hasAccessToken() ? <SecondPage /> : <Navigate replace to="/login" />,
   },
   {
     path: "/login",
-    element: <Login />,
+    element: hasAccessToken() ? <Navigate replace to="/home" /> : <Login />,
     meta: {
       layout: "blank",
     },
