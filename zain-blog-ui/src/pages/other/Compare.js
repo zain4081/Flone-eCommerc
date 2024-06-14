@@ -39,18 +39,24 @@ const Compare = () => {
       const response = await getNotifications(access_token);
       if (response.data) {
         setNotifications(response.data.notifications);
+      }else{
+        setNotifications([])
       }
     } catch (error) {
       console.error("Error fetching data:", error);
     }
   };
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const notificationReadHandler = async () => {
     const data = { read: true };
     try {
       const response = await markRead({'data': data, 'access_token': access_token});
+      
       if (response.data) {
-        fetchData(); // Fetch updated notifications after marking as read
+        fetchData();
       }
     } catch (error) {
       console.error("Error updating data:", error);
@@ -76,9 +82,7 @@ const Compare = () => {
     }
   };
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  
 
   const unreadNotifications = notifications.filter(notification => !notification.read);
 
