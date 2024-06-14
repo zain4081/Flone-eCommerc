@@ -44,7 +44,6 @@ class PostViewSet(viewsets.ModelViewSet):
     """
     queryset = Post.objects.prefetch_related('post_likes').order_by('-date') 
     serializer_class = PostSerializer
-
     filter_backends = [filters.SearchFilter]
     search_fields = [
         'tag__id',
@@ -55,6 +54,7 @@ class PostViewSet(viewsets.ModelViewSet):
         '^title', 'title'
     ]
     filterset_fields = ['category', 'tags', 'created_at']
+    parser_classes = [MultiPartParser, FormParser]
     
     def get_pagination_class(self):
         """

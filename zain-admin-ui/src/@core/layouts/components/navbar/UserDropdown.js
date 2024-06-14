@@ -1,5 +1,5 @@
 // ** React Imports
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 // ** Custom Components
 import Avatar from "@components/avatar";
@@ -26,10 +26,22 @@ import {
 
 // ** Default Avatar Image
 import defaultAvatar from "@src/assets/images/portrait/small/avatar-s-11.jpg";
-import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
 
 const UserDropdown = () => {
-  const user_info = useSelector((state) => state.user);
+  
+  const userName = localStorage.getItem('user_name');
+  const userRole = localStorage.getItem('user_role');
+  const navigate = useNavigate();
+
+  const logoutHandler=() =>{
+    localStorage.clear();
+    window.location.reload()
+    setTimeout(() => {
+      navigate('/login'); // Navigate to home after 2 seconds
+    }, 2000)
+
+  }
   return (
     <UncontrolledDropdown tag="li" className="dropdown-user nav-item">
       <DropdownToggle
@@ -39,8 +51,8 @@ const UserDropdown = () => {
         onClick={(e) => e.preventDefault()}
       >
         <div className="user-nav d-sm-flex d-none">
-          <span className="user-name fw-bold">{user_info.name}</span>
-          <span className="user-status">{user_info.role}</span>
+          <span className="user-name fw-bold">{userName && userName}</span>
+          <span className="user-status">{userRole && userRole}</span>
         </div>
         <Avatar
           img={defaultAvatar}
@@ -83,9 +95,9 @@ const UserDropdown = () => {
           <HelpCircle size={14} className="me-75" />
           <span className="align-middle">FAQ</span>
         </DropdownItem>
-        <DropdownItem tag={Link} to="/login">
+        <DropdownItem  onClick={logoutHandler}>
           <Power size={14} className="me-75" />
-          <span className="align-middle">Logout</span>
+          <span className="align-middle" >Logout</span>
         </DropdownItem>
       </DropdownMenu>
     </UncontrolledDropdown>

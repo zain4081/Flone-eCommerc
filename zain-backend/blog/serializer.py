@@ -15,6 +15,7 @@ class PostSerializer(serializers.ModelSerializer):
     comments_count = serializers.SerializerMethodField()
     tags_name = serializers.SerializerMethodField()
     image_url = serializers.SerializerMethodField('get_image_url')
+    image = serializers.ImageField(required=False, allow_null=True)
     def get_likes_count(self, post):
         """
         Get the number of likes for a post.
