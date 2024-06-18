@@ -18,7 +18,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-CACHE_TTL = 60 * 1500
+CACHE_TTL = 60 * 15
 
 from django_elasticsearch_dsl_drf.viewsets import DocumentViewSet
 from django_elasticsearch_dsl_drf.filter_backends import (
@@ -76,7 +76,6 @@ class PostViewSet(viewsets.ModelViewSet):
         Optionally restricts the returned posts to a given tag ID, category ID,
         start and end date range.
         """
-        queryset = Post.objects.all()
         # Implement Cache on filterbase and also on all posts--
         cache_key = 'posts_{}_{}_{}_{}'.format(
             self.request.query_params.get('tags', ''),
@@ -86,8 +85,9 @@ class PostViewSet(viewsets.ModelViewSet):
         )
         cached_queryset = cache.get(cache_key)
         if cached_queryset:
-            print("returning Cached Data")
             return cached_queryset
+        
+        queryset = Post.objects.all()
         tags_param = self.request.query_params.get('tags')
         category_param = self.request.query_params.get('category')
         if tags_param:
