@@ -11,6 +11,8 @@ from account.views import (
     UserProfileView,
     UserRegistrationView,
     UserOtpVerify,
+    google_login,
+    facebook_login,
     )
 
 router = DefaultRouter()
@@ -31,4 +33,6 @@ urlpatterns = [
     #     name='send-reset-password-email'),
     # path('reset-password/<uid>/<token>/', UserPasswordResetView.as_view(), name='reset-password'),
     path('admin-login/', AdminLoginView.as_view(), name='login'),
+    path('google-login/', google_login, name='google-login'),
+    path('facebook-login/', facebook_login, name='facebook-login'),
 ]
