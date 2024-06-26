@@ -17,7 +17,7 @@ zain-backend/__pycache__/
 zain-backend/.venv
 zain-backend/fvenv
 zain-backend/images
-zain-backend/management/commands/__pycache__/
+zain-backend/blog/management/commands/__pycache__/
 
 #frontend
 
