@@ -3,19 +3,26 @@ Module: Contains views for user authentication and profile management.
 """
 # Third party imports
 import datetime
+import json
 import random
+import requests
 from django.conf import settings
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view
 from rest_framework_simplejwt.tokens import RefreshToken
+from social_django.utils import load_strategy
+from social_django.utils import load_backend
+from social_core.backends.facebook import FacebookOAuth2
+from social_core.exceptions import AuthException
 from django.contrib.auth import authenticate
 from django.utils import timezone
+from django.http import JsonResponse
 from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.csrf import csrf_protect, csrf_exempt
 
 # Local application/library specific imports
 from account.models import User
@@ -294,7 +301,85 @@ class UserOtpVerify(ModelViewSet):
         Util.send_otp(data)
         print("otp", instance.otp)
         return Response("Successfully generate new OTP.", status=status.HTTP_200_OK)
+@csrf_exempt
+def google_login(request):
+    """
+    View for handling Google login.
+
+    Expects a POST request with a JSON payload containing a 'token' field.
+
+    Verifies the token with Google and extracts user info from the response.
+    Creates a new user if one does not exist, sets a random password, and sends a password to relvent Email.
+    Generates JWT tokens for the user using Simple JWT.
+
+    Returns a JSON response with the new tokens.
+
+    :return: JSON response
+    """
+    if request.method == "POST":
+        data = json.loads(request.body)
+        token = data.get("token")
+        response = requests.get(f"https://oauth2.googleapis.com/tokeninfo?id_token={token}")
+        user_info = response.json()
+
+        if "error_description" in user_info:
+            return JsonResponse({"error": user_info["error_description"]}, status=400)
+
+        email = user_info["email"]
+        name = user_info["name"]
         
+        random_password = ''.join([str(random.randint(0, 9)) for _ in range(6)])
+
+        user, created = User.objects.get_or_create(email=email, defaults={"name": name})
+        if created:
+            user.set_password(random_password)
+            user.tc = True
+            email_list = [user.email]
+            user.save()
+            data = {
+                'subject': 'Successfully Registeration',
+                'body': f"Your Password for Registration is .<br><b>{random_password}</b>",
+                'to_email': email_list
+            }
+            Util.send_email(data)
+
+        refresh = RefreshToken.for_user(user)
+        return JsonResponse({"refresh": str(refresh), "access": str(refresh.access_token)})
+
+    return JsonResponse({"error": "Invalid request method"}, status=405)
+
+@api_view(['POST'])
+def facebook_login(request):
+    """
+    View for handling Facebook login.
+
+    Expects a POST request with a JSON payload containing an 'access_token' field.
+
+    Authenticates the user using the access token and generates JWT tokens using Simple JWT.
+
+    Returns a JSON response with the new tokens.
+
+    :param request: HTTP request
+    :return: JSON response
+    """
+    access_token = request.data.get('access_token')
+    if not access_token:
+        return Response({'error': 'Access token is required'}, status=400)
+
+    try:
+        strategy = load_strategy(request)
+        backend = load_backend(strategy, 'facebook', redirect_uri=None)
+        user = backend.do_auth(access_token)
+        if user:
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+            })
+        else:
+            return Response({'error': 'Authentication failed'}, status=400)
+    except AuthException as e:
+        return Response({'error': str(e)}, status=400)        
 
 # class SendPasswordResetEmailView(APIView):
 #     """
