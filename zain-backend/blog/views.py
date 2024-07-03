@@ -236,12 +236,12 @@ class CommentViewSet(viewsets.ModelViewSet):
         """
         post_id = self.kwargs.get('post_id')
         return Comment.objects.filter(post_id=post_id)
-    def list(self, request, *args, **kwargs):
+    def list(self, request, post_id, *args, **kwargs):
         """
         Returns a list of comments and their replies
         """
         try:
-            queryset = Comment.objects.filter( parent_comment__isnull=True).prefetch_related('comment_likes')
+            queryset = Comment.objects.filter( parent_comment__isnull=True, post_id=post_id).prefetch_related('comment_likes')
             count = queryset.count()
             serializer = CommentSerializer(queryset, many=True, context={'depth': 3})
             data = {
