@@ -9,6 +9,17 @@ const MenuCart = () => {
   const currency = useSelector((state) => state.currency);
   const { cartItems } = useSelector((state) => state.cart);
   let cartTotalPrice = 0;
+  const getConvertedPrice = (product) => {
+    if(currency.currencyName== 'EUR'){
+      return product.pricedict.EUR;
+    }else if(currency.currencyName == 'GBP'){
+
+      return product.pricedict.GBP
+    }else if(currency.currencyName == 'USD'){
+      console.log("currency name usd", currency.name)
+      return product.pricedict.USD
+    }
+}
 
   return (
     <div className="shopping-cart-content">
@@ -16,15 +27,16 @@ const MenuCart = () => {
         <Fragment>
           <ul>
             {cartItems.map((item) => {
+              const price = getConvertedPrice(item)
               const discountedPrice = getDiscountPrice(
-                item.price,
+                price,
                 item.discount
               );
               const finalProductPrice = (
-                item.price * currency.currencyRate
+                price
               ).toFixed(2);
               const finalDiscountedPrice = (
-                discountedPrice * currency.currencyRate
+                discountedPrice
               ).toFixed(2);
 
               discountedPrice != null
