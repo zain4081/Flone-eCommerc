@@ -3,6 +3,7 @@ zain-backend/.env
 zain-backend/.pylintrc
 zain-backend/elastic_config.json
 zain-backend/venv/
+zain-backend/media/
 
 zain-backend/account/migrations/__pycache__/
 zain-backend/account/__pycache__/
