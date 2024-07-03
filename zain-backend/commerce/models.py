@@ -18,7 +18,7 @@ class Product(models.Model):
     """
     Modal for Products items
     """
-    Category =  models.ManyToManyField(Category)
+    Category =  models.ForeignKey(Category, on_delete=models.CASCADE, default='')
     discount = models.FloatField()
     description = models.TextField(max_length=500)
     image = models.ImageField(_('Image'), upload_to=upload_to, default='default.jpg')
