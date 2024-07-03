@@ -71,6 +71,11 @@ const Routes = [
     element: hasAccessToken() ? <Home /> : <Navigate replace to="/login" />,
   },
   {
+    path: "/second-page",
+    element:  <SecondPage/>,
+
+  },
+  {
     path: '/pages/blog/add',
     element: hasAccessToken() ? (hasCreateAccess() ? <BlogAdd/> : <Navigate replace to="/pages/blog/list" />) :<Navigate replace to="/login" />,
   },

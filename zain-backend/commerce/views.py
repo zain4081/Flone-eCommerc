@@ -1,14 +1,15 @@
 import stripe
 import os
 import json
+import pandas as pd
 from django.conf import settings
-from rest_framework import status
+from rest_framework import status, viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import Product
 from .serializer import ProductSerializer
-
+from blog.models import Category, Tag
 class ProducttListView(APIView):
     """
     Product list view for retrieving all Products.
@@ -131,4 +132,93 @@ class PaymentSuccessful(APIView):
             except Exception as e:
                 return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+class ProductsUploadView(viewsets.ModelViewSet):
+    """
+    ViewSet for uploading products from a CSV or Excel file.
 
+    This view accepts a file upload containing product data in CSV or Excel format,
+    processes each row to create Product instances, assigns categories, and associates
+    tags with each product.
+
+    Supported file formats: .csv, .xlsx
+
+    Example usage:
+        POST /upload-products/
+        Headers: {'Content-Type': 'multipart/form-data'}
+        Body: {'file': <file>}
+
+    Returns:
+        - 201 Created: Products successfully uploaded.
+        - 400 Bad Request: If no file is provided or if the file format is unsupported.
+        - 500 Internal Server Error: If there's an unexpected error during processing.
+    """
+
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+
+    def create(self, request, *args, **kwargs):
+        """
+        Handle POST requests to upload product data from a file.
+
+        Args:
+            request: The request object containing the uploaded file.
+            *args, **kwargs: Additional arguments passed to the method.
+
+        Returns:
+            Response: A Response object with a success or error message.
+        """
+        try:
+            file = request.data.get('file')
+            if not file:
+                return Response({'error': 'No file provided'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            if file.name.endswith('.csv'):
+                data = pd.read_csv(file)
+            elif file.name.endswith('.xlsx'):
+                data = pd.read_excel(file)
+            else:
+                return Response({'error': 'Unsupported file format'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            data.columns = data.columns.str.strip()
+            
+            for index, row in data.iterrows():
+                try:
+                    # Create or retrieve the Category
+                    category, _ = Category.objects.get_or_create(name=row['category'].strip())
+                    
+                    # Create the Product instance
+                    product = Product.objects.create(
+                        short_description=row['short_description'],
+                        description=row['description'],
+                        price=row['price'],
+                        name=row['name'],
+                        discount=row['discount'],
+                        image=row['image'],
+                        stock=row['stock'],
+                        price_id=row['price_id'],
+                        price_id_eur=row['price_id_eur'],
+                        price_id_gbp=row['price_id_gbp'],
+                        salesCount=row['salesCount'],
+                    )
+                    
+                    # Assign the Category to the Product
+                    product.category.add(category)
+                    
+                    # Handle tags
+                    if row['tag']:
+                        tags = [tag.strip() for tag in row['tag'].split(',')]
+                        for tag_name in tags:
+                            tag, _ = Tag.objects.get_or_create(name=tag_name)
+                            product.tag.add(tag)
+                    
+                    # Save the Product instance
+                    product.save()
+                    
+                except Exception as e:
+                    print(f"Error creating product: {e}")
+            
+            return Response({'message': 'Products Bulk Uploaded Successfully.'}, status=status.HTTP_201_CREATED)
+        
+        except Exception as e:
+            print(f"Error processing file: {e}")
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
