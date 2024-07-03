@@ -2,10 +2,9 @@ import PropTypes from "prop-types";
 import { useSelector } from "react-redux";
 import clsx from "clsx";
 import { getDiscountPrice } from "../../helpers/product";
-import ProductImageGallery from "../../components/product/ProductImageGallery";
 import ProductDescriptionInfo from "../../components/product/ProductDescriptionInfo";
-import ProductImageGallerySideThumb from "../../components/product/ProductImageGallerySideThumb";
 import ProductImageFixed from "../../components/product/ProductImageFixed";
+import { useEffect, useState } from "react";
 
 const ProductImageDescription = ({ spaceTopClass, spaceBottomClass, galleryType, product }) => {
   const currency = useSelector((state) => state.currency);
@@ -14,11 +13,31 @@ const ProductImageDescription = ({ spaceTopClass, spaceBottomClass, galleryType,
   const { compareItems } = useSelector((state) => state.compare);
   const wishlistItem = wishlistItems.find(item => item.id === product.id);
   const compareItem = compareItems.find(item => item.id === product.id);
+  const [productPrice, setProductPrice] = useState(product.price)
 
-  const discountedPrice = getDiscountPrice(product.price, product.discount);
-  const finalProductPrice = +(product.price * currency.currencyRate).toFixed(2);
+  const currenyConverter = () =>{
+    console.log("currency converter runned")
+    if(currency.currencyName== 'EUR'){
+      console.log("currency name eur", currency.name)
+      setProductPrice(product.pricedict.EUR)
+    }else if(currency.currencyName == 'GBP'){
+      console.log("currency name gbp", currency.name)
+      setProductPrice(product.pricedict.GBP)
+    }else if(currency.currencyName == 'USD'){
+      console.log("currency name usd", currency.name)
+      setProductPrice(product.pricedict.USD)
+    }
+  };
+
+  useEffect(() => {
+    currenyConverter()
+    console.log("product price", productPrice)
+  }, [currency]);
+
+  const discountedPrice = getDiscountPrice(productPrice, product.discount);
+  const finalProductPrice = +(productPrice).toFixed(2);
   const finalDiscountedPrice = +(
-    discountedPrice * currency.currencyRate
+    discountedPrice
   ).toFixed(2);
 
   return (
@@ -27,18 +46,7 @@ const ProductImageDescription = ({ spaceTopClass, spaceBottomClass, galleryType,
         <div className="row">
           <div className="col-lg-6 col-md-6">
             {/* product image gallery */}
-            {galleryType === "leftThumb" ? (
-              <ProductImageGallerySideThumb
-                product={product}
-                thumbPosition="left"
-              />
-            ) : galleryType === "rightThumb" ? (
-              <ProductImageGallerySideThumb product={product} />
-            ) : galleryType === "fixedImage" ? (
-              <ProductImageFixed product={product} />
-            ) : (
-              <ProductImageGallery product={product} />
-            )}
+            <ProductImageFixed product={product} />
           </div>
           <div className="col-lg-6 col-md-6">
             {/* product description info */}

@@ -1,18 +1,49 @@
 import { Fragment } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getDiscountPrice } from "../../helpers/product";
 import SEO from "../../components/seo";
 import LayoutOne from "../../layouts/LayoutOne";
 import Breadcrumb from "../../wrappers/breadcrumb/Breadcrumb";
+import { useAddCheckoutMutation } from "../../services/commerceApi";
+import { deleteAllFromCart } from "../../store/slices/cart-slice";
+import { getToken } from "../../services/localStorageService";
+
 
 const Checkout = () => {
+  const {access_token} = getToken();
+
   let cartTotalPrice = 0;
+  const [ addCheckout] = useAddCheckoutMutation();
+  const dispatch = useDispatch();
 
   let { pathname } = useLocation();
   const currency = useSelector((state) => state.currency);
   const { cartItems } = useSelector((state) => state.cart);
+  const getConvertedPrice = (product) => {
+    if(currency.currencyName== 'EUR'){
+      return product.pricedict.EUR;
+    }else if(currency.currencyName == 'GBP'){
 
+      return product.pricedict.GBP
+    }else if(currency.currencyName == 'USD'){
+      console.log("currency name usd", currency.name)
+      return product.pricedict.USD
+    }
+}
+
+const placeOrderHandler = () => {
+    const data = {'products': cartItems, 'currency': currency.currencyName}
+    addCheckout({'data': data, 'access_token': access_token}).then(response => {
+      console.log("response checout", response)
+      dispatch(deleteAllFromCart())
+      window.location.replace(response.data.url);
+    })
+    .catch(error => {
+      console.error('Error during checkout:', error);
+    });
+  
+}
   return (
     <Fragment>
       <SEO
@@ -140,15 +171,16 @@ const Checkout = () => {
                         <div className="your-order-middle">
                           <ul>
                             {cartItems.map((cartItem, key) => {
+                              const price = getConvertedPrice(cartItem)
                               const discountedPrice = getDiscountPrice(
-                                cartItem.price,
+                                price,
                                 cartItem.discount
                               );
                               const finalProductPrice = (
-                                cartItem.price * currency.currencyRate
+                                price
                               ).toFixed(2);
                               const finalDiscountedPrice = (
-                                discountedPrice * currency.currencyRate
+                                discountedPrice
                               ).toFixed(2);
 
                               discountedPrice != null
@@ -197,7 +229,7 @@ const Checkout = () => {
                       <div className="payment-method"></div>
                     </div>
                     <div className="place-order mt-25">
-                      <button className="btn-hover">Place Order</button>
+                      <button className="btn-hover" onClick={placeOrderHandler}>Place Order</button>
                     </div>
                   </div>
                 </div>

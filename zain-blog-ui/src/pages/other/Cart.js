@@ -17,7 +17,17 @@ const Cart = () => {
   
   const currency = useSelector((state) => state.currency);
   const { cartItems } = useSelector((state) => state.cart);
+  const getConvertedPrice = (product) => {
+      if(currency.currencyName== 'EUR'){
+        return product.pricedict.EUR;
+      }else if(currency.currencyName == 'GBP'){
 
+        return product.pricedict.GBP
+      }else if(currency.currencyName == 'USD'){
+        console.log("currency name usd", currency.name)
+        return product.pricedict.USD
+      }
+  }
   return (
     <Fragment>
       <SEO
@@ -54,15 +64,16 @@ const Cart = () => {
                         </thead>
                         <tbody>
                           {cartItems.map((cartItem, key) => {
+                            const price = getConvertedPrice(cartItem)
                             const discountedPrice = getDiscountPrice(
-                              cartItem.price,
+                              price,
                               cartItem.discount
                             );
                             const finalProductPrice = (
-                              cartItem.price * currency.currencyRate
+                              price
                             ).toFixed(2);
                             const finalDiscountedPrice = (
-                              discountedPrice * currency.currencyRate
+                              discountedPrice
                             ).toFixed(2);
 
                             discountedPrice != null
@@ -84,7 +95,7 @@ const Cart = () => {
                                       className="img-fluid"
                                       src={
                                         process.env.PUBLIC_URL +
-                                        cartItem.image[0]
+                                        cartItem.image
                                       }
                                       alt=""
                                     />
