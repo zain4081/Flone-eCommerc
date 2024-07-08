@@ -453,6 +453,11 @@ const NavMenu = ({ menuWhiteClass, sidebarMenu }) => {
                 </Link>
               </li>
               <li>
+                <Link to={process.env.PUBLIC_URL + "/subscribe"}>
+                  {t("subscribe")}
+                </Link>
+              </li>
+              <li>
                 <Link to={process.env.PUBLIC_URL + "/not-found"}>
                   {t("404_page")}
                 </Link>

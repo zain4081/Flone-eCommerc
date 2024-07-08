@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import clsx from "clsx";
@@ -18,13 +18,35 @@ const ProductGridListSingle = ({
   compareItem,
   spaceBottomClass
 }) => {
-  const [modalShow, setModalShow] = useState(false);
-  const discountedPrice = getDiscountPrice(product.price, product.discount);
-  const finalProductPrice = +(product.price * currency.currencyRate).toFixed(2);
+  const [productPrice, setProductPrice] = useState(product.price)
+  
+  const currenyConverter = () =>{
+    console.log("currency converter runned")
+    if(currency.currencyName== 'EUR'){
+      console.log("currency name eur", currency.name)
+      setProductPrice(product.pricedict.EUR)
+    }else if(currency.currencyName == 'GBP'){
+      console.log("currency name gbp", currency.name)
+      setProductPrice(product.pricedict.GBP)
+    }else if(currency.currencyName == 'USD'){
+      console.log("currency name usd", currency.name)
+      setProductPrice(product.pricedict.USD)
+    }
+  };
+
+  useEffect(() => {
+    currenyConverter()
+    console.log("product price", productPrice)
+  }, [currency]);
+  
+  const discountedPrice = getDiscountPrice(productPrice, product.discount);
+  const finalProductPrice = +(productPrice).toFixed(2);
   const finalDiscountedPrice = +(
-    discountedPrice * currency.currencyRate
+    discountedPrice
   ).toFixed(2);
   const dispatch = useDispatch();
+
+ 
 
   return (
     <Fragment>
@@ -33,20 +55,12 @@ const ProductGridListSingle = ({
             <Link to={process.env.PUBLIC_URL + "/product/" + product.id}>
               <img
                 className="default-img"
-                src={process.env.PUBLIC_URL + product.image[0]}
+                src={process.env.PUBLIC_URL + process.env.REACT_APP_API_URL+product.image}
                 alt=""
               />
-              {product.image.length > 1 ? (
-                <img
-                  className="hover-img"
-                  src={process.env.PUBLIC_URL + product.image[1]}
-                  alt=""
-                />
-              ) : (
-                ""
-              )}
             </Link>
-            {product.discount || product.new ? (
+            {product.discount ? (
+            // {product.discount || product.new ? (
               <div className="product-img-badges">
                 {product.discount ? (
                   <span className="pink">-{product.discount}%</span>
@@ -112,11 +126,6 @@ const ProductGridListSingle = ({
                     Out of Stock
                   </button>
                 )}
-              </div>
-              <div className="pro-same-action pro-quickview">
-                <button onClick={() => setModalShow(true)} title="Quick View">
-                  <i className="pe-7s-look" />
-                </button>
               </div>
             </div>
           </div>
@@ -300,7 +309,7 @@ const ProductGridListSingle = ({
           </div>
         </div>
       {/* product modal */}
-      <ProductModal
+      {/* <ProductModal
         show={modalShow}
         onHide={() => setModalShow(false)}
         product={product}
@@ -310,7 +319,7 @@ const ProductGridListSingle = ({
         finalDiscountedPrice={finalDiscountedPrice}
         wishlistItem={wishlistItem}
         compareItem={compareItem}
-      />
+      /> */}
     </Fragment>
   );
 };

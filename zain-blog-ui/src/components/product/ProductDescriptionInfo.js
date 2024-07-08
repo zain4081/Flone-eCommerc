@@ -62,7 +62,7 @@ const ProductDescriptionInfo = ({
         ""
       )}
       <div className="pro-details-list">
-        <p>{product.shortDescription}</p>
+        <p>{product.short_description}</p>
       </div>
 
       {product.variation ? (
@@ -183,8 +183,6 @@ const ProductDescriptionInfo = ({
                   dispatch(addToCart({
                     ...product,
                     quantity: quantityCount,
-                    selectedProductColor: selectedProductColor ? selectedProductColor : product.selectedProductColor ? product.selectedProductColor : null,
-                    selectedProductSize: selectedProductSize ? selectedProductSize : product.selectedProductSize ? product.selectedProductSize : null
                   }))
                 }
                 disabled={productCartQty >= productStock}

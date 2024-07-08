@@ -20,7 +20,7 @@ const ProductImageFixed = ({ product }) => {
       <div className="product-fixed-image">
         {product.image ? (
           <img
-            src={process.env.PUBLIC_URL + product.image[0]}
+            src={process.env.PUBLIC_URL + process.env.REACT_APP_API_URL+product.image}
             alt=""
             className="img-fluid"
           />

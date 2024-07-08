@@ -7,7 +7,8 @@ zain-backend/media/
 
 zain-backend/account/migrations/__pycache__/
 zain-backend/account/__pycache__/
-
+zain-backend/commerce/migrations/__pycache__/
+zain-backend/commerce/__pycache__/
 zain-backend/notification/migrations/__pycache__/
 zain-backend/notification/__pycache__/
 zain-backend/blog/__pycache__/

@@ -46,6 +46,7 @@ class UserManager(BaseUserManager):
         user.tc = True
         user.is_admin = True
         user.is_phone_verified = True
+        user.is_peremium = True
         user.save(using=self._db)
         return user
 
@@ -82,6 +83,7 @@ class User(AbstractBaseUser):
     max_otp_out = models.DateTimeField(blank=True, null=True)
     is_phone_verified = models.BooleanField(default=False)
     verification_token = models.CharField(max_length=100, blank=True)
+    is_peremium = models.BooleanField(default=False)
 
     objects = UserManager()
 

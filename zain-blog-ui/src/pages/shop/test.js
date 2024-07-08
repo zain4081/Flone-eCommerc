@@ -1,50 +1,38 @@
 import { Fragment, useState, useEffect } from 'react';
-import { useSelector } from "react-redux";
 import Paginator from 'react-hooks-paginator';
+import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom"
 import { getSortedProducts } from '../../helpers/product';
 import SEO from "../../components/seo";
 import LayoutOne from '../../layouts/LayoutOne';
 import Breadcrumb from '../../wrappers/breadcrumb/Breadcrumb';
-import ShopTopbarFilter from '../../wrappers/product/ShopTopbarFilter';
 import ShopProducts from '../../wrappers/product/ShopProducts';
+import { useGetProductsMutation } from '../../services/commerceApi';
 
-const ShopGridFilter = () => {
-    const [layout, setLayout] = useState('grid three-column');
-    const [sortType, setSortType] = useState('');
-    const [sortValue, setSortValue] = useState('');
-    const [filterSortType, setFilterSortType] = useState('');
-    const [filterSortValue, setFilterSortValue] = useState('');
-    const [offset, setOffset] = useState(0);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [currentData, setCurrentData] = useState([]);
-    const [sortedProducts, setSortedProducts] = useState([]);
-    const { products } = useSelector((state) => state.product);
+const ShopGridStandard = () => {
+    const [products, setProducts] = useState([]);
+    const [ getProducts] = useGetProductsMutation();
 
-    const pageLimit = 15;
+    const fetchData = async () => {
+        try {
+          const response = await getProducts();
+          if (response.data) {
+            setProducts(response.data);
+            console.log("response_products", response.data);
+          }
+         
+          
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        }
+      };
+
     let { pathname } = useLocation();
 
-    const getLayout = (layout) => {
-        setLayout(layout)
-    }
-
-    const getSortParams = (sortType, sortValue) => {
-        setSortType(sortType);
-        setSortValue(sortValue);
-    }
-
-    const getFilterSortParams = (sortType, sortValue) => {
-        setFilterSortType(sortType);
-        setFilterSortValue(sortValue);
-    }
 
     useEffect(() => {
-        let sortedProducts = getSortedProducts(products, sortType, sortValue);
-        const filterSortedProducts = getSortedProducts(sortedProducts, filterSortType, filterSortValue);
-        sortedProducts = filterSortedProducts;
-        setSortedProducts(sortedProducts);
-        setCurrentData(sortedProducts.slice(offset, offset + pageLimit));
-    }, [offset, products, sortType, sortValue, filterSortType, filterSortValue ]);
+        fetchData();
+    }, []);
 
     return (
         <Fragment>
@@ -65,16 +53,13 @@ const ShopGridFilter = () => {
                 <div className="shop-area pt-95 pb-100">
                     <div className="container">
                         <div className="row">
-                            <div className="col-lg-12">
-                                {/* shop topbar filter */}
-                                <ShopTopbarFilter getLayout={getLayout} getFilterSortParams={getFilterSortParams} productCount={products.length} sortedProductCount={currentData.length} products={products} getSortParams={getSortParams}/>
-
+                            <div className="col-lg-9 order-1 order-lg-2">
                                 {/* shop page content default */}
-                                <ShopProducts layout={layout} products={currentData} />
+                                <ShopProducts products={products} layout={'grid two-column'}/>
 
                                 {/* shop product pagination */}
                                 <div className="pro-pagination-style text-center mt-30">
-                                    <Paginator
+                                    {/* <Paginator
                                         totalRecords={sortedProducts.length}
                                         pageLimit={pageLimit}
                                         pageNeighbours={2}
@@ -84,7 +69,7 @@ const ShopGridFilter = () => {
                                         pageContainerClass="mb-0 mt-0"
                                         pagePrevText="«"
                                         pageNextText="»"
-                                    />
+                                    /> */}
                                 </div>
                             </div>
                         </div>
@@ -96,5 +81,4 @@ const ShopGridFilter = () => {
 }
 
 
-
-export default ShopGridFilter;
+export default ShopGridStandard;

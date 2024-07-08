@@ -96,6 +96,10 @@ class Like(models.Model):
             models.UniqueConstraint(fields=['user', 'comment'], name='unique_user_comment'),
             models.UniqueConstraint(fields=['user', 'post'], name='unique_user_post')
         ]
+class Subscriptions(models.Model):
+    name = models.CharField(max_length=255)
+    price = models.FloatField()
+    price_id = models.CharField(max_length=100)
 #signals for Post Model for ElasticSearch
 @receiver(post_save)
 def update_document(sender, **kwargs):
