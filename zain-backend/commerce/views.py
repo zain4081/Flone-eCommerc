@@ -3,13 +3,15 @@ import os
 import json
 import pandas as pd
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from rest_framework import status, viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import Product
 from .serializer import ProductSerializer
-from blog.models import Category, Tag
+from blog.models import Category, Tag, Subscriptions
+User = get_user_model()
 class ProducttListView(APIView):
     """
     Product list view for retrieving all Products.
@@ -117,11 +119,11 @@ class PaymentSuccessful(APIView):
         Returns:
             Response: Success message or error if update fails.
         """
-        payment_method = request.data['method']
-        session_id = request.data['session_id']
-        session = stripe.checkout.Session.retrieve(session_id)
-        if payment_method == 'checkout':
-            try:
+        try:
+            payment_method = request.data['method']
+            session_id = request.data['session_id']
+            session = stripe.checkout.Session.retrieve(session_id)
+            if payment_method == 'checkout':
                 products = json.loads(session.metadata.get('items'))
                 for product in products:
                     product_obj = Product.objects.get(id=product['id'])
@@ -129,8 +131,18 @@ class PaymentSuccessful(APIView):
                     product_obj.stock -= product['quantity']
                     product_obj.save()
                 return Response({'msg': 'Product Updated Successfully'}, status=status.HTTP_201_CREATED)
-            except Exception as e:
-                return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            if payment_method == 'subscribe':
+                print("user", request.data['user'])
+                user = User.objects.get(pk=request.data['user'])
+                if user:
+                    user.is_peremium = True
+                    user.save()
+                    print("user", user.is_peremium)
+                    return Response({'msg': 'User updated Successfully'}, status=status.HTTP_201_CREATED)
+                return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            print("error", e)
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class ProductsUploadView(viewsets.ModelViewSet):
     """
@@ -222,3 +234,27 @@ class ProductsUploadView(viewsets.ModelViewSet):
         except Exception as e:
             print(f"Error processing file: {e}")
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+class PremiumCheckoutSession(APIView):
+    def post(self, request):
+        price_id = request.data["price_id"]
+        domain = os.environ.get('WEBSITE')
+        user = request.user.id
+        try:
+            stripe.api_key = settings.STRIPE_SECRET_KEY
+            checkout_session = stripe.checkout.Session.create(
+                payment_method_types=['card'],
+                line_items=[
+                    {
+                        'price': price_id,
+                        'quantity': 1,
+                    },
+                ],
+                mode='subscription',
+                success_url=domain + '/payment/{CHECKOUT_SESSION_ID}?payment=subscribe&success=true&user='+str(user),
+                cancel_url=domain + '/payment/?payment=checkout?success=false',
+            )
+        except Exception as e:
+            print("e", e)
+            return Response({'error': str(e)}, status=500)
+        return Response(checkout_session.url)
