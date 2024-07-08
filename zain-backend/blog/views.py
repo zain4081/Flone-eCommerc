@@ -28,7 +28,7 @@ from django_elasticsearch_dsl_drf.filter_backends import (
     FunctionalSuggesterFilterBackend
 )
 from django_elasticsearch_dsl_drf.constants import SUGGESTER_COMPLETION
-from blog.models import Post, Comment, Like, Tag, Category
+from blog.models import Post, Comment, Like, Tag, Category, Subscriptions
 from blog.paginator import DefaultPaginator, NoPagination
 from blog.serializer import (
     PostSerializer,
@@ -37,9 +37,11 @@ from blog.serializer import (
     CategorySerializer,
     FirstPostIdSerializer,
     TagSerializer,
-    PostDocumentSerializer
+    PostDocumentSerializer,
+    SubscribeSerializer,
 )
 from blog.document import PostDocument
+from account.permission import PremiumUserPermission
 
 class PostViewSet(viewsets.ModelViewSet):
     """
@@ -133,6 +135,7 @@ class PostViewTrending(viewsets.ModelViewSet):
     """
     API endpoint that allows trending posts to be viewed.
     """
+    permission_classes = [PremiumUserPermission]
     serializer_class = PostSerializer
     def get_queryset(self):
         """
@@ -236,12 +239,12 @@ class CommentViewSet(viewsets.ModelViewSet):
         """
         post_id = self.kwargs.get('post_id')
         return Comment.objects.filter(post_id=post_id)
-    def list(self, request, *args, **kwargs):
+    def list(self, request, post_id, *args, **kwargs):
         """
         Returns a list of comments and their replies
         """
         try:
-            queryset = Comment.objects.filter( parent_comment__isnull=True).prefetch_related('comment_likes')
+            queryset = Comment.objects.filter( parent_comment__isnull=True, post_id=post_id).prefetch_related('comment_likes')
             count = queryset.count()
             serializer = CommentSerializer(queryset, many=True, context={'depth': 3})
             data = {
@@ -344,6 +347,32 @@ class LikeViewSet(viewsets.ModelViewSet):
             return Like.objects.all()
         except Exception as e:
             return Response({"errors": e}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class GetSubscriptionsPlans(APIView):
+    """
+    API endpoint to retrieve all subscription plans.
+
+    Requires authentication.
+
+    Methods:
+    --------
+    - GET: Fetches all subscription plans.
+        - Returns:
+            - 200 OK: Successfully retrieved subscription plans.
+            - 404 NOT FOUND: No subscription plans found.
+            - 500 INTERNAL SERVER ERROR: Server error occurred.
+    """
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        try:
+            sub_objs = Subscriptions.objects.all()
+            serializer = SubscribeSerializer(sub_objs, many=True)
+            if serializer:
+                return Response(serializer.data, status= status.HTTP_200_OK)
+            return Response(serializer.error, status= status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"errors": e}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
     
 class PostDocumentViewSet(DocumentViewSet):
     document = PostDocument

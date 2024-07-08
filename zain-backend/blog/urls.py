@@ -30,6 +30,7 @@ urlpatterns = [
     path('user-votes/<int:post_id>', views.UserVoteView.as_view(), name='user-votes'),
     # path('first-post-id/', views.FirstPostIdView.as_view(), name='first-post-id'),
     path('fisrt-post-id/', GraphQLView.as_view(graphiql=True, schema=schema)),
+    path('subscriptions/plans/', views.GetSubscriptionsPlans.as_view(), name='subscriptions'),
     
     # # new urls
     # path('posts-s/<int:post_id>/', views.CommentApiView.as_view(), name='c'),

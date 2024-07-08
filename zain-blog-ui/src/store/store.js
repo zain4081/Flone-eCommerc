@@ -24,6 +24,7 @@ import { blogApi } from '../services/blogApi';
 import websocketReducer from './slices/websocketReducer';
 import websocketMiddleware from './slices/websocketmiddleware';
 import { notifyApi } from "../services/notifyApi";
+import { commerceApi } from '../services/commerceApi';
 
 
 
@@ -47,6 +48,7 @@ export const rootReducer = combineReducers({
     page: pageReducer,
     [blogApi.reducerPath]: blogApi.reducer,
     [notifyApi.reducerPath]: notifyApi.reducer,
+    [commerceApi.reducerPath]: commerceApi.reducer,
     
 });
 
@@ -67,7 +69,7 @@ export const store = configureStore({
                 ],
             },
             
-        }).concat((userAuthApi.middleware),(websocketMiddleware),(blogApi.middleware),(notifyApi.middleware))
+        }).concat((userAuthApi.middleware),(websocketMiddleware),(blogApi.middleware),(notifyApi.middleware),(commerceApi.middleware))
 });
 
 export const persistor = persistStore(store);

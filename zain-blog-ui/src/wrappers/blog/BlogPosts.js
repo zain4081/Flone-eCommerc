@@ -20,7 +20,7 @@ const BlogPosts = (posts, url) => {
             <Link to={process.env.PUBLIC_URL + "/blog-details-standard/"+post.id}>
               
               <img
-                src={process.env.REACT_APP_PUBLIC_URL+post.image_url}
+                src={process.env.REACT_APP_PUBLIC_URL+post.image_url.resized}
                 alt={post.title}
              />
             </Link>

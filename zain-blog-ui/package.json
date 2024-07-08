@@ -46,6 +46,7 @@
     "react-websocket": "^2.1.0",
     "redux": "^4.2.0",
     "redux-persist": "^6.0.0",
+    "styled-components": "^6.1.11",
     "swiper": "^8.4.4",
     "uuid": "^9.0.0",
     "yet-another-react-lightbox": "^2.2.0"

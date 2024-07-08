@@ -9,6 +9,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 
+
 // home pages
 const HomeFashion = lazy(() => import("./pages/home/HomeFashion"));
 const HomeFashionTwo = lazy(() => import("./pages/home/HomeFashionTwo"));
@@ -65,16 +66,6 @@ const HomeValentinesDay = lazy(() => import("./pages/home/HomeValentinesDay"));
 
 // shop pages
 const ShopGridStandard = lazy(() => import("./pages/shop/ShopGridStandard"));
-const ShopGridFilter = lazy(() => import("./pages/shop/ShopGridFilter"));
-const ShopGridTwoColumn = lazy(() => import("./pages/shop/ShopGridTwoColumn"));
-const ShopGridNoSidebar = lazy(() => import("./pages/shop/ShopGridNoSidebar"));
-const ShopGridFullWidth = lazy(() => import("./pages/shop/ShopGridFullWidth"));
-const ShopGridRightSidebar = lazy(() =>
-  import("./pages/shop/ShopGridRightSidebar")
-);
-const ShopListStandard = lazy(() => import("./pages/shop/ShopListStandard"));
-const ShopListFullWidth = lazy(() => import("./pages/shop/ShopListFullWidth"));
-const ShopListTwoColumn = lazy(() => import("./pages/shop/ShopListTwoColumn"));
 
 // product pages
 const Product = lazy(() => import("./pages/shop-product/Product"));
@@ -114,6 +105,8 @@ const Checkout = lazy(() => import("./pages/other/Checkout"));
 const VerifyEmail = lazy(() => import("./pages/other/VerifyEmail"));
 const VerifyNumber = lazy(() => import("./pages/other/VerifyNumber"));
 const NotFound = lazy(() => import("./pages/other/NotFound"));
+const Payment = lazy(() => import("./pages/other/payment"));
+const Subscribe = lazy(() => import("./pages/other/Subscribe"));
 
 //reports
 const BlogReport = lazy(() => import("./pages/reports/BlogReport"));
@@ -307,45 +300,13 @@ const App = () => {
               {/* Shop pages */}
               <Route
                 path={process.env.PUBLIC_URL + "/shop-grid-standard"}
-                element={<ShopGridStandard/>}
-              />
-              <Route
-                path={process.env.PUBLIC_URL + "/shop-grid-filter"}
-                element={<ShopGridFilter/>}
-              />
-              <Route
-                path={process.env.PUBLIC_URL + "/shop-grid-two-column"}
-                element={<ShopGridTwoColumn/>}
-              />
-              <Route
-                path={process.env.PUBLIC_URL + "/shop-grid-no-sidebar"}
-                element={<ShopGridNoSidebar/>}
-              />
-              <Route
-                path={process.env.PUBLIC_URL + "/shop-grid-full-width"}
-                element={<ShopGridFullWidth/>}
-              />
-              <Route
-                path={process.env.PUBLIC_URL + "/shop-grid-right-sidebar"}
-                element={<ShopGridRightSidebar/>}
-              />
-              <Route
-                path={process.env.PUBLIC_URL + "/shop-list-standard"}
-                element={<ShopListStandard/>}
-              />
-              <Route
-                path={process.env.PUBLIC_URL + "/shop-list-full-width"}
-                element={<ShopListFullWidth/>}
-              />
-              <Route
-                path={process.env.PUBLIC_URL + "/shop-list-two-column"}
-                element={<ShopListTwoColumn/>}
+                element={access_token ? <ShopGridStandard/> : <Navigate to="/login-register"/>}
               />
 
               {/* Shop product pages */}
               <Route
                 path={process.env.PUBLIC_URL + "/product/:id"}
-                element={<Product />}
+                element={access_token ? <Product /> : <Navigate to="/login-register"/>}
               />
               <Route
                 path={process.env.PUBLIC_URL + "/product-tab-left/:id"}
@@ -449,6 +410,14 @@ const App = () => {
                 element={<Cart/>}
               />
               <Route
+                path={process.env.PUBLIC_URL + "/payment/:session_id"}
+                element={<Payment/>}
+              />
+              <Route
+                path={process.env.PUBLIC_URL + "/payment/"}
+                element={<Payment/>}
+              />
+              <Route
                 path={process.env.PUBLIC_URL + "/wishlist"}
                 element={<Wishlist/>}
               />
@@ -458,7 +427,11 @@ const App = () => {
               />
               <Route
                 path={process.env.PUBLIC_URL + "/checkout"}
-                element={<Checkout/>}
+                element={access_token ? <Checkout/> : <Navigate to="/login-register"/>}
+              />
+              <Route
+                path={process.env.PUBLIC_URL + "/subscribe"}
+                element={access_token ? <Subscribe/> : <Navigate to="/login-register"/>}
               />
               <Route
                 path={process.env.PUBLIC_URL + "/blog-report"}
