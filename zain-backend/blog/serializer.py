@@ -6,7 +6,10 @@ from rest_framework import serializers
 from django_elasticsearch_dsl_drf.serializers import DocumentSerializer
 from blog.models import Post, Like, Comment, Category, Tag, Subscriptions
 from blog.document import PostDocument
-
+from django.core.files.storage import default_storage
+from django.conf import settings
+from PIL import Image
+import os
 class PostSerializer(serializers.ModelSerializer):
     """
     Serializer for the Post model.
@@ -49,13 +52,59 @@ class PostSerializer(serializers.ModelSerializer):
         """
         return [tag.name for tag in post.tag.all()]
     def get_image_url(self, obj):
-        return obj.image.url
+        if obj.image:
+            original_url = obj.image.url
+            resized_url = self.get_resized_image_url(obj.image, (200, 200)) 
+
+            return {
+                'original': original_url,
+                'resized': resized_url
+            }
+        return None
+    def get_resized_image_url(self, image_field, size):
+        """
+        Get the URL of the resized image.
+
+        Args:
+            image_field: The image field to resize.
+            size: A tuple of the desired size (width, height).
+
+        Returns:
+            str: The URL of the resized image.
+        """
+        image_path = image_field.path
+        image_dir, image_name = os.path.split(image_path)
+        name, ext = os.path.splitext(image_name)
+        resized_image_name = f"{name}_{size[0]}x{size[1]}{ext}"
+        resized_image_path = os.path.join(image_dir, resized_image_name)
+
+        if not os.path.exists(resized_image_path):
+            image = Image.open(image_path)
+            image = image.resize(size, Image.LANCZOS)
+            resized_image_format = image.format if image.format else 'JPEG'
+            resized_image_path_with_ext = f"{resized_image_name}.{resized_image_format.lower()}"
+            resized_image_path_with_ext = os.path.join(image_dir, resized_image_path_with_ext)
+            image.save(resized_image_path_with_ext, format=resized_image_format)
+
+        return default_storage.url(resized_image_path_with_ext)
     class Meta:
         """
         PostSerialiezer Meta is contains all fields in Model
         """
         model = Post
         fields = "__all__"
+    def to_representation(self, instance):
+        """
+        Override to include extra fields.
+        """
+        ret = super().to_representation(instance)
+        ret.update({
+            'likes_count': self.get_likes_count(instance),
+            'comments_count': self.get_comments_count(instance),
+            'tags_name': self.get_tags_name(instance),
+            'image_url': self.get_image_url(instance),
+        })
+        return ret
 class CommentSerializer(serializers.ModelSerializer):
     """
     Serializer for the Comment model.
