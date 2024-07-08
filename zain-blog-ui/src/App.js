@@ -106,6 +106,7 @@ const VerifyEmail = lazy(() => import("./pages/other/VerifyEmail"));
 const VerifyNumber = lazy(() => import("./pages/other/VerifyNumber"));
 const NotFound = lazy(() => import("./pages/other/NotFound"));
 const Payment = lazy(() => import("./pages/other/payment"));
+const Subscribe = lazy(() => import("./pages/other/Subscribe"));
 
 //reports
 const BlogReport = lazy(() => import("./pages/reports/BlogReport"));
@@ -427,6 +428,10 @@ const App = () => {
               <Route
                 path={process.env.PUBLIC_URL + "/checkout"}
                 element={access_token ? <Checkout/> : <Navigate to="/login-register"/>}
+              />
+              <Route
+                path={process.env.PUBLIC_URL + "/subscribe"}
+                element={access_token ? <Subscribe/> : <Navigate to="/login-register"/>}
               />
               <Route
                 path={process.env.PUBLIC_URL + "/blog-report"}
