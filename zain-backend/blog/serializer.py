@@ -4,7 +4,7 @@ Serializers for the blog app.
 """
 from rest_framework import serializers
 from django_elasticsearch_dsl_drf.serializers import DocumentSerializer
-from blog.models import Post, Like, Comment, Category, Tag
+from blog.models import Post, Like, Comment, Category, Tag, Subscriptions
 from blog.document import PostDocument
 
 class PostSerializer(serializers.ModelSerializer):
@@ -159,6 +159,17 @@ class LikeSerializer(serializers.ModelSerializer):
         LikeSerialiezer Meta is contains all fields in Model
         """
         model = Like
+        fields= "__all__"
+class SubscribeSerializer(serializers.ModelSerializer):
+    """
+    Serializer for the Subscriptions model.
+
+    """
+    class Meta:
+        """
+        SubscribeSerializer Meta is contains all fields in Model
+        """
+        model = Subscriptions
         fields= "__all__"
 class FirstPostIdSerializer(serializers.ModelSerializer):
     """
