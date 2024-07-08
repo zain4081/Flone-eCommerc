@@ -12,22 +12,28 @@ const Payment = () => {
   const queryParams = new URLSearchParams(location.search);
   const payment = queryParams.get("payment");
   const success = queryParams.get("success");
+  const user = queryParams.get("user");
   const { access_token } = getToken();
   const [addPayment, { isLoading, isError, isSuccess, data, error }] = usePaymentSuccessMutation();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (success === 'true' && payment === 'checkout' && session_id) {
+    if (success === 'true' && session_id) {
       const data = {
-        method: 'checkout',
+        method: payment,
         session_id: session_id,
       };
+      if(user){
+        data.user = user;
+      }
+      console.log("data", data)
 
       // Make sure access_token and session_id are available before making the API call
       if (access_token && session_id) {
         addPayment({'data': data, 'access_token': access_token});
       }
     }
+    
   }, [success, payment, session_id, access_token, addPayment]);
 
   useEffect(() => {

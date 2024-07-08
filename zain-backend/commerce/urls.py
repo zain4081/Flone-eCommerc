@@ -9,7 +9,8 @@ from commerce.views import (
     ProductDetails,
     CreateSessionCart,
     PaymentSuccessful,
-    ProductsUploadView
+    ProductsUploadView,
+    PremiumCheckoutSession,
     )
 router = DefaultRouter()
 router.register('product-upload', ProductsUploadView, basename='post-popular')
@@ -19,5 +20,6 @@ urlpatterns = [
     path('product/<int:pk>/', ProductDetails.as_view(), name='product'),
     path('product/checkout/', CreateSessionCart.as_view(), name='checkout'),
     path('payment/success/' , PaymentSuccessful.as_view()),
+    path('premium/checkout/', PremiumCheckoutSession.as_view(), name='premium')
 ]
 
