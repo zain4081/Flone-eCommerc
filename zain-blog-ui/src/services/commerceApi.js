@@ -30,9 +30,22 @@ export const commerceApi = createApi({
     }),
     addCheckout: builder.mutation({
       query:({data, access_token})=>{
-        console.log("query------------- ")
           return{
               url: `product/checkout/`,
+              method: 'POST',
+              body: data,
+              headers: {
+                  'Content-Type': 'application/json',
+                  'ngrok-skip-browser-warning':"1233",
+                  'Authorization': `Bearer ${access_token}`
+              },
+          }
+      }
+    }),
+    addSubscriptionCheckout: builder.mutation({
+      query:({data, access_token})=>{
+          return{
+              url: `premium/checkout/`,
               method: 'POST',
               body: data,
               headers: {
@@ -92,4 +105,4 @@ export const commerceApi = createApi({
 
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
-export const{ useGetProductsMutation, useGetProductMutation, useAddCheckoutMutation, usePaymentSuccessMutation } = commerceApi;
+export const{ useGetProductsMutation, useAddSubscriptionCheckoutMutation, useGetProductMutation, useAddCheckoutMutation, usePaymentSuccessMutation } = commerceApi;
