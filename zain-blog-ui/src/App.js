@@ -7,6 +7,9 @@ import { getToken } from "./services/localStorageService";
 import connectWebSocket from "./components/websocketService"
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import ReactGA from 'react-ga4';
+import GoogleAnalytics from './components/GoogleAnalytics';
+
 
 
 
@@ -115,15 +118,20 @@ const App = () => {
   const { access_token } = getToken();
   const dispatch = useDispatch();
   const message = useSelector((state) => state.websocket.message);
+
+  // ReactGA.initialize('G-F1TGLSQKWH');
   
-  
+  useEffect(() => {
+    ReactGA.initialize('G-F1TGLSQKWH'); 
+    ReactGA.send({ hitType: "pageview", page: window.location.pathname + window.location.search });
+  }, []);
   useEffect(() => {
     console.log('Token changed:', access_token);
     // Perform any other actions you need here
   }, [access_token]);
   return (
       <Router>
-
+        <GoogleAnalytics />
         <ScrollToTop>
           <Suspense
             fallback={
