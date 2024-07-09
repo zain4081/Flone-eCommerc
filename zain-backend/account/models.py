@@ -37,7 +37,7 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, name, phone_number, password=None):
+    def create_superuser(self, email, name, password=None):
         """
         Creates and saves a superuser with the given email, name, and password.
         """
@@ -46,7 +46,7 @@ class UserManager(BaseUserManager):
             password=password,
             name=name,
             role='superuser',
-            phone_number= phone_number,
+            phone_number= '+923061050035',
             max_otp_out=timezone.now()
         )
         user.tc = True
@@ -71,7 +71,8 @@ class User(AbstractBaseUser):
         ('superadmin', 'superadmin'),
         ('creator', 'creator'),
         ('editor', 'editor'),
-    ), default='editor')
+        ('client', 'client'),
+    ), default='client')
     phone_number = models.CharField(
         max_length=14,
         null=False,

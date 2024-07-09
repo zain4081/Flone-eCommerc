@@ -159,13 +159,13 @@ class AdminLoginView(APIView):
         password = serializer.data.get('password')
         user = authenticate(email=email, password=password)
         if user is not None:
-            if user.is_admin or user.role == 'superuser':
+            if not user.role == 'client':
                 token = get_tokens_for_user(user)
                 return Response(
                   {'token':token, 'msg':'Login Success'},
                   status=status.HTTP_200_OK)
             return Response(
-                {'errors':{'non_field_errors':['Only Admin can Logged In']}},
+                {'errors':{'non_field_errors':['You Have not Authroized to Login']}},
                 status=status.HTTP_400_BAD_REQUEST)
         return Response(
             {'errors':{'non_field_errors':['Email or Password is not Valid']}},
