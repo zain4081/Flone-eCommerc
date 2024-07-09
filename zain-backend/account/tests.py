@@ -74,7 +74,6 @@ class UserModelTests(TestCase):
             email='admin@example.com',
             name='Admin User',
             password='admin123',
-            phone_number= '+923066677876'
         )
 
         self.assertTrue(superuser.is_admin)

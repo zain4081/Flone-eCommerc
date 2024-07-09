@@ -118,7 +118,7 @@ const LoginRegister = () => {
   const [registerFormData, setRegisterFormData] = useState({
     name: "",
     email: "",
-    role: "creator",
+    role: "client",
     password: "",
     password2: "",
     phone_number: "+92"
@@ -288,6 +288,7 @@ const LoginRegister = () => {
                                 placeholder="+92XXXXXXXXXX"
                                 value={registerFormData.phone_number}
                                 onChange={handleRegisterChange}
+                                maxlength="13"
                               />
                               <span className="error">
                                 {serverError.password ? serverError.password[0] : null}
@@ -327,7 +328,8 @@ const LoginRegister = () => {
                                 value={registerFormData.role}
                                 onChange={handleRegisterChange}
                               >
-                                <option value="creator" active>Creator</option>
+                                <option value="client" active>Client</option>
+                                <option value="creator">Creator</option>
                                 <option value="editor">Editor</option>
                               </select>
                               <div className="button-box">
