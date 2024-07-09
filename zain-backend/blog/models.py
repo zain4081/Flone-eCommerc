@@ -119,12 +119,10 @@ def newsletter(sender, **kwargs):
     post = kwargs['instance']
     if sender._meta.model_name == 'post':
         email_list = list(User.objects.filter(tc='1').values_list('email', flat=True))
-        print("users",email_list)
         verification_link = f"{os.environ.get('WEBSITE')}/blog-details-standard/{post.id}"
-        print(verification_link)
         data = {
             'subject': 'New Post Added',
-            'body': f"New Post '{post.title}' added by of category {post.category.name}.<br>please Click on Link to View the Post.<br><button><a href='{verification_link}'>View Post</a></button>",
+            'body': f"New Post '{post.title}' added.<br>please Click on Link to View the Post.<br><button><a href='{verification_link}'>View Post</a></button>",
             'to_email': email_list
         }
         Util.send_email(data)
