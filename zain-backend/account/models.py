@@ -4,6 +4,7 @@ Custom User model for authentication in Django.
 import secrets
 from django.db import models
 from django.conf import settings
+from django.utils import timezone
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
 from django.core.validators import RegexValidator
 
@@ -20,6 +21,9 @@ class UserManager(BaseUserManager):
         """
         if not email:
             raise ValueError('User must have an email address')
+        
+        if not password:
+            raise ValueError('Password must not be empty')
 
         user = self.model(
             email=self.normalize_email(email),
@@ -33,7 +37,7 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, name, password=None):
+    def create_superuser(self, email, name, phone_number, password=None):
         """
         Creates and saves a superuser with the given email, name, and password.
         """
@@ -42,6 +46,8 @@ class UserManager(BaseUserManager):
             password=password,
             name=name,
             role='superuser',
+            phone_number= phone_number,
+            max_otp_out=timezone.now()
         )
         user.tc = True
         user.is_admin = True
