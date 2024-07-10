@@ -1,5 +1,5 @@
 # backend t2
-zain-backend/.env
+# zain-backend/.env
 zain-backend/.pylintrc
 zain-backend/elastic_config.json
 zain-backend/venv/
@@ -48,7 +48,7 @@ zain-blog-ui/yarn-debug.log*
 zain-blog-ui/yarn-error.log*
 zain-blog-ui/_gsdata_
 
-zain-blog-ui/.env
+# zain-blog-ui/.env
 
 #extra files
 zain-blog-ui/src/wrappers/blog/BlogLikes.js
@@ -70,7 +70,7 @@ zain-admin-ui/coverage
 zain-admin-ui/build
 zain-admin-ui/dist
 zain-admin-ui/demo-*
-zain-admin-ui/.env
+# zain-admin-ui/.env
 
 # misc
 zain-admin-ui/.DS_Store
