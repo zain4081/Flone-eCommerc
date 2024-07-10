@@ -6,6 +6,7 @@ from datetime import timedelta
 import json
 
 from django.db.models import Count, Q
+from django.core.cache import cache
 from django.http import HttpResponseServerError
 from django.utils import timezone
 from django.utils.dateparse import parse_date
@@ -17,6 +18,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+CACHE_TTL = 60 * 15
+
 from django_elasticsearch_dsl_drf.viewsets import DocumentViewSet
 from django_elasticsearch_dsl_drf.filter_backends import (
     SearchFilterBackend,
@@ -25,7 +28,7 @@ from django_elasticsearch_dsl_drf.filter_backends import (
     FunctionalSuggesterFilterBackend
 )
 from django_elasticsearch_dsl_drf.constants import SUGGESTER_COMPLETION
-from blog.models import Post, Comment, Like, Tag, Category
+from blog.models import Post, Comment, Like, Tag, Category, Subscriptions
 from blog.paginator import DefaultPaginator, NoPagination
 from blog.serializer import (
     PostSerializer,
@@ -34,9 +37,11 @@ from blog.serializer import (
     CategorySerializer,
     FirstPostIdSerializer,
     TagSerializer,
-    PostDocumentSerializer
+    PostDocumentSerializer,
+    SubscribeSerializer,
 )
 from blog.document import PostDocument
+from account.permission import PremiumUserPermission
 
 class PostViewSet(viewsets.ModelViewSet):
     """
@@ -44,7 +49,6 @@ class PostViewSet(viewsets.ModelViewSet):
     """
     queryset = Post.objects.prefetch_related('post_likes').order_by('-date') 
     serializer_class = PostSerializer
-
     filter_backends = [filters.SearchFilter]
     search_fields = [
         'tag__id',
@@ -55,6 +59,7 @@ class PostViewSet(viewsets.ModelViewSet):
         '^title', 'title'
     ]
     filterset_fields = ['category', 'tags', 'created_at']
+    parser_classes = [MultiPartParser, FormParser]
     
     def get_pagination_class(self):
         """
@@ -73,6 +78,17 @@ class PostViewSet(viewsets.ModelViewSet):
         Optionally restricts the returned posts to a given tag ID, category ID,
         start and end date range.
         """
+        # Implement Cache on filterbase and also on all posts--
+        cache_key = 'posts_{}_{}_{}_{}'.format(
+            self.request.query_params.get('tags', ''),
+            self.request.query_params.get('category', ''),
+            self.request.query_params.get('start_date', ''),
+            self.request.query_params.get('end_date', '')
+        )
+        cached_queryset = cache.get(cache_key)
+        if cached_queryset:
+            return cached_queryset
+        
         queryset = Post.objects.all()
         tags_param = self.request.query_params.get('tags')
         category_param = self.request.query_params.get('category')
@@ -112,12 +128,14 @@ class PostViewSet(viewsets.ModelViewSet):
             end_date += timedelta(days=1)
             if end_date:
                 queryset = queryset.filter(date__lte=end_date)
+        cache.set(cache_key, queryset, CACHE_TTL)
         return queryset
 
 class PostViewTrending(viewsets.ModelViewSet):
     """
     API endpoint that allows trending posts to be viewed.
     """
+    permission_classes = [PremiumUserPermission]
     serializer_class = PostSerializer
     def get_queryset(self):
         """
@@ -221,12 +239,12 @@ class CommentViewSet(viewsets.ModelViewSet):
         """
         post_id = self.kwargs.get('post_id')
         return Comment.objects.filter(post_id=post_id)
-    def list(self, request, *args, **kwargs):
+    def list(self, request, post_id, *args, **kwargs):
         """
         Returns a list of comments and their replies
         """
         try:
-            queryset = Comment.objects.filter( parent_comment__isnull=True).prefetch_related('comment_likes')
+            queryset = Comment.objects.filter( parent_comment__isnull=True, post_id=post_id).prefetch_related('comment_likes')
             count = queryset.count()
             serializer = CommentSerializer(queryset, many=True, context={'depth': 3})
             data = {
@@ -329,6 +347,32 @@ class LikeViewSet(viewsets.ModelViewSet):
             return Like.objects.all()
         except Exception as e:
             return Response({"errors": e}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class GetSubscriptionsPlans(APIView):
+    """
+    API endpoint to retrieve all subscription plans.
+
+    Requires authentication.
+
+    Methods:
+    --------
+    - GET: Fetches all subscription plans.
+        - Returns:
+            - 200 OK: Successfully retrieved subscription plans.
+            - 404 NOT FOUND: No subscription plans found.
+            - 500 INTERNAL SERVER ERROR: Server error occurred.
+    """
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        try:
+            sub_objs = Subscriptions.objects.all()
+            serializer = SubscribeSerializer(sub_objs, many=True)
+            if serializer:
+                return Response(serializer.data, status= status.HTTP_200_OK)
+            return Response(serializer.error, status= status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"errors": e}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
     
 class PostDocumentViewSet(DocumentViewSet):
     document = PostDocument

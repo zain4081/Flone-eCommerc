@@ -4,6 +4,7 @@ Custom User model for authentication in Django.
 import secrets
 from django.db import models
 from django.conf import settings
+from django.utils import timezone
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
 from django.core.validators import RegexValidator
 
@@ -14,18 +15,22 @@ class UserManager(BaseUserManager):
     """
     User Manager
     """
-    def create_user(self, email, name, role, phone_number, password=None):
+    def create_user(self, email, name, role, phone_number, max_otp_out, password=None):
         """
         Creates and saves a User with the given email, name, role, and password.
         """
         if not email:
             raise ValueError('User must have an email address')
+        
+        if not password:
+            raise ValueError('Password must not be empty')
 
         user = self.model(
             email=self.normalize_email(email),
             name=name,
             role=role,
             phone_number= phone_number,
+            max_otp_out= max_otp_out,
         )
 
         user.set_password(password)
@@ -41,10 +46,13 @@ class UserManager(BaseUserManager):
             password=password,
             name=name,
             role='superuser',
+            phone_number= '+923061050035',
+            max_otp_out=timezone.now()
         )
         user.tc = True
         user.is_admin = True
         user.is_phone_verified = True
+        user.is_peremium = True
         user.save(using=self._db)
         return user
 
@@ -63,7 +71,8 @@ class User(AbstractBaseUser):
         ('superadmin', 'superadmin'),
         ('creator', 'creator'),
         ('editor', 'editor'),
-    ), default='editor')
+        ('client', 'client'),
+    ), default='client')
     phone_number = models.CharField(
         max_length=14,
         null=False,
@@ -81,6 +90,7 @@ class User(AbstractBaseUser):
     max_otp_out = models.DateTimeField(blank=True, null=True)
     is_phone_verified = models.BooleanField(default=False)
     verification_token = models.CharField(max_length=100, blank=True)
+    is_peremium = models.BooleanField(default=False)
 
     objects = UserManager()
 

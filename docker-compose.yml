@@ -1,0 +1,66 @@
+version: '3.9'
+
+services:
+  db:
+    image: mysql:8.0
+    restart: always
+    volumes:
+      - mysql_data:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: flone2  # Replace with your database name
+      MYSQL_USER: root         # Replace with your database username
+      MYSQL_PASSWORD: Root@12  # Replace with your database password
+      MYSQL_ROOT_PASSWORD: Root@12  # Replace with your MySQL root password
+    ports:
+      - "3307:3306"  # Mapping MySQL port
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.10
+    restart: always
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    ports:
+      - "9200:9200"  # Elasticsearch HTTP port
+      - "9300:9300"  # Elasticsearch TCP transport port
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+
+  web:
+    build:
+      context: ./zain-backend
+      dockerfile: dockerfile  # Path to your Django Dockerfile
+    command: sh -c "./zain-backend/entrypoint.sh"  # Replace with your Django entrypoint command
+    restart: always
+    volumes:
+      - ./zain-backend:/app  # Mount your Django project directory to the container
+    ports:
+      - "8000:8000"  # Expose Django application port
+    environment:
+      - DATABASE_HOST=db
+      - DATABASE_PORT=3306
+      - DATABASE_NAME=flone2  # Replace with your database name
+      - DATABASE_USER=root  # Replace with your database username
+      - DATABASE_PASSWORD=Root@12  # Replace with your database password
+      - ELASTICSEARCH_HOST=elasticsearch
+      - ELASTICSEARCH_PORT=9200
+
+  admin_ui:
+    build:
+      context: ./zain-admin-ui  # Path to your zain-admin-ui directory
+      dockerfile: dockerfile
+    restart: always
+    ports:
+      - "4000:4000"  # Expose zain-admin-ui port
+
+  blog_ui:
+    build:
+      context: ./zain-blog-ui # Path to your zain-blog-ui directory
+      dockerfile: dockerfile
+    restart: always
+    ports:
+      - "3000:3000"  # Expose zain-blog-ui port
+
+volumes:
+  mysql_data:
+  es_data:

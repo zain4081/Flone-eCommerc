@@ -21,6 +21,12 @@ import authReducer from "../store/slices/auth-slice";
 import userReducer from "../store/slices/userInfo-slice";
 import pageReducer from "../store/slices/pagination-slice";
 import { blogApi } from '../services/blogApi';
+import websocketReducer from './slices/websocketReducer';
+import websocketMiddleware from './slices/websocketmiddleware';
+import { notifyApi } from "../services/notifyApi";
+import { commerceApi } from '../services/commerceApi';
+
+
 
 const persistConfig = {
     key: "flone",
@@ -36,10 +42,13 @@ export const rootReducer = combineReducers({
     compare: compareReducer,
     wishlist: wishlistReducer,
     [userAuthApi.reducerPath]: userAuthApi.reducer,
+    websocket: websocketReducer,
     auth: authReducer,
     user: userReducer,
     page: pageReducer,
     [blogApi.reducerPath]: blogApi.reducer,
+    [notifyApi.reducerPath]: notifyApi.reducer,
+    [commerceApi.reducerPath]: commerceApi.reducer,
     
 });
 
@@ -60,7 +69,7 @@ export const store = configureStore({
                 ],
             },
             
-        }).concat((userAuthApi.middleware),(blogApi.middleware))
+        }).concat((userAuthApi.middleware),(websocketMiddleware),(blogApi.middleware),(notifyApi.middleware),(commerceApi.middleware))
 });
 
 export const persistor = persistStore(store);

@@ -1,4 +1,5 @@
-import { Mail, Home } from "react-feather";
+import { Mail, Home, Circle,FileText } from "react-feather";
+import pages from './pages'
 
 export default [
   {
@@ -8,15 +9,9 @@ export default [
     navLink: "/home",
   },
   {
-    id: "managePosts",
-    title: "Manage Posts",
-    icon: <Mail size={20} />,
-    navLink: "/manage-posts",
-  },
-  {
     id: "secondPage",
-    title: "Second Page",
+    title: "Bulk Upload",
     icon: <Mail size={20} />,
     navLink: "/second-page",
-  },
+  }, ...pages
 ];
