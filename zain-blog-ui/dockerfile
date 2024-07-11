@@ -1,9 +1,16 @@
 FROM node:21.7.1
 
+# Set the working directory
 WORKDIR /app
-COPY . .
-RUN yarn install
 
+# Copy all files from the current directory to the container
+COPY . .
+
+# Install dependencies using npm
+RUN npm install
+
+# Expose the port your app runs on
 EXPOSE 3000
 
-CMD ["yarn", "start"]
+# Command to run your app
+CMD ["npm", "start"]

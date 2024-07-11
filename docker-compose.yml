@@ -1,66 +1,49 @@
-version: '3.9'
+version: '3'
 
 services:
+  app:
+    image: node:20.12.0
+    container_name: zain-admin
+    working_dir: /zain-admin-ui
+    volumes:
+      - .:/admin
+    ports:
+      - "3001:3001"
+    depends_on:
+      - db
+      - elasticsearch
+    environment:
+      - MYSQL_HOST=db
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=Root@12
+      - MYSQL_DB=flone2
+      - ELASTICSEARCH_HOST=http://elasticsearch:9200
+    command: sh -c "npm install && npm start"
+      
   db:
     image: mysql:8.0
-    restart: always
-    volumes:
-      - mysql_data:/var/lib/mysql
+    container_name: zain-db
     environment:
-      MYSQL_DATABASE: flone2  # Replace with your database name
-      MYSQL_USER: root         # Replace with your database username
-      MYSQL_PASSWORD: Root@12  # Replace with your database password
-      MYSQL_ROOT_PASSWORD: Root@12  # Replace with your MySQL root password
+      MYSQL_ROOT_PASSWORD: Root@12
+      MYSQL_DATABASE: flone2
+      MYSQL_USER: root
+      MYSQL_PASSWORD: Root@12
     ports:
-      - "3307:3306"  # Mapping MySQL port
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.17.10
-    restart: always
+    container_name: zain-elasticsearch
     environment:
       - discovery.type=single-node
-      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     ports:
-      - "9200:9200"  # Elasticsearch HTTP port
-      - "9300:9300"  # Elasticsearch TCP transport port
+      - "9200:9200"
     volumes:
       - es_data:/usr/share/elasticsearch/data
 
-  web:
-    build:
-      context: ./zain-backend
-      dockerfile: dockerfile  # Path to your Django Dockerfile
-    command: sh -c "./zain-backend/entrypoint.sh"  # Replace with your Django entrypoint command
-    restart: always
-    volumes:
-      - ./zain-backend:/app  # Mount your Django project directory to the container
-    ports:
-      - "8000:8000"  # Expose Django application port
-    environment:
-      - DATABASE_HOST=db
-      - DATABASE_PORT=3306
-      - DATABASE_NAME=flone2  # Replace with your database name
-      - DATABASE_USER=root  # Replace with your database username
-      - DATABASE_PASSWORD=Root@12  # Replace with your database password
-      - ELASTICSEARCH_HOST=elasticsearch
-      - ELASTICSEARCH_PORT=9200
-
-  admin_ui:
-    build:
-      context: ./zain-admin-ui  # Path to your zain-admin-ui directory
-      dockerfile: dockerfile
-    restart: always
-    ports:
-      - "4000:4000"  # Expose zain-admin-ui port
-
-  blog_ui:
-    build:
-      context: ./zain-blog-ui # Path to your zain-blog-ui directory
-      dockerfile: dockerfile
-    restart: always
-    ports:
-      - "3000:3000"  # Expose zain-blog-ui port
-
 volumes:
-  mysql_data:
+  db_data:
   es_data:
