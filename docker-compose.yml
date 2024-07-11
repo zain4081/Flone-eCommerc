@@ -3,8 +3,8 @@ version: '3'
 services:
   app:
     image: node:20.12.0
-    container_name: admin_app
-    working_dir: /admin
+    container_name: zain-admin
+    working_dir: /zain-admin-ui
     volumes:
       - .:/admin
     ports:
@@ -22,7 +22,7 @@ services:
       
   db:
     image: mysql:8.0
-    container_name: mysql_db
+    container_name: zain-db
     environment:
       MYSQL_ROOT_PASSWORD: Root@12
       MYSQL_DATABASE: flone2
@@ -35,7 +35,7 @@ services:
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.17.10
-    container_name: elasticsearch
+    container_name: zain-elasticsearch
     environment:
       - discovery.type=single-node
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
