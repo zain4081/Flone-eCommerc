@@ -1,10 +1,19 @@
+<<<<<<< HEAD
 version: '3'
+=======
+version: '3.8'
+>>>>>>> f082cf9 (add admin docker file)
 
 services:
   app:
     image: node:20.12.0
+<<<<<<< HEAD
     container_name: zain-admin
     working_dir: /zain-admin-ui
+=======
+    container_name: admin_app
+    working_dir: /admin
+>>>>>>> f082cf9 (add admin docker file)
     volumes:
       - .:/admin
     ports:
@@ -22,7 +31,11 @@ services:
       
   db:
     image: mysql:8.0
+<<<<<<< HEAD
     container_name: zain-db
+=======
+    container_name: mysql_db
+>>>>>>> f082cf9 (add admin docker file)
     environment:
       MYSQL_ROOT_PASSWORD: Root@12
       MYSQL_DATABASE: flone2
@@ -35,7 +48,11 @@ services:
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.17.10
+<<<<<<< HEAD
     container_name: zain-elasticsearch
+=======
+    container_name: elasticsearch
+>>>>>>> f082cf9 (add admin docker file)
     environment:
       - discovery.type=single-node
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
