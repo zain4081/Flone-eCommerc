@@ -79,4 +79,4 @@ Contributions are welcome! Please fork the repository and submit a pull request 
 
 ## Contact
 
-If you have any questions or suggestions, feel free to reach out to the project maintainer at zain.abbas@thehexaa.com.
+If you have any questions or suggestions, feel free to reach out to the project maintainer at zainabbas4081@gmail.com.
